@@ -17,13 +17,10 @@ class Light{
 
     
     float lineAngle;
+    float lastLineAngle = 0;
     float chordLength;
     bool onLine = false;
     int lightVals[32];
-    int pinsA[4];
-    int pinsB[4];
-    int sigA;
-    int sigB;
 
   private:
     int muxChannel[16][4] = {
@@ -46,4 +43,9 @@ class Light{
     };
     int lightThresh[32] = {844, 875, 886, 882, 882, 896, 899, 881, 889, 892, 880, 881, 900, 862, 888, 725,
                            900, 888, 890, 877, 892, 862, 894, 897, 884, 886, 892, 904, 887, 893, 869, 606};
+
+    int pinsA[4];
+    int pinsB[4];
+    int sigA;
+    int sigB;
 }
