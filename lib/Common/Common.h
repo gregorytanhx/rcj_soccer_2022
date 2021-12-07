@@ -8,3 +8,4 @@
 float deg2rad(float angle);
 float rad2deg(float angle);
 
+double norm(float val, int max, int min);
