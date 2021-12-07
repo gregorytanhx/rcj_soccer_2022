@@ -26,3 +26,14 @@
 
 #define SIG_A A22
 #define SIG_B A21
+
+// tof pins
+#define SHUT_1 1
+#define SHUT_2 2
+#define SHUT_3 3
+#define SHUT_4 4
+
+#define INT_1 5
+#define INT_2 6
+#define INT_3 7
+#define INT_4 8
