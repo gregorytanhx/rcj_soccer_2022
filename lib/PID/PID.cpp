@@ -1,13 +1,14 @@
 #include "PID.h"
 
-PID::PID(float kp, float ki, float kd){
+PID::PID(float kp, float ki, float kd) {
   kp = kp;
   ki = ki;
   kd = kd;
-  lastTime = millis()
+  integral = 0;
+  lastTime = millis();
 }
 
-void PID::update(float error){
+void PID::update(float error) {
   elapsedTime = (millis() - lastTime) / 1000;
 
   float proportional = error;
@@ -18,4 +19,8 @@ void PID::update(float error){
 
   return kp * proportional + ki * integral + kd * derivative;
 
+}
+
+void resetIntegral() {
+  integral = 0;
 }

@@ -10,8 +10,7 @@
 #define COORD_KI = 0;
 #define COORD_KD = 1;
 
-// tof config
-#define TIME_BUDGET 33
-#define IMP 33
-
-
+#define LINE_TRACK_KP 2
+#define LINE_TRACK_KI 0
+#define LINE_TRACK_KD 1
+#define LINE_TRACK_SPEED 60

@@ -5,17 +5,23 @@
 #include <Pins.h>
 
 
-typedef struct moveData {
-  float speed = 0;
-  float angle = 0;
-  float rotation = 0;
-} moveData;
+typedef struct MoveData {
+  int speed;
+  int angle;
+  int rotation;
+  MoveData(int moveSpeed, int moveAngle, int moveRotation){
+    speed = moveSpeed;
+    angle = moveAngle;
+    rotation = moveRotation;
+  }
+} MoveData;
 
-class Motor{
+class Motor {
   public: 
     Motor(int dig, int pwm);
     void update();
     void move();
+    void init();
 
   private:
     int pwmPin;
@@ -23,7 +29,7 @@ class Motor{
     int pwmOut = 0;
 }
 
-class Motors{
+class Motors {
   public:
     Motors();
     Motor FL_Motor;
@@ -35,7 +41,6 @@ class Motors{
     void moveOut();
   private:
     float cmp_kp;
-    
 }
 
 

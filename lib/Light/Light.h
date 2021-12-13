@@ -6,16 +6,25 @@
 #include <Math.h>
 #include <Pins.h>
 
-class Light{
+typedef struct LineData {
+  float lineAngle;
+  float chordLength;
+  float closestAngle;
+  bool onLine;
+
+} LineData;
+
+
+class Light {
   public:
-    
     Light();
     void calibrate();
+    void init();
     int readMux(int channel, int controlPin[4], int sig);
     bool readLight();
     float getLineData();
+    float lineTrack(float target);
 
-    
     float lineAngle;
     float lastLineAngle = 0;
     float chordLength;

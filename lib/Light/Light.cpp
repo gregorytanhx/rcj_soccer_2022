@@ -1,6 +1,6 @@
 #include "Light.h"
 
-Light::Light(){
+Light::Light() {
   sigA = SIG_A;
   sigB = SIG_B;
 
@@ -13,7 +13,9 @@ Light::Light(){
   pinsB[1] = mux_B2;
   pinsB[2] = mux_B3;
   pinsB[3] = mux_B4;
+}
 
+void Light::init() {
   pinMode(mux_A1, OUTPUT);
   pinMode(mux_A2, OUTPUT);
   pinMode(mux_A3, OUTPUT);
@@ -24,14 +26,13 @@ Light::Light(){
   pinMode(mux_B3, OUTPUT);
   pinMode(mux_B4, OUTPUT);
 
-  for (int i = 0; i < 4; i++){
+  for (int i = 0; i < 4; i++) {
     digitalWrite(pinsA[i], LOW);
     digitalWrite(pinsB[i], LOW);
   }
 }
-
-void Light::readMux(int channel, int controlPin[4], int sig){
-  for (int i = 0; i < 4; i++){
+void Light::readMux(int channel, int controlPin[4], int sig) {
+  for (int i = 0; i < 4; i++) {
     digitalWrite(controlPin[i], muxChannel[channel][i]);
   }
   //read the value at the SIG pin
@@ -41,7 +42,7 @@ void Light::readMux(int channel, int controlPin[4], int sig){
   return val;
 }
 
-bool Light::readLight(){
+bool Light::readLight() {
   bool out = false;
   for (int i = 0; i < 16; i++){
 
@@ -55,7 +56,7 @@ bool Light::readLight(){
   return out;
 }
 
-float getLineData(){
+float getLineData() {
     double vecX = 0;
     double vecY = 0;
     int chordStart = 32;
@@ -63,7 +64,7 @@ float getLineData(){
     
     
     // get line angle
-    for (int i = 0; i < 32; i++){
+    for (int i = 0; i < 32; i++) {
       if (lightVals[i]){
         // use largest and smallest sensor position to form chord
         if (i < chordStart) chordStart = i;
@@ -75,7 +76,7 @@ float getLineData(){
     }
 
     // exception for when chord stretches across front of ring
-    if (lightVals[0] && lightVals[31]){
+    if (lightVals[0] && lightVals[31]) {
       int i = 0;
       while (lightVals[i]) i++;
       chordEnd = i;
@@ -86,5 +87,20 @@ float getLineData(){
     chordLength = norm(abs(chordStart - chordEnd), 15, 1)
     lineAngle = rad2deg(atan2(vecX, vecY));
     if (lineAngle < 0) lineAngle += 360;
-    // lineAngle = fmod(lineAngle + 180);   
+    lineAngle = fmod(lineAngle + 180);   
+}
+
+float getClosestAngle(float target) {
+  float closestAngle = 0;
+  float minDiff = 360;
+  for (int i = 0; i < 32; i++) {
+    if (lightVals[i]) {
+      float tmpAngle = deg2rad(i * 360 / 32);
+      float diff = angleDiff(tmpAngle, target);
+      if (diff < minDiff) {
+        minDiff = diff;
+        closestAngle = tmpAngle;
+      }
+    }
+  }
 }

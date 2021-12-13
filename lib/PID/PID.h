@@ -7,7 +7,8 @@
 class PID{
   public:
     PID(float kp, float ki, float kd)
-    float update(error)
+    float update(error);
+    void resetIntegral();
   
     float kp;
     float ki;
