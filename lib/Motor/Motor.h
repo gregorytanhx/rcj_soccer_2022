@@ -2,6 +2,7 @@
 #define MOTOR_H
 
 #include <Arduino.h>
+#include <Common.h>
 #include <Pins.h>
 
 
@@ -17,9 +18,10 @@ typedef struct MoveData {
 } MoveData;
 
 class Motor {
-  public: 
-    Motor(int dig, int pwm);
-    void update();
+  public:
+    Motor() {}
+    Motor(int pwm, int dig);
+    void update(int pwm);
     void move();
     void init();
 
@@ -27,7 +29,7 @@ class Motor {
     int pwmPin;
     int digPin;
     int pwmOut = 0;
-}
+};
 
 class Motors {
   public:
@@ -41,6 +43,6 @@ class Motors {
     void moveOut();
   private:
     float cmp_kp;
-}
+};
 
 #endif

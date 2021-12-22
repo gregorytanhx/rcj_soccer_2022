@@ -37,6 +37,6 @@ class Bluetooth {
     Timer(BLUETOOTH_LOST_COMMUNICATION_TIME);
     void send();
     void receive();
-}
+};
 
 #endif

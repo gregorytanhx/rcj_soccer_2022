@@ -31,7 +31,7 @@ void Light::init() {
     digitalWrite(pinsB[i], LOW);
   }
 }
-void Light::readMux(int channel, int controlPin[4], int sig) {
+int Light::readMux(int channel, int controlPin[4], int sig) {
   for (int i = 0; i < 4; i++) {
     digitalWrite(controlPin[i], muxChannel[channel][i]);
   }
@@ -49,14 +49,14 @@ bool Light::readLight() {
     lightVals[i] = readMux(i, pinsA, sigA) > lightThresh[i];
     lightVals[i+16] = readMux(i, pinsB, sigB) > lightThresh[i+16];
 
-    if (lightvals[i] > lightthresh[i] || lightvals[i + 16] > lightthresh[i + 16]){
+    if (lightVals[i] > lightThresh[i] || lightVals[i + 16] > lightThresh[i + 16]){
       out = true;
     }
   }
   return out;
 }
 
-float getLineData() {
+float Light::getLineData() {
     double vecX = 0;
     double vecY = 0;
     int chordStart = 32;
@@ -84,13 +84,13 @@ float getLineData() {
       while (lightVals[i]) i--;
       chordStart = i;
     }
-    chordLength = norm(abs(chordStart - chordEnd), 15, 1)
+    chordLength = norm(abs(chordStart - chordEnd), 15, 1);
     lineAngle = rad2deg(atan2(vecX, vecY));
     if (lineAngle < 0) lineAngle += 360;
-    lineAngle = fmod(lineAngle + 180);   
+    lineAngle = fmod(lineAngle + 180, 360);   
 }
 
-float getClosestAngle(float target) {
+float Light::getClosestAngle(float target) {
   float closestAngle = 0;
   float minDiff = 360;
   for (int i = 0; i < 32; i++) {

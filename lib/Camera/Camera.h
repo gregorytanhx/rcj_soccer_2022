@@ -52,6 +52,6 @@ class Camera {
 
     cameraBuffer buffer;
 
-}
+};
 
 #endif

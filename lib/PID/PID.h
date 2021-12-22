@@ -6,8 +6,8 @@
 
 class PID{
   public:
-    PID(float kp, float ki, float kd)
-    float update(error);
+    PID(float kp, float ki, float kd);
+    float update(float error);
     void resetIntegral();
   
     float kp;
@@ -18,7 +18,7 @@ class PID{
     int lastTime;
     int elapsedTime;
     float lastError = 0;
-    float integral = 0;
-}
+    float integral;
+};
 
 #endif

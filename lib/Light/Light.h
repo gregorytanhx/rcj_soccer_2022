@@ -24,6 +24,7 @@ class Light {
     bool readLight();
     float getLineData();
     float lineTrack(float target);
+    float getClosestAngle(float angle);
 
     float lineAngle;
     float lastLineAngle = 0;
@@ -57,6 +58,6 @@ class Light {
     int pinsB[4];
     int sigA;
     int sigB;
-}
+};
 
 #endif

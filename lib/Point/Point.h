@@ -18,6 +18,6 @@ class Point {
     float getMagnitude() {
       return sqrt(x*x + y*y);
     };
-}
+};
 
 #endif

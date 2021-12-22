@@ -13,6 +13,6 @@ class Timer {
   private:
     void update();
     long lastTime = 0;
-}
+};
 
 #endif

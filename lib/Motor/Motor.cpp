@@ -6,7 +6,7 @@ Motor::Motor(int pwm, int dig) {
 }
 
 void Motor::init() {
-  pinMode(pwnPin, OUTPUT);
+  pinMode(pwmPin, OUTPUT);
   pinMode(digPin, OUTPUT);
 }
 
@@ -27,7 +27,7 @@ Motors::Motors() {
   BR_Motor = Motor(BR_DIG, BR_PWM);
 }
 
-void Motor::setMove(float speed, float angle, float rotation) {
+void Motors::setMove(float speed, float angle, float rotation) {
   float a = sin(deg2rad(50 + angle)) * (1 / sin(deg2rad(80)));
   float b = sin(deg2rad(50 - angle)) * (1 / sin(deg2rad(80)));
 

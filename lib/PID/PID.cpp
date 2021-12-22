@@ -8,12 +8,12 @@ PID::PID(float kp, float ki, float kd) {
   lastTime = millis();
 }
 
-void PID::update(float error) {
+float PID::update(float error) {
   elapsedTime = (millis() - lastTime) / 1000;
 
   float proportional = error;
   integral += error * elapsedTime;
-  float derivative = (error - lastError) / elapsedTime
+  float derivative = (error - lastError) / elapsedTime;
   lastTime = millis();
   lastError = error;
 
@@ -21,6 +21,6 @@ void PID::update(float error) {
 
 }
 
-void resetIntegral() {
+void PID::resetIntegral() {
   integral = 0;
 }
