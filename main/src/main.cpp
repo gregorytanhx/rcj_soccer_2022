@@ -35,5 +35,5 @@ void setup() {
 }
 
 void loop() {
-  // put your mwwwain code here, to run repeatedly:
+  // put your main code here, to run repeatedly:
 }

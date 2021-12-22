@@ -1,3 +1,6 @@
+#ifndef PINS_H 
+#define PINS_H
+
 #include <Arduino.h>
 
 // motor pins
@@ -37,3 +40,5 @@
 #define INT_2 6
 #define INT_3 7
 #define INT_4 8
+
+#endif 

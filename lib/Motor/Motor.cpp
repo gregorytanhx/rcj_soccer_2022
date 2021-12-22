@@ -1,8 +1,5 @@
 #include "Motor.h"
 
-
-
-
 Motor::Motor(int pwm, int dig) {
   pwmPin = pwm;
   digPin = dig;

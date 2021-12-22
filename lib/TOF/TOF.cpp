@@ -55,7 +55,5 @@ void TOF_Array::update() {
 
 void TOF_Array::send() {
   Serial.write(TOF_SYNC_BYTE);
-  for (int i = 0; i < 8; i++) {
-    Serial.write(buffer.b[0]);
-  }
+  Serial.write(buffer.b, 8);
 }

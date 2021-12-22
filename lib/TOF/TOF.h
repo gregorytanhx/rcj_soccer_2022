@@ -43,3 +43,5 @@ class TOF_Array{
     void send();
     TOFBuffer buffer;
 }
+
+#endif

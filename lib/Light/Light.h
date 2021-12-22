@@ -58,3 +58,5 @@ class Light {
     int sigA;
     int sigB;
 }
+
+#endif

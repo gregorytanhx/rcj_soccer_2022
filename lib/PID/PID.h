@@ -20,3 +20,5 @@ class PID{
     float lastError = 0;
     float integral = 0;
 }
+
+#endif
