@@ -42,48 +42,50 @@ int Light::readMux(int channel, int controlPin[4], int sig) {
   return val;
 }
 
-bool Light::readLight() {
+void Light::read() {
   bool out = false;
+  outSensors = 0;
   for (int i = 0; i < 16; i++){
-
-    lightVals[i] = readMux(i, pinsA, sigA) > lightThresh[i];
-    lightVals[i+16] = readMux(i, pinsB, sigB) > lightThresh[i+16];
-
-    if (lightVals[i] > lightThresh[i] || lightVals[i + 16] > lightThresh[i + 16]){
-      out = true;
+    if (readMux(i, pinsA, sigA) > lightThresh[i]) {
+      lineDetected[outSensors] = i;
+      outSensors++;
     }
   }
-  return out;
+
+  for (int i = 16; i < 32; i++) {
+    if (readMux(i, pinsB, sigB) > lightThresh[i]) {
+      lineDetected[outSensors] = i;
+      outSensors++;
+    }
+  }
+  onLine = outSensors > 0;
 }
 
-float Light::getLineData() {
+void Light::getLineData() {
     double vecX = 0;
     double vecY = 0;
-    int chordStart = 32;
+    int chordStart = 0;
     int chordEnd = 0;
+    double largestDiff = 0;
     
     
-    // get line angle
-    for (int i = 0; i < 32; i++) {
-      if (lightVals[i]){
-        // use largest and smallest sensor position to form chord
-        if (i < chordStart) chordStart = i;
-        if (i > chordEnd) chordEnd = i;
-        double tmpAngle = deg2rad(i * 360 / 32);
-        vecY += cos(tmpAngle);
-        vecX += sin(tmpAngle);
-      } 
-    }
+    // get line angle and chord length
+    for (int i = 0; i < outSensors; i++) {
+      double tmpAngle = deg2rad(i * 360 / 32);
+      vecY += cos(tmpAngle);
+      vecX += sin(tmpAngle);
 
-    // exception for when chord stretches across front of ring
-    if (lightVals[0] && lightVals[31]) {
-      int i = 0;
-      while (lightVals[i]) i++;
-      chordEnd = i;
-      i = 31;
-      while (lightVals[i]) i--;
-      chordStart = i;
+      for (int j = i + 1; j < outSensors; j++) {
+        float tmpDiff = angleDiff(i * 360 / 32, j * 360 / 32)
+        if (tmpDiff > largestDiff) {
+          chordStart = j;
+          chordEnd = i;
+          largestDiff = tmpDiff
+        }
+      }
+
     }
+  
     chordLength = norm(abs(chordStart - chordEnd), 15, 1);
     lineAngle = rad2deg(atan2(vecX, vecY));
     if (lineAngle < 0) lineAngle += 360;
@@ -103,4 +105,5 @@ float Light::getClosestAngle(float target) {
       }
     }
   }
+  return closestAngle;
 }

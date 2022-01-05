@@ -9,7 +9,8 @@ double deg2rad(double angle) {
 }
 
 float angleDiff(float angle1, float angle2) {
-  return min(abs(angle1 - angle2), 360 - abs(angle1 - angle2));
+  float diff = mod(angle1 - angle2, 360);
+   return min(abs(diff), 360 - abs(diff));
 }
 
 double norm(float val, int max, int min) {

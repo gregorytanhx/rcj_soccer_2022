@@ -20,9 +20,8 @@ class Light {
     Light();
     void calibrate();
     void init();
-    int readMux(int channel, int controlPin[4], int sig);
-    bool readLight();
-    float getLineData();
+    void read();
+    void getLineData();
     float lineTrack(float target);
     float getClosestAngle(float angle);
 
@@ -31,6 +30,8 @@ class Light {
     float chordLength;
     bool onLine = false;
     int lightVals[32];
+    int lineDetected[32];
+    int outSensors = 0;
 
   private:
     int muxChannel[16][4] = {
@@ -58,6 +59,7 @@ class Light {
     int pinsB[4];
     int sigA;
     int sigB;
+    int readMux(int channel, int controlPin[4], int sig);
 };
 
 #endif

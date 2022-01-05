@@ -13,6 +13,7 @@ void TOF::init(int i2cAddress) {
   digitalWrite(shutdownPin, HIGH);
   sensor.init();
   sensor.setI2CAddress(i2cAddress);
+  sensor.setROI(4, 4, 199);
   sensor.setDistanceModeLong();
   sensor.setTimingBudgetInMs(TIME_BUDGET);
   sensor.setIntermeasurementPeriod(IMP);

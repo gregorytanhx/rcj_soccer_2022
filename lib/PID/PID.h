@@ -6,6 +6,7 @@
 
 class PID{
   public:
+    PID() {};
     PID(float kp, float ki, float kd);
     float update(float error);
     void resetIntegral();

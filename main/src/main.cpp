@@ -1,4 +1,6 @@
 #include <Arduino.h>
+#include <Config.h>
+#include <Common.h>
 #include <Light.h>
 #include <Motor.h>
 #include <PID.h>
@@ -9,26 +11,28 @@
 #include <utility/imumaths.h>
 
 Light light;
+LineData lineData;
 Motors motors;
-lineTrackPID = PID(LINE_TRACK_KP, LINE_TRACK_KI, LINE_TRACK_KD);
+PID lineTrackPID(LINE_TRACK_KP, LINE_TRACK_KI, LINE_TRACK_KD);
+float lastLineAngle = 0;
 
-void lineAvoidance() {
-  if (abs(lastLineAngle - lineAngle) >= 90) {
-    lineAngle = lastLineAngle;
-    // allow chord length to keep increasing as robot goes over centre of line
-    light.chordLength = 2 - light.chordLength;
-  }
-  // move at speed proportional to how far the robot is over the line
-  motors.setMove(80 * light.chordLength, light.lineAngle, 0);
-}
+// void lineAvoidance() {
+//   if (abs(lastLineAngle - lineData.lineAngle) >= 90) {
+//     lineAngle = lastLineAngle;
+//     // allow chord length to keep increasing as robot goes over centre of line
+//     lineData.chordLength = 2 - lineData.chordLength;
+//   }
+//   // move at speed proportional to how far the robot is over the line
+//   motors.setMove(80 * lineData.chordLength, lineData.lineAngle, 0);
+// }
 
-void lineTrack(float target) {
-  float angle = nonReflex(light.getClosestAngle(target));
-  // use PID to control speed of correction
-  float correction = lineTrackPID.update(angle - target);
+// void lineTrack(float target) {
+//   float angle = nonReflex(line.getClosestAngle(target));
+//   // use PID to control speed of correction
+//   float correction = lineTrackPID.update(angle - target);
   
-  motors.setMove(LINE_TRACK_SPEED + correction, angle, 0);
-}
+//   motors.setMove(LINE_TRACK_SPEED + correction, angle, 0);
+// }
 
 void setup() {
   Serial.begin(115200);
@@ -36,4 +40,5 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
+  Serial.print("no");
 }
