@@ -2,7 +2,7 @@ int led = LED_BUILTIN;
 char c;
 
 typedef union dataBuffer {
-  uint16_t vals[2];
+  uint16_t vals[4];
   byte bytes[sizeof(vals)];
 } dataBuffer;
 
@@ -26,12 +26,18 @@ void setup() {
 
 // the loop function runs over and over again forever
 void loop() {
+  // bot distance from centre
   buffer.vals[1] = 500;
+  // bot angle from centre
   if (buffer.vals[0] < 360) {
     buffer.vals[0]++;
   } else {
     buffer.vals[0] = 0;
   }
+  // ball angle from bot
+  buffer.vals[2] = 90;
+  // ball distance from bot
+  buffer.vals[3] = 200;
   Serial.println();
   Serial2.write(buffer.bytes, sizeof(buffer.bytes));
   Serial2.write('\n');
