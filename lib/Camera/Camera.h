@@ -17,7 +17,7 @@ enum Side {
 };
 
 typedef union cameraBuffer {
-  int16_t vals[(CAMERA_PACKET_SIZE - 1) / 2];
+  uint16_t vals[(CAMERA_PACKET_SIZE - 1) / 2];
   uint8_t b[CAMERA_PACKET_SIZE - 1];
 } cameraBuffer;
 
