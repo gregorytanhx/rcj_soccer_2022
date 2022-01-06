@@ -5,10 +5,10 @@ import sys
 import os
 import time
 import serial
-
 from background import draw_bg
+
 bluetooth = serial.Serial(port="COM10", baudrate=9600, timeout=0)
-print('test')
+
 # field dimensions
 OUTER_WIDTH = 182 
 OUTER_HEIGHT = 243
@@ -91,12 +91,12 @@ def main():
     data = SerialData()
    
     while run:
-        
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
                 bluetooth.close()
-                pygame.quit()        
+                pygame.quit()     
+                   
         getSerialData(data)
         botX, botY = getCoords(data.angle, data.distance)
         relBallX, relBallY = getCoords(data.ballAngle, data.ballDist)
@@ -105,6 +105,7 @@ def main():
         
         bot.setPosition(shiftCoords(botX, botY))
         ball.setPosition(shiftCoords(ballX, ballY))
+        
         draw_bg(screen)
         ball.draw(screen)   
         bot.draw(screen)

@@ -40,7 +40,7 @@ class KalmanFilter:
 
 
 
-
+# set dT at each processing step
 F = np.eye(6,  dtype=np.float)
 B = 0
 
@@ -50,20 +50,12 @@ H = np.array([[1, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 1]],  dtype=np.float)
 
 
-
 Q = np.array([[1e-2, 0, 0, 0, 0, 0],
             [0, 1e-2, 0, 0, 0, 0],
             [0, 0, 5.0 , 0, 0, 0],
             [0, 0, 0, 5.0 , 0, 0],
             [0, 0, 0, 0, 1e-2, 0],
             [0, 0, 0, 0, 0, 1e-2]], dtype=np.float)
-
-#R = np.array([[1e-1, 0, 0, 0, 0, 0],
-            #[0, 1e-1, 0, 0, 0, 0],
-            #[0, 0, 1e-1, 0, 0, 0],
-            #[0, 0, 0, 1e-1, 0, 0],
-            #[0, 0, 0, 0, 1e-1, 0],
-            #[0, 0, 0, 0, 0, 1e-1]], dtype=np.float)
 
 R = np.array([[1e-1, 0, 0, 0],
             [0, 1e-1, 0, 0,],
@@ -100,8 +92,8 @@ sensor.set_auto_gain(False, gain_db=15)
 # === EXPOSURE ===
 curr_exposure = sensor.get_exposure_us()
 print(curr_exposure)
-sensor.set_auto_exposure(False, exposure_us = int(curr_exposure * 0.3))
-#sensor.set_auto_exposure(False, exposure_us = 200)
+#sensor.set_auto_exposure(False, exposure_us = int(curr_exposure * 0.3))
+sensor.set_auto_exposure(False, exposure_us = 1000)
 
 sensor.skip_frames(time = 1000)
 # === WHITE BAL ===
@@ -191,41 +183,41 @@ def find_objects(debug=False):
     blueX, blueY, blueW, blueH = track_obj(blue_thresh, 10, 10, color = (0, 0, 255), stride = 10,  debug = debug, merge = True, margin = 30)
     yellowX, yellowY, yellowW, yellowH = track_obj(yellow_thresh, 20, 20, color = (0, 255, 0), stride = 10, debug =  debug, merge = True, margin = 30)
 
-    if ballFound:
-        kf.F[0][2] = dT
-        kf.F[1][3] = dT
+    #if ballFound:
+        #kf.F[0][2] = dT
+        #kf.F[1][3] = dT
 
-        state = kf.predict()
-        predW = state[4][0]
-        predH = state[5][0]
-        predX = state[0][0]
-        predY = state[1][0]
-        print("Predicted:", predX, predY, "Actual:", ballX, ballY)
-        predRect = (int(predX- predH / 2), int(predY- predW / 2), int(predW), int(predH))
-
-
-        img.draw_rectangle(predRect, color = (0, 255, 255))
-        img.draw_cross(int(predX), int(predY), color = (0, 255, 255))
+        #state = kf.predict()
+        #predW = state[4][0]
+        #predH = state[5][0]
+        #predX = state[0][0]
+        #predY = state[1][0]
+        #print("Predicted:", predX, predY, "Actual:", ballX, ballY)
+        #predRect = (int(predX- predH / 2), int(predY- predW / 2), int(predW), int(predH))
 
 
+        #img.draw_rectangle(predRect, color = (0, 255, 255))
+        #img.draw_cross(int(predX), int(predY), color = (0, 255, 255))
 
-    if ballX == 500 and ballY == 500:
-        # ball not detected
-        notFoundCount += 1
-        if notFoundCount >= 100:
-            found = False
-    else:
-        notFoundCount = 0
-        z = np.array([[ballX], [ballY], [ballW], [ballH]], dtype=np.float)
-        if not ballFound:
-            # first detection!
-            kf.P = np.eye(kf.F.shape()[1])
 
-            kf.x = np.array([z[0],z[1], [0], [0], z[2], z[3]], dtype=np.float)
 
-            ballFound = True
-        else:
-            kf.update(z)
+    #if ballX == 500 and ballY == 500:
+        ## ball not detected
+        #notFoundCount += 1
+        #if notFoundCount >= 100:
+            #found = False
+    #else:
+        #notFoundCount = 0
+        #z = np.array([[ballX], [ballY], [ballW], [ballH]], dtype=np.float)
+        #if not ballFound:
+            ## first detection!
+            #kf.P = np.eye(kf.F.shape()[1])
+
+            #kf.x = np.array([z[0],z[1], [0], [0], z[2], z[3]], dtype=np.float)
+
+            #ballFound = True
+        #else:
+            #kf.update(z)
 
 
 
@@ -257,7 +249,6 @@ while(True):
 
     dT = 1/clock.fps()
 
-    #print(sensor.get_exposure_us())
     data = find_objects(debug=True)
 
     #for i in range(len(data)):
