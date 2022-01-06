@@ -25,9 +25,6 @@ class KalmanFilter:
 
     def predict(self):
         self.x = np_dot( self.F, self.x ) #+ np_dot( self.B, u )
-
-
-
         self.P = np_dot(np_dot(self.F, self.P), self.F.transpose().copy()) + self.Q
         return self.x
 
@@ -206,7 +203,9 @@ def find_objects(debug=False):
         print("Predicted:", predX, predY, "Actual:", ballX, ballY)
         predRect = (int(predX- predH / 2), int(predY- predW / 2), int(predW), int(predH))
 
+
         img.draw_rectangle(predRect, color = (0, 255, 255))
+        img.draw_cross(int(predX), int(predY), color = (0, 255, 255))
 
 
 
@@ -217,9 +216,9 @@ def find_objects(debug=False):
             found = False
     else:
         notFoundCount = 0
-        z = np.array([[ballX + ballW/ 2], [ballY + ballH /2], [ballW], [ballH]], dtype=np.float)
+        z = np.array([[ballX], [ballY], [ballW], [ballH]], dtype=np.float)
         if not ballFound:
-            # first detection
+            # first detection!
             kf.P = np.eye(kf.F.shape()[1])
 
             kf.x = np.array([z[0],z[1], [0], [0], z[2], z[3]], dtype=np.float)
