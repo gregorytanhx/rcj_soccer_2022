@@ -21,7 +21,7 @@ class KalmanFilter:
         self.Q = np.eye(self.n, dtype=np.float) if Q is None else Q
         self.R = np.eye(self.n, dtype=np.float) if R is None else R
         self.P = np.zeros((self.n, self.n)) if P is None else P
-        self.x = [[0], [0], [0], [0], [0], [0]]
+        self.x = [[0], [0], [0], [0]]
 
     def predict(self):
         self.x = np_dot( self.F, self.x ) #+ np_dot( self.B, u )
@@ -41,7 +41,7 @@ class KalmanFilter:
 
 
 # set dT at each processing step
-F = np.eye(6,  dtype=np.float)
+F = np.eye(4,  dtype=np.float)
 B = 0
 
 H = np.array([[1, 0, 0, 0],
@@ -51,14 +51,10 @@ H = np.array([[1, 0, 0, 0],
 Q = np.array([[1e-2, 0, 0, 0],
             [0, 1e-2, 0, 0],
             [0, 0, 5.0 , 0,],
-            [0, 0, 0, 5.0 ],
-            [0, 0, 0, 0],
-            [0, 0, 0, 0]], dtype=np.float)
+            [0, 0, 0, 5.0 ]], dtype=np.float)
 
-R = np.array([[1e-1, 0, 0, 0],
-            [0, 1e-1, 0, 0,],
-            [0, 0, 1e-1, 0],
-            [0, 0, 0, 1e-1]], dtype=np.float)
+R = np.array([[1e-1, 0],
+            [0, 1e-1]], dtype=np.float)
 
 kf = KalmanFilter(F=F, B=B, H=H, Q=Q, R=R)
 
@@ -91,7 +87,7 @@ sensor.set_auto_gain(False, gain_db=15)
 curr_exposure = sensor.get_exposure_us()
 print(curr_exposure)
 #sensor.set_auto_exposure(False, exposure_us = int(curr_exposure * 0.3))
-sensor.set_auto_exposure(False, exposure_us = 1000)
+sensor.set_auto_exposure(False, exposure_us = 1500)
 
 sensor.skip_frames(time = 1000)
 # === WHITE BAL ===
@@ -102,8 +98,8 @@ sensor.set_contrast(3)
 sensor.set_saturation(3)
 
 
-sensor.__write_reg(0x0E, 0b00000000) # Disable night mode
-sensor.__write_reg(0x3E, 0b00000000) # Disable BLC
+#sensor.__write_reg(0x0E, 0b00000000) # Disable night mode
+#sensor.__write_reg(0x3E, 0b00000000) # Disable BLC
 sensor.skip_frames(time=1000)
 
 # UART 3, and baudrate.
