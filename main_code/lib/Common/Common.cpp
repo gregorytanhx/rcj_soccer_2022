@@ -9,7 +9,7 @@ double deg2rad(double angle) {
 }
 
 float angleDiff(float angle1, float angle2) {
-  float diff = mod(angle1 - angle2, 360);
+  float diff = fmod(angle1 - angle2, 360);
    return min(abs(diff), 360 - abs(diff));
 }
 

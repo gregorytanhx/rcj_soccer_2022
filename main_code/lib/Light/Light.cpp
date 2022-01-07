@@ -76,11 +76,11 @@ void Light::getLineData() {
       vecX += sin(tmpAngle);
 
       for (int j = i + 1; j < outSensors; j++) {
-        float tmpDiff = angleDiff(i * 360 / 32, j * 360 / 32)
+        float tmpDiff = angleDiff(i * 360 / 32, j * 360 / 32);
         if (tmpDiff > largestDiff) {
           chordStart = j;
           chordEnd = i;
-          largestDiff = tmpDiff
+          largestDiff = tmpDiff;
         }
       }
 

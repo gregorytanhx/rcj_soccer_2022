@@ -72,7 +72,6 @@ void Camera::process() {
     ownAngle = blueAngle;
     ownDist = blueDist;
   }
-
-
   
 }
+

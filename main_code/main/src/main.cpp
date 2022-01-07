@@ -4,10 +4,10 @@
 #include <Light.h>
 #include <Motor.h>
 #include <PID.h>
+#include <Point.h>
 #include <Pins.h>
-#include <i2c_t3.h>
-#include <Adafruit_Sensor.h>
-#include <Adafruit_BNO055_t3.h>
+#include <Wire.h>
+#include <Adafruit_BNO055_t4.h>
 #include <utility/imumaths.h>
 
 Light light;
@@ -34,8 +34,21 @@ float lastLineAngle = 0;
 //   motors.setMove(LINE_TRACK_SPEED + correction, angle, 0);
 // }
 
+// void getCameraCoords() {
+//   Point oppGoalVec(Camera.oppGoalAngle, Camera.oppGoalDistance);
+//   Point ownGoalVec(Camera.ownGoalAngle, Camera.ownGoalDistance);
+
+//   int vecX = (oppGoalVec.x + ownGoalVec.x) / 2;
+//   int vecY = (oppGoalVec.y + oppGoalVec.y) / 2;
+
+//   Point centre(vecX, vecY);
+
+// }
+
 void setup() {
   Serial.begin(115200);
+  pinMode(LED_BUILTIN, OUTPUT);
+  digitalWrite(LED_BUILTIN, HIGH);
 }
 
 void loop() {

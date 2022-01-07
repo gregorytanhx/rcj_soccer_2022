@@ -27,8 +27,8 @@
 #define mux_B3 23
 #define mux_B4 24
 
-#define SIG_A A22
-#define SIG_B A21
+#define SIG_A 22
+#define SIG_B 21
 
 // tof pins
 #define SHUT_1 1
