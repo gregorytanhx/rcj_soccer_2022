@@ -46,12 +46,12 @@ float lastLineAngle = 0;
 // }
 
 void setup() {
-  Serial.begin(115200);
+  Serial.begin(9600);
   pinMode(LED_BUILTIN, OUTPUT);
   digitalWrite(LED_BUILTIN, HIGH);
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
-  Serial.print("no");
+  Serial.println("fuckme");
 }
