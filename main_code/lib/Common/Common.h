@@ -23,5 +23,9 @@ typedef union int16Data {
   uint8_t b[2];
 } int16Data;
 
+// typedef union cameraBuffer  {
+//   uint16_t vals[(CAMERA_PACKET_SIZE - 1) / 2];
+//   uint8_t b[CAMERA_PACKET_SIZE - 1];
+// } cameraBuffer;
 
 #endif

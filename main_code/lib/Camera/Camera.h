@@ -24,12 +24,12 @@ class Camera {
     double yellowDist;
     double blueDist;
 
+    double ballAngle;
+    int16Data ballPixelDist;
     int16Data blueAngle;
     int16Data bluePixelDist;
     int16Data yellowAngle;
     int16Data yellowPixelDist;
-    int16Data ballAngle;
-    int16Data ballPixelDist;
 
     int oppAngle;
     int ownDist;

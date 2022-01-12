@@ -8,13 +8,17 @@ void Camera::read(){
   while (Serial1.available() >= CAMERA_PACKET_SIZE) {
     uint8_t syncByte = Serial1.read();
     if (syncByte == CAMERA_SYNC_BYTE) {
-      ballAngle = Serial1.read();
-      ballPixelDist = Serial1.read();
-      blueAngle = Serial1.read();
-      bluePixelDist = Serial1.read();
-      yellowAngle = Serial1.read();
-      yellowPixelDist = Serial1.read();
+      for (int i = 0; i < CAMERA_PACKET_SIZE - 1; i++) {
+        buffer.b[i] = Serial1.read();
+      }
     }
+
+    ballAngle = buffer.vals[0];
+    ballPixelDist = buffer.vals[1];
+    blueAngle = buffer.vals[2];
+    bluePixelDist = buffer.vals[3];
+    yellowAngle = buffer.vals[4];
+    yellowPixelDist = buffer.vals[5];
   }
 }
 
