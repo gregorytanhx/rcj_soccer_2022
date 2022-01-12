@@ -6,20 +6,12 @@
 #include <Config.h>
 #include <Common.h>
 
-#define CAMERA_PACKET_SIZE 13
-#define CAMERA_SYNC_BYTE 0x80
-#define CAMERA_BAUD 2000000
-
 enum Side {
   facingYellow,
   facingBlue, 
   unset
 };
 
-typedef union cameraBuffer {
-  uint16_t vals[(CAMERA_PACKET_SIZE - 1) / 2];
-  uint8_t b[CAMERA_PACKET_SIZE - 1];
-} cameraBuffer;
 
 class Camera {
   public:
@@ -50,7 +42,6 @@ class Camera {
 
     Side side = facingYellow; // face yellow goal by default;
 
-    cameraBuffer buffer;
 
 };
 

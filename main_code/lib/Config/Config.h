@@ -15,4 +15,10 @@
 #define LINE_TRACK_KD 1
 #define LINE_TRACK_SPEED 60
 
+#define CAMERA_PACKET_SIZE 13
+#define CAMERA_SYNC_BYTE 0x80
+#define CAMERA_BAUD 2000000
+
+
+
 #endif
