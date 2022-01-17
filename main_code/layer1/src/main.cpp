@@ -6,9 +6,12 @@
 
 Light light;
 Motors motors;
-
+MoveData moveData;
 LineData lineData;
 motorBuffer buffer;
+lineBuffer buffer;
+
+bool linetrack = false;
 
 void sendData() {
   //send light vals
@@ -16,15 +19,19 @@ void sendData() {
 }
 
 void receiveData() {
-  //receive motor data
+  //receive teensy data
   while (Serial1.available() >= MOTOR_PACKET_SIZE) {
     uint8_t syncByte = Serial1.read();
     if (syncByte == MOTOR_SYNC_BYTE) {
       for (int i = 0; i < MOTOR_PACKET_SIZE - 1; i++) {
         motorBuffer.b[i] = Serial1.read();
       }
+      linetrack = (bool) Serial1.read();
     }
   }
+  moveData.speed = motorBuffer.vals[0];
+  moveData.angle = motorBuffer.vals[1];
+  moveData.rotation = motorBuffer.vals[2];
 }
 
 //handle line avoidance directly through stm32
@@ -37,6 +44,7 @@ void setup() {
 }
 
 void loop() {
-  
+  light.read()
+  receiveData()
 
 }

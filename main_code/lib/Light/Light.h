@@ -11,7 +11,6 @@ typedef struct LineData {
   float chordLength;
   float closestAngle;
   bool onLine;
-
 } LineData;
 
 
@@ -21,7 +20,7 @@ class Light {
     void calibrate();
     void init();
     void read();
-    void getLineData();
+    void getLineData(LineData data);
     float lineTrack(float target);
     float getClosestAngle(float angle);
 

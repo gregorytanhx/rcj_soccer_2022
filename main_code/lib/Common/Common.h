@@ -14,7 +14,7 @@ float angleDiff(float angle1, float angle2);
 double norm(float val, int max, int min);
 
 typedef union floatData {
-  float value;
+  float value;2
   uint8_t b[4];
 } floatData;
 
@@ -23,9 +23,14 @@ typedef union int16Data {
   uint8_t b[2];
 } int16Data;
 
-// typedef union cameraBuffer  {
-//   uint16_t vals[(CAMERA_PACKET_SIZE - 1) / 2];
-//   uint8_t b[CAMERA_PACKET_SIZE - 1];
-// } cameraBuffer;
+typedef union motorBuffer{
+  uint16_t vals[3];
+  uint8_t b[sizeof(vals)];
+} motorBuffer;
+
+typedef union cameraBuffer  {
+  uint16_t vals[(CAMERA_PACKET_SIZE - 1) / 2];
+  uint8_t b[sizeof(vals)];
+} cameraBuffer;
 
 #endif

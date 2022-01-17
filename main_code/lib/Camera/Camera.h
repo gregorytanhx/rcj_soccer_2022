@@ -12,6 +12,7 @@ enum Side {
   unset
 };
 
+Camera camera;
 
 class Camera {
   public:

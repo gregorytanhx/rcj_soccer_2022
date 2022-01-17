@@ -1,10 +1,10 @@
 #include "Camera.h"
 
-void Camera::init(){
+void Camera::init() {
   Serial1.begin(CAMERA_BAUD);
 }
 
-void Camera::read(){
+void Camera::read() {
   while (Serial1.available() >= CAMERA_PACKET_SIZE) {
     uint8_t syncByte = Serial1.read();
     if (syncByte == CAMERA_SYNC_BYTE) {

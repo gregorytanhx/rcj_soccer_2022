@@ -7,13 +7,13 @@
 
 
 typedef struct MoveData {
-  floatData speed;
-  floatData angle;
-  floatData rotation;
+  float speed;
+  float angle;
+  float rotation;
   MoveData(int moveSpeed, int moveAngle, int moveRotation){
-    speed.val = moveSpeed;
-    angle.val = moveAngle;
-    rotation.val = moveRotation;
+    speed = moveSpeed;
+    angle = moveAngle;
+    rotation = moveRotation;
   }
 } MoveData;
 
