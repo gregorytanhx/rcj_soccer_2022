@@ -9,7 +9,6 @@
 typedef struct LineData {
   floatData lineAngle;
   floatData chordLength;
-  floatData closestAngle;
   bool onLine;
 } LineData;
 

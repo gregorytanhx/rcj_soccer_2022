@@ -65,7 +65,6 @@ void sendLayer1() {
 void readLayer1() {  
   while (Serial1.available() > LAYER1_SEND_PACKET_SIZE) {
     Serial.readBytes(lineData.lineAngle.b, 4);
-    //Serial.readBytes(lineData.closestAngle.b, 4);
     Serial.readBytes(lineData.chordLength.b, 4);
     lineData.onLine = Serial.read();
   }
@@ -77,9 +76,14 @@ void setup() {
   Serial1.begin(2000000);
   pinMode(LED_BUILTIN, OUTPUT);
   digitalWrite(LED_BUILTIN, HIGH);
+  bno.begin();
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
-  Serial.println("1");
+  camera.read();
+  sendLayer1();
+  readLayer1();
+  
+
 }

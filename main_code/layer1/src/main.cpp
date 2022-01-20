@@ -14,7 +14,7 @@ float rotation;
 LineData lineData;
 motorBuffer buffer;
 float lastLineAngle;
-float closestAngle;
+Timer lineTimer(1000);
 
 PID lineTrackPID(LINE_TRACK_KP, LINE_TRACK_KI, LINE_TRACK_KD);
 bool lineTrack = false;
@@ -22,7 +22,6 @@ bool lineTrack = false;
 void sendData() {
   Serial1.write(LAYER1_SEND_SYNC_BYTE);
   Serial1.write(lineData.lineAngle.b, sizeof(lineData.lineAngle.b));
-  //Serial1.write(lineData.closestAngle.b, sizeof(lineData.closestAngle.b));
   Serial1.write(lineData.chordLength.b, sizeof(lineData.chordLength.b));
   Serial1.write(lineData.onLine);
 }
@@ -51,21 +50,22 @@ void setup() {
   pinMode(PB1, OUTPUT);
   digitalWrite(PB1, HIGH);
   Serial.begin(9600);
+  lineTimer.update();
 }
 
 void loop() {
   light.read()
   light.getLineData(LineData)
   receiveData();
-  closestAngle = light.getClosestAngle(moveData.angle);
   sendData();
   
 
   if (lineData.onLine) {
     if (lineTrack) {
-      float angle = nonReflex(line.getClosestAngle(lineData.closestAngle.closestAngle));
+      lineTimer.update();
+      float angle = nonReflex(line.getClosestAngle(moveData.angle));
       // use PID to control speed of correction
-      float correction = lineTrackPID.update(angle - closestAngle);
+      float correction = lineTrackPID.update(angle - moveData.angle);
 
       motors.setMove(LINE_TRACK_SPEED + correction, angle, 0);
     } else{
@@ -74,11 +74,13 @@ void loop() {
         lineData.chordLength = 2 - lineData.chordLength;
       }
       // line avoidance
-      motors.setMove(speed * lineData.chordLength, lineData.lineAngle, 0)
+      motors.setMove(speed * lineData.chordLength, lineData.lineAngle, 0);
     }
-   
   } else {
     motors.setMove(speed, angle, rotation);
+  }
+  if (lineTimer.timeHasPassed()) {
+    lineTrackPID.resetIntegral();
   }
   
   lastLineAngle = lineData.lineAngle;
