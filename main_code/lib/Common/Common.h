@@ -14,7 +14,7 @@ float angleDiff(float angle1, float angle2);
 double norm(float val, int max, int min);
 
 typedef union floatData {
-  float value;2
+  float value;
   uint8_t b[4];
 } floatData;
 

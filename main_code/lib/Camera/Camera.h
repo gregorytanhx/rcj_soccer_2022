@@ -25,17 +25,17 @@ class Camera {
     double yellowDist;
     double blueDist;
 
-    double ballAngle;
-    int16Data ballPixelDist;
-    int16Data blueAngle;
-    int16Data bluePixelDist;
-    int16Data yellowAngle;
-    int16Data yellowPixelDist;
+    int ballAngle;
+    int ballPixelDist;
+    int blueAngle;
+    int bluePixelDist;
+    int yellowAngle;
+    int yellowPixelDist;
 
     int oppAngle;
-    int ownDist;
+    double ownDist;
     int ownAngle;
-    int ownDist;
+    double ownDist;
 
     bool blueVisible = true;
     bool yellowVisible = true;

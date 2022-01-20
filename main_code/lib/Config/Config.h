@@ -19,6 +19,10 @@
 #define CAMERA_SYNC_BYTE 0x80
 #define CAMERA_BAUD 2000000
 
-
+// send: sent by layer 1, rec: received by layer 1
+#define LAYER1_REC_PACKET_SIZE 13
+#define LAYER1_SEND_PACKET_SIZE 9
+#define LAYER1_REC_SYNC_BYTE 2
+#define LAYER1_SEND_SYNC_BYTE 2
 
 #endif

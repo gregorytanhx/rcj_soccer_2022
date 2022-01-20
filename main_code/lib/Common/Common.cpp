@@ -13,6 +13,7 @@ float angleDiff(float angle1, float angle2) {
    return min(abs(diff), 360 - abs(diff));
 }
 
+// normalise to 0 to 1
 double norm(float val, int max, int min) {
   return (val - min)/(max - min);
 }

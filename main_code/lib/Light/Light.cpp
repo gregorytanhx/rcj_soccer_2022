@@ -61,7 +61,7 @@ void Light::read() {
   onLine = outSensors > 0;
 }
 
-void Light::getLineData(LineData data) {
+void Light::getLineData(LineData& data) {
     double vecX = 0;
     double vecY = 0;
     int chordStart = 0;
@@ -92,9 +92,9 @@ void Light::getLineData(LineData data) {
     lineAngle = fmod(lineAngle + 180, 360);  
 
     // update data 
-    data.lineAngle = lineAngle;
-    data.chordLength = chordLength;
-    data.onLine = onLine;
+    data.lineAngle.val = lineAngle;
+    data.chordLength.val = chordLength;
+    data.onLine.val = onLine;
 }
 
 float Light::getClosestAngle(float target) {

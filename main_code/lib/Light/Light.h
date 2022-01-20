@@ -7,9 +7,9 @@
 #include <Pins.h>
 
 typedef struct LineData {
-  float lineAngle;
-  float chordLength;
-  float closestAngle;
+  floatData lineAngle;
+  floatData chordLength;
+  floatData closestAngle;
   bool onLine;
 } LineData;
 
@@ -20,7 +20,7 @@ class Light {
     void calibrate();
     void init();
     void read();
-    void getLineData(LineData data);
+    void getLineData(LineData& data);
     float lineTrack(float target);
     float getClosestAngle(float angle);
 
