@@ -5,8 +5,10 @@
 #include <Arduino.h>
 
 #define SET_ID 0
+#define EEPROM_ID_ADDR 0
 // robot ID: 0 for striker, 1 for goalie 
 #define ID 0
+
 
 #define CMP_KP = 0.8;
 

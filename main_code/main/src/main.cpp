@@ -16,16 +16,20 @@ Light light;
 LineData lineData;
 MoveData moveData;
 Motors motors;
+
 float lastLineAngle = 0;
 bool lineTrack = false;
+
 bool hasBall = false;
+
 TOFBuffer tof;
 IMU imu;
 float heading;
 
 Timer kickerTimer(500);
 
-Role role = striker; 
+Role role;
+uint8_t robotID;
 
 void dribble() {
   analogWrite(DRIBBLER_PIN, 64);
@@ -114,6 +118,13 @@ void defend() {
 
   void setup() {
 
+    #if SET_ID
+      EEPROM.write(EEPROM_ID_ADDR, ID)
+    #endif
+
+    robotID = EEPROM.read(EEPROM_ID_ADDR);
+    if (robotID) role = Role::striker;
+    else role = Role::goalie;
 
     Serial.begin(9600);
     Serial1.begin(2000000);
@@ -147,11 +158,14 @@ void defend() {
         aimGoal();
       }  else {
         trackBall();
-      }
+      } 
+    } else {
+      defend();
     }
     
     sendLayer1();
     readLayer1();
+    
    
 
   }
