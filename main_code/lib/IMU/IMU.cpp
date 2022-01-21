@@ -18,9 +18,10 @@ void IMU::readRaw() {
   heading -= offset;
 }
 
-void IMU::read() {
+float IMU::read() {
   sensors_event_t event;
   bno.getEvent(&event);
   heading = event.orientation.x;
   heading -= offset;
+  return heading;
 }

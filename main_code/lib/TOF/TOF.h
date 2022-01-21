@@ -10,14 +10,6 @@
 #include <Pins.h>
 #include <Config.h>
 
-#define TIME_BUDGET 33
-#define IMP 33
-#define TOF_SYNC_BYTE 1
-
-union TOFBuffer {
-  int16_t vals[4] = {0, 0, 0, 0};
-  uint8_t b[8];
-} TOFBuffer;
 
 class TOF {
   public:
@@ -33,7 +25,7 @@ class TOF {
 
 class TOF_Array{
   public:
-    TOF_Array();
+    TOF_Array(TwoWire &i2cPort);
     TOF FrontTOF;
     TOF BackTOF;
     TOF LeftTOF;

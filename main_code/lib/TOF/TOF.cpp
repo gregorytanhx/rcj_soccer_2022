@@ -37,6 +37,7 @@ TOF_Array::TOF_Array(TwoWire &i2cPort) {
 }
 
 void TOF_Array::init() {
+  Serial1.begin(STM32_BAUD);
   FrontTOF.init();
   delay(10);
   BackTOF.init();
@@ -55,6 +56,6 @@ void TOF_Array::update() {
 }
 
 void TOF_Array::send() {
-  Serial1.write(TOF_SYNC_BYTE);
+  Serial1.write(LAYER4_SYNC_BYTE);
   Serial1.write(buffer.b, 8);
 }

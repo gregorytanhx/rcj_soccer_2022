@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include <SoftwareSerial.h>
 
+
 uint8_t i = 0;
 TOF_Array tofArray;
 
@@ -13,7 +14,6 @@ void setup() {
 
 void loop() {
   digitalWrite(PA4, LOW);
-  mySerial.println("fuck");
   tofArray.update();
   tofArray.send();
 }

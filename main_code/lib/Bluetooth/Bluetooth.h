@@ -9,10 +9,9 @@
 #define BLUETOOTH_PACKET_SIZE 15
 #define BLUETOOTH_LOST_COMMUNICATION_TIME 5000
 
-enum PlayMode {
-  attackMode,
-  defendMode,
-  undecidedMode
+enum Role {
+  striker,
+  goalie
 };
 
 typedef struct BluetoothData {

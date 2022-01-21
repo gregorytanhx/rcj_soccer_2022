@@ -23,6 +23,11 @@ typedef union int16Data {
   uint8_t b[2];
 } int16Data;
 
+typedef union TOFBuffer {
+  int16_t vals[4] = {0, 0, 0, 0};
+  uint8_t b[8];
+} TOFBuffer;
+
 typedef union motorBuffer{
   uint16_t vals[3];
   uint8_t b[sizeof(vals)];

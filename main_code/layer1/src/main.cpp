@@ -28,10 +28,10 @@ void sendData() {
 
 void receiveData() {
   //receive teensy data
-  while (Serial1.available() >= MOTOR_PACKET_SIZE) {
+  while (Serial1.available() >= LAYER1_REC_PACKET_SIZE)  {
     uint8_t syncByte = Serial1.read();
     if (syncByte == LAYER1_REC_SYNC_BYTE) {
-      for (int i = 0; i < MOTOR_PACKET_SIZE - 1; i++) {
+      for (int i = 0; i < MOTOR_PACKET_SIZE - 2; i++) {
         motorBuffer.b[i] = Serial1.read();
       }
       lineTrack = (bool) Serial1.read();
