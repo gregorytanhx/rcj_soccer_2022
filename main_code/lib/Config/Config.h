@@ -3,7 +3,9 @@
 
 #include <Arduino.h>
 
-#define SET_ID 0
+#define DEBUG
+#define SET_ID
+
 #define EEPROM_ID_ADDR 0
 // robot ID: 0 for striker, 1 for goalie
 #define ID 0

@@ -5,34 +5,33 @@
 #include <Common.h>
 #include <Pins.h>
 
-
 typedef struct MoveData {
-  floatData speed;
-  floatData angle;
-  floatData rotation;
-  MoveData(int moveSpeed, int moveAngle, int moveRotation){
-    speed.val = moveSpeed;
-    angle.val = moveAngle;
-    rotation.val = moveRotation;
-  }
+    floatData speed;
+    floatData angle;
+    floatData rotation;
+    MoveData(int moveSpeed, int moveAngle, int moveRotation) {
+        speed.val = moveSpeed;
+        angle.val = moveAngle;
+        rotation.val = moveRotation;
+    }
 } MoveData;
 
 class Motor {
-  public:
+   public:
     Motor() {}
     Motor(int pwm, int dig);
     void update(int pwm);
     void move();
     void init();
 
-  private:
+   private:
     int pwmPin;
     int digPin;
     int pwmOut = 0;
 };
 
 class Motors {
-  public:
+   public:
     Motors();
     Motor FL_Motor;
     Motor FR_Motor;
@@ -41,7 +40,8 @@ class Motors {
     void setMove(float speed, float angle, float angVel);
     void angleCorrect(float angle);
     void moveOut();
-  private:
+
+   private:
     float cmp_kp;
 };
 

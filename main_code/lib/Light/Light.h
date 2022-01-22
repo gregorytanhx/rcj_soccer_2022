@@ -4,6 +4,7 @@
 #include <Arduino.h>
 #include <Common.h>
 #include <Math.h>
+#include <Timer.h>
 
 typedef struct LineData {
   floatData lineAngle;
@@ -57,6 +58,8 @@ class Light {
     int sigA;
     int sigB;
     int readMux(int channel, int controlPin[4], int sig);
+
+    Timer lightTimer(5000);
 };
 
 #endif
