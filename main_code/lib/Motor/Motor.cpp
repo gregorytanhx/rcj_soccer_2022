@@ -16,8 +16,7 @@ void Motor::update(int pwm) {
 
 void Motor::move() {
   analogWrite(pwmPin, abs(pwmOut));
-  if (pwmOut > 0) digitalWrite(digPin, HIGH);
-  else digitalWrite(digPin, LOW);
+  digitalWriteFast(digPin, (pwmOut > 0 ? HIGH : LOW));
 }
 
 Motors::Motors() {
@@ -28,8 +27,8 @@ Motors::Motors() {
 }
 
 void Motors::setMove(float speed, float angle, float rotation) {
-  float a = sin(deg2rad(50 + angle)) * (1 / sin(deg2rad(80)));
-  float b = sin(deg2rad(50 - angle)) * (1 / sin(deg2rad(80)));
+  float a = sinf(deg2rad(50 + angle)) * (1 / sinf(deg2rad(80)));
+  float b = sinf(deg2rad(50 - angle)) * (1 / sinf(deg2rad(80)));
 
   float fl = a - rotation;
   float fr = b + rotation;

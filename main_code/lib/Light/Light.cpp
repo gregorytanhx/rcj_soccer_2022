@@ -27,13 +27,13 @@ void Light::init() {
   pinMode(mux_B4, OUTPUT);
 
   for (int i = 0; i < 4; i++) {
-    digitalWrite(pinsA[i], LOW);
-    digitalWrite(pinsB[i], LOW);
+    digitalWriteFast(pinsA[i], LOW);
+    digitalWriteFast(pinsB[i], LOW);
   }
 }
 int Light::readMux(int channel, int controlPin[4], int sig) {
   for (int i = 0; i < 4; i++) {
-    digitalWrite(controlPin[i], muxChannel[channel][i]);
+    digitalWriteFast(controlPin[i], muxChannel[channel][i]);
   }
   //read the value at the SIG pin
   delayMicroseconds(5);

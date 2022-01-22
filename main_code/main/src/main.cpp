@@ -37,10 +37,9 @@ void dribble() {
 
 void kick() {
   if (kickerTimer.timeHasPassed()) {
-    digitalWrite(KICKER_PIN, HIGH);
+    digitalWriteFast(KICKER_PIN, HIGH);
   }  
 }
-
 
 void setMove(float speed, float angle, float rotation) {
   moveData.speed.val = speed;
@@ -49,33 +48,33 @@ void setMove(float speed, float angle, float rotation) {
 }
 
 void sendLayer1() {
-  Serial.write(LAYER1_REC_SYNC_BYTE);
-  Serial.write(moveData.speed.b, 4);
-  Serial.write(moveData.angle.b, 4);
-  Serial.write(moveData.rotation.b, 4);
-  Serial.write(lineTrack);
+  L1Serial.write(LAYER1_REC_SYNC_BYTE);
+  L1Serial.write(moveData.speed.b, 4);
+  L1Serial.write(moveData.angle.b, 4);
+  L1Serial.write(moveData.rotation.b, 4);
+  L1Serial.write(lineTrack);
 }
 
 void readLayer1() {
-  while (Serial1.available() >= LAYER1_SEND_PACKET_SIZE) {
-    uint8_t syncByte = Serial1.read();
+  while (L1Serial.available() >= LAYER1_SEND_PACKET_SIZE) {
+    uint8_t syncByte = L1Serial.read();
     if (syncByte == LAYER1_REC_SYNC_BYTE) {
       for (int i = 0; i < 4; i++) {
-        lineData.lineAngle.b[i] = Serial1.read();
+        lineData.lineAngle.b[i] = L1Serial.read();
       }
       for (int i = 0; i < 4; i++) {
-        lineData.chordLength.b[i] = Serial1.read();
+        lineData.chordLength.b[i] = L1Serial.read();
       }
-      lineData.onLine = Serial1.read();
+      lineData.onLine = L1Serial.read();
     }
   }
 
 void readLayer4()  {
-  while (Serial2.available() >= LAYER4_PACKET_SIZE) {
-    uint8_t syncByte = Serial2.read();
+  while (L4Serial.available() >= LAYER4_PACKET_SIZE) {
+    uint8_t syncByte = L4Serial.read();
     if (syncByte == LAYER4_SYNC_BYTE) {
       for (int i = 0; i < LAYER4_PACKET_SIZE - 1; i++){
-        tof.b[i] = Serial2.read();
+        tof.b[i] = L4Serial.read();
       }
     }
   }
@@ -87,6 +86,7 @@ void processTOF() {
 
 void trackBall() {
   // TODO
+  
 }
 
 void aimGoal() {
@@ -97,6 +97,9 @@ void defend() {
   // TODO
 }
 
+bool shouldSwitchRoles() {
+    return (role == Role::goalie && hasBall) 
+}
   // void lineTrack(float target) {
   //   float angle = nonReflex(line.getClosestAngle(target));
   //   // use PID to control speed of correction
@@ -116,23 +119,27 @@ void defend() {
 
   // }
 
-  void setup() {
+void setup() {
 
     #if SET_ID
-      EEPROM.write(EEPROM_ID_ADDR, ID)
+        EEPROM.write(EEPROM_ID_ADDR, ID)
     #endif
 
     robotID = EEPROM.read(EEPROM_ID_ADDR);
     if (robotID) role = Role::striker;
     else role = Role::goalie;
-
-    Serial.begin(9600);
-    Serial1.begin(2000000);
+    #if DEBUG
+        Serial.begin(9600);
+    
+    L1Serial.begin(STM32_BAUD);
+    L4Serial.begin(STM32_BAUD);
+    CamSerial.begin(CAMERA_BAUD);
+    BluetoothSerial.begin(BLUETOOTH_BAUD);
 
     pinMode(LED_BUILTIN, OUTPUT);
     digitalWrite(LED_BUILTIN, HIGH);
 
-    camera.init();
+  
     imu.init();
 
     pinMode(KICKER_PIN, OUTPUT);
@@ -142,7 +149,7 @@ void defend() {
     delay(DRIBBLER_WAIT);
   }
 
-  void loop()  {
+void loop()  {
     // put your main code here, to run repeatedly:
     camera.read();
     camera.process();
@@ -150,14 +157,14 @@ void defend() {
     readLayer4();
 
     if (analogRead(LIGHT_GATE_PIN) >= LIGHT_GATE_THRESH) {
-      hasBall = true;
+        hasBall = true;
     } 
     
     if (role == striker) {
-      if (hasBall) {
-        aimGoal();
-      }  else {
-        trackBall();
+        if (hasBall) {
+            aimGoal();
+      } else {
+            trackBall();
       } 
     } else {
       defend();

@@ -1,4 +1,3 @@
-
 #ifndef CONFIG_H
 #define CONFIG_H
 
@@ -6,9 +5,8 @@
 
 #define SET_ID 0
 #define EEPROM_ID_ADDR 0
-// robot ID: 0 for striker, 1 for goalie 
+// robot ID: 0 for striker, 1 for goalie
 #define ID 0
-
 
 #define CMP_KP = 0.8;
 
@@ -23,9 +21,10 @@
 
 #define CAMERA_PACKET_SIZE 13
 #define CAMERA_SYNC_BYTE 0x80
-#define CAMERA_BAUD 2000000
+#define CAMERA_BAUD 115200
 
-#define STM32_BAUD 2000000
+#define STM32_BAUD 250000
+#define BLUETOOTH_BAUD 115200
 
 // send: sent by layer 1, rec: received by layer 1
 #define LAYER1_REC_PACKET_SIZE 14
@@ -40,5 +39,10 @@
 
 #define DRIBBLER_WAIT 3000
 #define LIGHT_GATE_THRESH 100
+
+#define L1Serial Serial1
+#define L4Serial Serial2
+#define CamSerial Serial3
+#define BluetoothSerial Serial4
 
 #endif

@@ -4,7 +4,6 @@
 #include <Arduino.h>
 #include <Common.h>
 #include <Math.h>
-#include <Pins.h>
 
 typedef struct LineData {
   floatData lineAngle;
