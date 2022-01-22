@@ -46,14 +46,16 @@ void Light::read() {
     bool out = false;
     outSensors = 0;
     for (int i = 0; i < 16; i++) {
-        if (readMux(i, pinsA, sigA) > lightThresh[i]) {
+        lightVals[i] = readMux(i, pinsA, sigA);
+        if (lightVals[i] > lightThresh[i]) {
             lineDetected[outSensors] = i;
             outSensors++;
         }
     }
 
     for (int i = 16; i < 32; i++) {
-        if (readMux(i, pinsB, sigB) > lightThresh[i]) {
+        lightVals[i] = readMux(i - 16, pinsB, sigB);
+        if (lightVals[i] > lightThresh[i]) {
             lineDetected[outSensors] = i;
             outSensors++;
         }
@@ -69,11 +71,26 @@ void Light::calibrate() {
         minVals[i] = 1200;
     }
     lightTimer.update();
+
     while (!lightTimer.timeHasPassed(false)) {
-        for (int = 0; i < 32) {
+        read() for (int = 0; i < 32; i++) {
+            if (lightVals[i] > maxVals[i]) {
+                maxVals[i] = lightVals[i];
+            }
+            if (lightVals[i] < minVals[i]) {
+                minVals[i] = lightVals[i];
+            }
+            lightThresh[i] = (maxVals[i] + minVals[i]) / 2;
+#ifdef DEBUG
+            L1DebugSerial.print(i);
+            L1DebugSerial.print("Thresh");
+            L1DebugSerial.println(lightThresh[i]);
+#endif
         }
     }
-    
+}
+
+// TO DO: WRITE CALIBRATED LIGHT VALS TO STM32 EEPROM MEMORY
 
 void Light::getLineData(LineData& data) {
     double vecX = 0;

@@ -47,4 +47,7 @@
 #define CamSerial Serial3
 #define BluetoothSerial Serial4
 
+#define L1DebugSerial Serial2
+#define L4DebugSerial Serial2
+
 #endif
