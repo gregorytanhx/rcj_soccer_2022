@@ -12,6 +12,11 @@ typedef struct LineData {
   bool onLine;
 } LineData;
 
+typedef union LightThresh {
+    int16_t vals[32];
+    u_int8_t b[64];
+}
+
 
 class Light {
   public:
@@ -49,8 +54,7 @@ class Light {
         {0, 1, 1, 1}, //channel 14
         {1, 1, 1, 1}  //channel 15
     };
-    int lightThresh[32] = {844, 875, 886, 882, 882, 896, 899, 881, 889, 892, 880, 881, 900, 862, 888, 725,
-                           900, 888, 890, 877, 892, 862, 894, 897, 884, 886, 892, 904, 887, 893, 869, 606};
+    LightThresh lightThresh;
     int lightVals[32];
     int pinsA[4];
     int pinsB[4];

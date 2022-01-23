@@ -30,7 +30,17 @@ void Light::init() {
         digitalWriteFast(pinsA[i], LOW);
         digitalWriteFast(pinsB[i], LOW);
     }
+
+    // retrieve threshold from eeprom memory
+    eeprom_buffer_fill();
+
+    for (int i = 0; i < 32; i++) {
+        lightThresh.b[i*2] = eeprom_buffered_read_byte(i+1);
+        lightThresh.b[i*2+1] = eeprom_buffered_read_byte(i+33);
+    }
 }
+
+
 int Light::readMux(int channel, int controlPin[4], int sig) {
     for (int i = 0; i < 4; i++) {
         digitalWriteFast(controlPin[i], muxChannel[channel][i]);
@@ -47,7 +57,7 @@ void Light::read() {
     outSensors = 0;
     for (int i = 0; i < 16; i++) {
         lightVals[i] = readMux(i, pinsA, sigA);
-        if (lightVals[i] > lightThresh[i]) {
+        if (lightVals[i] > lightThresh.vals[i]) {
             lineDetected[outSensors] = i;
             outSensors++;
         }
@@ -55,7 +65,7 @@ void Light::read() {
 
     for (int i = 16; i < 32; i++) {
         lightVals[i] = readMux(i - 16, pinsB, sigB);
-        if (lightVals[i] > lightThresh[i]) {
+        if (lightVals[i] > lightThresh.vals[i]) {
             lineDetected[outSensors] = i;
             outSensors++;
         }
@@ -80,7 +90,7 @@ void Light::calibrate() {
             if (lightVals[i] < minVals[i]) {
                 minVals[i] = lightVals[i];
             }
-            lightThresh[i] = (maxVals[i] + minVals[i]) / 2;
+            lightThresh.vals[i] = (maxVals[i] + minVals[i]) / 2;
 #ifdef DEBUG
             L1DebugSerial.print(i);
             L1DebugSerial.print("Thresh");
@@ -88,6 +98,13 @@ void Light::calibrate() {
 #endif
         }
     }
+
+    // write calibrated threshold to eeprom memory
+    for (int i = 0; i < ; i++) {
+        eeprom_buffered_write_byte(i + 1, lightThresh.b[i*2]);
+        eeprom_buffered_write_byte(i + 33, lightThresh.b[i*2+1]);
+    }
+    eeprom_buffer_flush();
 }
 
 // TO DO: WRITE CALIBRATED LIGHT VALS TO STM32 EEPROM MEMORY
