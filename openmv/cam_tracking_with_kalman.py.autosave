@@ -47,7 +47,7 @@ class KalmanFilter(object):
         #Initial Covariance Matrix
         self.P = np.eye(self.A.shape[1])
 
-     def predict(self):
+    def predict(self):
         # Refer to :Eq.(9) and Eq.(10)  in https://machinelearningspace.com/object-tracking-simple-implementation-of-kalman-filter-in-python/?preview_id=1364&preview_nonce=52f6f1262e&preview=true&_thumbnail_id=1795
         # Update time state
         #x_k =Ax_(k-1) + Bu_(k-1)     Eq.(9)
@@ -57,7 +57,7 @@ class KalmanFilter(object):
         self.P = np.dot(np.dot(self.A, self.P), self.A.T) + self.Q
         return self.x[0:2]
 
-     def update(self, z):
+    def update(self, z):
         # Refer to :Eq.(11), Eq.(12) and Eq.(13)  in https://machinelearningspace.com/object-tracking-simple-implementation-of-kalman-filter-in-python/?preview_id=1364&preview_nonce=52f6f1262e&preview=true&_thumbnail_id=1795
         # S = H*P*H'+R
         S = np.dot(self.H, np.dot(self.P, self.H.T)) + self.R

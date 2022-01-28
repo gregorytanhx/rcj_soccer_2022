@@ -24,21 +24,9 @@ float cmDist(float pixelDist) {
 }
 
 void Camera::process() {
-  if (blueAngle >= 0 && bluePixelDist >= 0) {
-    blueVisible = true;
-  } else {
-    blueVisible = false;
-  }
-  if (yellowAngle >= 0 && yellowPixelDist >= 0) {
-    yellowVisible = true;
-  } else {
-    yellowVisible = false;
-  }
-  if (ballAngle >= 0 && ballPixelDist >= 0) {
-    ballVisible = true;
-  } else {
-    ballVisible = false;
-  }
+  blueVisible = blueAngle != 500;
+  yellowVisible = yellowAngle != 500;
+  ballVisible = ballAngle != 500;
 
   // change angle range to 180 to -180
   ballAngle = nonReflex(ballAngle);

@@ -28,9 +28,9 @@ class Light {
     float lineTrack(float target);
     float getClosestAngle(float angle);
 
-    float lineAngle;
+    float lineAngle = 0;
     float lastLineAngle = 0;
-    float chordLength;
+    float chordLength = 0;
     bool onLine = false;
     int lineDetected[32];
     int outSensors = 0;

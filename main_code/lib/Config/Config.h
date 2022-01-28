@@ -10,11 +10,15 @@
 // robot ID: 0 for striker, 1 for goalie
 #define ID 0
 
-#define CMP_KP = 0.8;
+#define MIN_SPEED 40
+#define MAX_SPEED 100
 
-#define COORD_KP = 2;
-#define COORD_KI = 0;
-#define COORD_KD = 1;
+#define IMU_KP = 0.8
+
+#define COORD_KP = 2
+#define COORD_KI = 0
+#define COORD_KD = 1
+#define COORD_LEEWAY_DIST 5 
 
 #define LINE_TRACK_KP 2
 #define LINE_TRACK_KI 0
@@ -27,6 +31,12 @@
 
 #define STM32_BAUD 250000
 #define BLUETOOTH_BAUD 115200
+
+#define OFFSET_MULT 0.95
+#define BALL_MULT_A 1
+#define BALL_MULT_B 1
+
+
 
 // send: sent by layer 1, rec: received by layer 1
 #define LAYER1_REC_PACKET_SIZE 14
@@ -47,7 +57,9 @@
 #define CamSerial Serial3
 #define BluetoothSerial Serial4
 
+#define L1CommSerial Serial1
 #define L1DebugSerial Serial2
+#define L4CommSerial Serial1
 #define L4DebugSerial Serial2
 
 #endif

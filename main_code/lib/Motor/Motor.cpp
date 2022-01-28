@@ -25,8 +25,8 @@ Motors::Motors() {
 }
 
 void Motors::setMove(float speed, float angle, float rotation) {
-    float a = sinf(deg2rad(50 + angle)) * (1 / sinf(deg2rad(80)));
-    float b = sinf(deg2rad(50 - angle)) * (1 / sinf(deg2rad(80)));
+    float a = sin(deg2rad(50 + angle)) * (1 / sin(deg2rad(80)));
+    float b = sin(deg2rad(50 - angle)) * (1 / sin(deg2rad(80)));
 
     float fl = a - rotation;
     float fr = b + rotation;

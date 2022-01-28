@@ -35,7 +35,7 @@ class Camera {
     int oppAngle;
     double ownDist;
     int ownAngle;
-    double ownDist;
+    double oppDist;
 
     bool blueVisible = true;
     bool yellowVisible = true;

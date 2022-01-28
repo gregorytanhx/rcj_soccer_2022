@@ -15,15 +15,48 @@ class Point {
     Point(int posX, int posY) {
       x = posX;
       y = posY;
-      angle = fmod(90 - rad2deg(atan2(y, x)), 360);
-      distance = sqrt(x * x + y * y);
     } 
-    Point (float angleF, float distanceF) {
-      angle = angleF;
-      distance = distanceF;
-      x = (int) (distance * sin(deg2rad(angle)));
-      y = (int) (distance * cos(deg2rad(angle)));
+
+    Point(float ang, float dist) {
+        angle = ang;
+        distance = dist;
+        x = (int)(distance * sin(deg2rad(angle)));
+        y = (int)(distance * cos(deg2rad(angle)));
     }
+
+    float getAngle() { 
+        // calculate polar angle as bearing from north
+        return fmod(90 - rad2deg(atan2(y, x)), 360); 
+    }
+
+    float getDistance() {
+        // calculate polar distance
+        return sqrt(x * x + y * y);
+    }
+
+    Point &operator+=(const Point &rhs) {
+        this->x += rhs.x;
+        this->y += rhs.y;
+        return *this;
+    }
+
+    Point &operator-=(const Point &rhs) {
+        this->x -= rhs.x;
+        this->y -= rhs.y;
+        return *this;
+    }
+
+    Point operator+(const Point &rhs) { 
+        // add two points
+        return Point(x + rhs.x, y + rhs.y); 
+    }
+
+    Point operator-(const Point &rhs) { 
+        // subtract two points
+        return Point(x - rhs.x, y - rhs.y); 
+    }
+
+    bool operator!=(const Point &p) { return x != p.x || y != p.y; }
 };
 
 #endif
