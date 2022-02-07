@@ -2,6 +2,7 @@
 #define COMMON_H
 
 #include <Arduino.h>
+#include <Config.h>
 #include <math.h>
 
 #define pi 3.1415926536
