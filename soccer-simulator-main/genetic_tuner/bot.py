@@ -1,28 +1,29 @@
-
-import pygame, sys, os, math, time
-
-from background import draw_bg
+import math, pygame, time, random
 from ball import Ball
-pygame.init()
+
 OUTER_WIDTH = 182 
 OUTER_HEIGHT = 243
 INNER_WIDTH = 132
 INNER_HEIGHT = 193
 SCALE = 4
 ATTACKER_START_X = (OUTER_WIDTH * SCALE) // 2
-ATTACKER_START_Y = (OUTER_HEIGHT - 80) * SCALE
+# ATTACKER_START_Y = (OUTER_HEIGHT - 80) * SCALE
+ATTACKER_START_Y = OUTER_HEIGHT // 2 * SCALE
 OPP_GOALIE_START_X = (OUTER_WIDTH * SCALE) // 2
 OPP_GOALIE_START_Y = 180
 BLUE_GOAL_LEFT_X = 61 * SCALE
 BLUE_GOAL_RIGHT_X = (OUTER_WIDTH - 61) * SCALE
 BLUE_GOAL_Y = round((25-7.4) * SCALE)
 
-screen = pygame.display.set_mode((OUTER_WIDTH * SCALE, OUTER_HEIGHT * SCALE))
+
 def degtorad(angle):
 	return angle * math.pi/180
 
 def sigmoid(x):
     return 1/(1+math.exp(-x))
+
+def distance(x1, y1, x2, y2):
+    return math.sqrt((x2 - x1) ** 2 + (y2-y1) ** 2)
 
 def map_val(x, in_min, in_max, out_min, out_max):
     return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min
@@ -90,7 +91,7 @@ class Bot(object):
 
     def draw(self, screen):
         self.ball.draw(screen)
-        #pygame.draw.circle(screen, (40, 40, 40), (self.x, self.y), self.radius)
+        pygame.draw.circle(screen, (40, 40, 40), (self.x, self.y), self.radius)
         
     
     def update_ball_pos(self):
@@ -99,17 +100,21 @@ class Bot(object):
 
 class Attacker(Bot):
     speed = 2
-    def __init__(self, x, y, offset_k = 1, mult_a = 0.2, mult_b = 0.7):
-        super().__init__(x, y)
+    def __init__(self, offset_k = 1, mult_a = 0.2, mult_b = 0.7):
+        super().__init__(ATTACKER_START_X, ATTACKER_START_Y)
         self.MAX_DIST = 800
-        self.OFFSET_K = offset_k
-        self.BALL_MULT_A = mult_a
-        self.BALL_MULT_B = mult_b
+        self.k = offset_k
+        self.a = mult_a
+        self.b = mult_b
+        self.fitness = 1e-3
         
     def check_ball(self):
         # check collision with ball
+        tmp = self.ball_angle
+        if tmp > 180: 
+            tmp -= 360
         if check_collision(self.x, self.y, self.ball.x, self.ball.y, self.radius, self.ball.diameter):
-            if abs(self.ball_angle) <= 2:
+            if abs(tmp) <= 5:
                     self.ball.caught = True
                     self.has_ball = True
                     self.ball.hit = False
@@ -117,10 +122,10 @@ class Attacker(Bot):
                 self.ball.hit = True
                 self.ball.angle = math.radians(self.ball_angle)
                 self.ball.vel = self.speed * 4            
-            return 
-        
-        self.ball.caught = False
-        self.has_ball = False
+             
+        else:
+            self.ball.caught = False
+            self.has_ball = False
         
 
     def update_move(self):   
@@ -129,68 +134,34 @@ class Attacker(Bot):
         #self.angle =  math.degrees(extreme_goal_angle)
     
         self.check_ball()
-        '''if self.has_ball and goal_dist < 300:
-            ball.hit = False
-            self.kick(ball)'''
-        
-        if self.ball_angle <= 180:
-            offset = min(self.ball_angle * self.OFFSET_K, 90)
+        if self.has_ball: 
+            self.ballCaughtTime = time.time() 
         else:
-            offset = max((360 - self.ball_angle) * self.OFFSET_K, -90)
+            self.ballCaughtTime = None
+
+        if self.ball_angle <= 180:
+            offset = min(self.ball_angle * self.k, 90)
+        else:
+            offset = max((360 - self.ball_angle) * self.k, -90)
             
         
         factor = 1 - self.ball_dist/self.MAX_DIST
-        ball_mult = self.BALL_MULT_A * math.exp(self.BALL_MULT_B * factor)
+        ball_mult = self.a * math.exp(self.b * factor)
         move_angle = self.ball_angle + ball_mult * offset
  
         if move_angle > 360: move_angle -= 360
         
-        print(f"ball angle: {round(self.ball_angle)}, move angle: {round(move_angle)}")
-        print(f"ball distance: {self.ball_dist}, ball value: {ball_mult}")
-        # if self.x > 25 * SCALE + INNER_WIDTH * SCALE:
-        #     self.x = 25 * SCALE + INNER_WIDTH * SCALE
-        # elif self.x < 25 * SCALE:
-        #     self.x = 25 * SCALE
-        
-        # else:
-        #     self.move(move_angle, self.speed) 
-        
-    
-
-def main():
-    attacker = Attacker(ATTACKER_START_X, ATTACKER_START_Y)
-    #opp_goalie = Opp_Goalie(OPP_GOALIE_START_X + 100, OPP_GOALIE_START_Y)
-    run = True
-    last = time.time()
-    while run:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                run = False
-                pygame.quit()
-                sys.exit()
-        
-        keys = pygame.key.get_pressed()
-        
-        if keys[pygame.K_SPACE]:
-            attacker.goto(ATTACKER_START_X, ATTACKER_START_Y)
-            attacker.ball.caught = False 
-            attacker.stop = True          
-             
-        buttons = pygame.mouse.get_pressed()
-        if sum(buttons): 
-            attacker.stop = False
-            attacker.ball.update_pos(attacker, pygame.mouse.get_pos())
-        else:
-            attacker.ball.update_pos(attacker)
-        attacker.update_move()
-       
+        # print(f"ball angle: {round(self.ball_angle)}, move angle: {round(move_angle)}")
+        # print(f"ball distance: {self.ball_dist}, ball value: {ball_mult}")
+        self.move(move_angle, self.speed) 
             
-        draw_bg(screen)  
-        attacker.draw(screen)
-        #opp_goalie.draw(screen)   
-        pygame.display.update()
-        
-        
-        
-main()
+    def update_fitness(self):
 
+        if self.has_ball:
+            self.fitness += self.initialBallDist * 1000 / (self.ballCaughtTime - self.lastBallTime) 
+        elif self.ball.hit:
+            self.fitness += ((1000 - self.ball_dist) + abs(self.ball_angle)) * 0.7
+        else:
+            self.fitness += ((1000 - self.ball_dist) + abs(360 - self.ball_angle)) * 0.2
+            
+        

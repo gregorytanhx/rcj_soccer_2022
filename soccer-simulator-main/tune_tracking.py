@@ -1,5 +1,7 @@
 
+from turtle import window_height
 import pygame, sys, os, math, time
+
 from background import draw_bg
 from ball import Ball
 pygame.init()
@@ -83,13 +85,13 @@ class Bot(object):
         ball.angle = math.radians(self.angle)
         ball.vel = 3 * self.speed
     
-    def get_ball_data(self):
-        self.ball_angle = math.degrees(math.pi/2 - math.atan2(self.y - self.ball.y, self.ball.x - self.x))        
-        self.ball_dist = math.sqrt((self.y-self.ball.y)**2 + (self.x-self.ball.x)**2)
+    def get_ball_data(self, pos):
+        self.ball_angle = math.degrees(math.pi/2 - math.atan2(pos[1] - self.ball.y, self.ball.x - pos[0]))        
+        self.ball_dist = math.sqrt((pos[1]-self.ball.y)**2 + (pos[0]-self.ball.x)**2)
 
     def draw(self, screen):
         self.ball.draw(screen)
-        pygame.draw.circle(screen, (40, 40, 40), (self.x, self.y), self.radius)
+        #pygame.draw.circle(screen, (40, 40, 40), (self.x, self.y), self.radius)
         
     
     def update_ball_pos(self):
@@ -98,12 +100,12 @@ class Bot(object):
 
 class Attacker(Bot):
     speed = 2
-    def __init__(self, x, y):
+    def __init__(self, x, y, offset_k = 1, mult_a = 0.2, mult_b = 0.7):
         super().__init__(x, y)
-        self.MAX_DIST = 200
-        self.OFFSET_K = 1
-        self.BALL_MULT_A = 0.2
-        self.BALL_MULT_B = 0.7
+        self.MAX_DIST = 800
+        self.OFFSET_K = offset_k
+        self.BALL_MULT_A = mult_a
+        self.BALL_MULT_B = mult_b
         
     def check_ball(self):
         # check collision with ball
@@ -121,50 +123,46 @@ class Attacker(Bot):
         self.ball.caught = False
         self.has_ball = False
         
-    '''def get_goal_data(self, opp):
-        if abs(BLUE_GOAL_LEFT_X - opp.x) > abs(BLUE_GOAL_RIGHT_X - opp.x):
-            goal_centre = (BLUE_GOAL_LEFT_X + opp.x - opp.radius//2) // 2
-            goal_extreme_point = BLUE_GOAL_LEFT_X + 10
-        else:
-            goal_centre = (BLUE_GOAL_RIGHT_X + opp.x + opp.radius//2) // 2
-            goal_extreme_point = BLUE_GOAL_RIGHT_X - 10
-        central_goal_angle = math.pi/2 - math.atan2(self.y - BLUE_GOAL_Y, goal_centre - self.x)
-        extreme_goal_angle = math.pi/2 - math.atan2(self.y - BLUE_GOAL_Y, goal_extreme_point - self.x)
-        goal_dist = math.sqrt((self.y - BLUE_GOAL_Y) ** 2 + (goal_centre - self.x) ** 2)
-        
-        return central_goal_angle, extreme_goal_angle, goal_dist'''
 
-    def update_move(self):   
-        self.get_ball_data()
-        #goal_angle, extreme_goal_angle, goal_dist = self.get_goal_data(opp) 
-        #self.angle =  math.degrees(extreme_goal_angle)
-    
-        self.check_ball()
-        '''if self.has_ball and goal_dist < 300:
-            ball.hit = False
-            self.kick(ball)'''
+    def update_move(self, screen):   
+        tmpX, tmpY = OUTER_WIDTH * SCALE // 2 , OUTER_HEIGHT * SCALE // 2
         
-        if self.ball_angle <= 180:
-            offset = min(self.ball_angle * self.OFFSET_K, 90)
-        else:
-            offset = max((360 - self.ball_angle) * self.OFFSET_K, -90)
+        while abs(tmpX - self.ball.x) > 10 or abs(tmpY - self.ball.y) > 10:
+       
+            self.get_ball_data((tmpX, tmpY))
+                
+            if self.ball_angle <= 180:
+                offset = min(self.ball_angle * self.OFFSET_K, 90)
+            else:
+                offset = max((360 - self.ball_angle) * self.OFFSET_K, -90)
+                
             
+            factor = 1 - self.ball_dist/self.MAX_DIST
+            ball_mult = self.BALL_MULT_A * math.exp(self.BALL_MULT_B * factor)
+            move_angle = self.ball_angle + ball_mult * offset
+    
+            if move_angle > 360: move_angle -= 360
+            newX = tmpX + int(math.sin(degtorad(move_angle)) * 10)
+            newY = tmpY - int(math.cos(degtorad(move_angle)) * 10)
+            
+            pygame.draw.line(screen, (255, 20, 20), (tmpX, tmpY), (newX, newY), width = 5)
+            tmpX = newX
+            tmpY = newY
+            self.draw(screen)
+            pygame.display.update()
+
+            # print(self.ball.x, self.ball.y, tmpX, tmpY)
+            # print(f"ball angle: {round(self.ball_angle)}, move angle: {round(move_angle)}")
+        #print(f"ball distance: {self.ball_dist}, ball value: {ball_mult}")
+        # if self.x > 25 * SCALE + INNER_WIDTH * SCALE:
+        #     self.x = 25 * SCALE + INNER_WIDTH * SCALE
+        # elif self.x < 25 * SCALE:
+        #     self.x = 25 * SCALE
         
-        factor = 1 - self.ball_dist/self.MAX_DIST
-        ball_mult = self.BALL_MULT_A * math.exp(self.BALL_MULT_B * factor)
-        move_angle = self.ball_angle + ball_mult * offset
- 
-        if move_angle > 360: move_angle -= 360
+        # else:
+        #     self.move(move_angle, self.speed) 
         
-        print(f"ball angle: {round(self.ball_angle)}, move angle: {round(move_angle)}")
-        print(f"ball distance: {self.ball_dist}, ball value: {ball_mult}")
-        if self.x > 25 * SCALE + INNER_WIDTH * SCALE:
-            self.x = 25 * SCALE + INNER_WIDTH * SCALE
-        elif self.x < 25 * SCALE:
-            self.x = 25 * SCALE
-        
-        else:
-            self.move(move_angle, self.speed) 
+    
 
 def main():
     attacker = Attacker(ATTACKER_START_X, ATTACKER_START_Y)
@@ -186,27 +184,22 @@ def main():
             attacker.stop = True          
              
         buttons = pygame.mouse.get_pressed()
+        draw_bg(screen) 
         if sum(buttons): 
             attacker.stop = False
+            attacker.ball.update_pos(attacker, pygame.mouse.get_pos())
+            attacker.update_move(screen)
+           
+            pygame.display.update()
+        
+
+       
             
-        attacker.update_move()
-        attacker.ball.update_pos(attacker)
-        #opp_goalie.block(ball)
-        #if check_collision(attacker.x, attacker.y, opp_goalie.x, opp_goalie.y, attacker.radius, opp_goalie.radius):
-        #    attacker.stop = True
-            #opp_goalie.stop = True
-            
-       # else:
-        #    attacker.stop = False
-            #opp_goalie.stop = False
-            
-        #if ball.hit:
-        #    time.sleep(10000)
-        #    run = False
-            
-        draw_bg(screen)  
-        attacker.draw(screen)
+        
         #opp_goalie.draw(screen)   
-        pygame.display.update()
+        
+        
+        
         
 main()
+

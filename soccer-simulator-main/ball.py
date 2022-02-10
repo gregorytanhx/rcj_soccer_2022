@@ -16,7 +16,7 @@ BLUE_GOAL_Y = round((25-7.4) * SCALE)
 
 
 class Ball(object):
-    img = pygame.image.load("assets/ball.png")
+    img = pygame.image.load("C:/Users/gtanh/Documents/thiccWIRES-2022/soccer-simulator-main/assets/ball.png")
     img = pygame.transform.scale(img, (4.2 * SCALE, 4.2 * SCALE))
     def __init__(self, x, y):
         self.x = x
@@ -42,18 +42,14 @@ class Ball(object):
                 return True
         return False
         
-    def update_pos(self, bot):
-        pygame.event.get()
-        buttons = pygame.mouse.get_pressed()
-        if sum(buttons):
-            new_pos = pygame.mouse.get_pos()
+    def update_pos(self, bot, new_pos = None):
+        if new_pos:
             self.x, self.y = new_pos        
             self.hit = False
             self.kick = False
             self.stop = False
             
         elif not self.check_collision():
-            
             if self.caught:
                 self.x = bot.x + (bot.radius //2 + self.diameter) * math.sin(bot.angle * math.pi/180)
                 self.y = bot.y - (self.diameter + bot.radius //2) * math.cos(bot.angle * math.pi/180)
