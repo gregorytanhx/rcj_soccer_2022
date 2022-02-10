@@ -12,7 +12,7 @@
 
 class IMU {
    public:
-    IMU();
+    IMU(TwoWire *theWire);
     void init();
     float readRaw();
     float read();

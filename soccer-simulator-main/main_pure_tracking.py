@@ -45,7 +45,7 @@ class Bot(object):
     def __init__(self, x, y):
         self.x = x
         self.y = y
-        self.radius = 10 * SCALE
+        self.radius = 9 * SCALE
         self.stop = False
         self.has_ball = False
         self.angle = 0
@@ -83,28 +83,32 @@ class Bot(object):
         ball.vel = 3 * self.speed
     
     def get_ball_data(self, ball):
-        self.abs_ball_angle = math.degrees(math.pi/2 - math.atan2(self.y - ball.y, ball.x - self.x))
-        if self.abs_ball_angle > 180:
-            self.abs_ball_angle -= 360
-        
+        self.ball_angle = math.degrees(math.pi/2 - math.atan2(self.y - ball.y, ball.x - self.x))        
         self.ball_dist = math.sqrt((self.y-ball.y)**2 + (self.x-ball.x)**2)
 
     def draw(self, screen):
-        pygame.draw.circle(screen, (40, 40, 40), (self.x, self.y), 10 * SCALE)
+        pygame.draw.circle(screen, (40, 40, 40), (self.x, self.y), self.radius)
         
 
 class Attacker(Bot):
     speed = 2
+    def __init__(self, x, y):
+        super().__init__(x, y)
+        self.MAX_DIST = 200
+        self.OFFSET_K = 1
+        self.BALL_MULT_A = 0.2
+        self.BALL_MULT_B = 0.7
+        
     def check_ball(self, ball):
         # check collision with ball
         if check_collision(self.x, self.y, ball.x, ball.y, self.radius, ball.diameter):
-            if abs(self.rel_ball_angle) <= 2:
+            if abs(self.ball_angle) <= 2:
                     ball.caught = True
                     self.has_ball = True
                     ball.hit = False
             else:                
                 ball.hit = True
-                ball.angle = math.radians(self.abs_ball_angle)
+                ball.angle = math.radians(self.ball_angle)
                 ball.vel = self.speed * 4            
             return 
         
@@ -128,19 +132,25 @@ class Attacker(Bot):
         self.get_ball_data(ball)
         #goal_angle, extreme_goal_angle, goal_dist = self.get_goal_data(opp) 
         #self.angle =  math.degrees(extreme_goal_angle)
-        self.rel_ball_angle = self.abs_ball_angle #- self.angle 
-        
+    
         self.check_ball(ball)
         '''if self.has_ball and goal_dist < 300:
             ball.hit = False
             self.kick(ball)'''
-        dist_thresh = 100
-        ball_mult = 1.2 + math.exp((dist_thresh - self.ball_dist)/20)
-        move_angle = self.rel_ball_angle * ball_mult
+        
+        if self.ball_angle <= 180:
+            offset = min(self.ball_angle * self.OFFSET_K, 90)
+        else:
+            offset = max((360 - self.ball_angle) * self.OFFSET_K, -90)
+            
+        
+        factor = 1 - self.ball_dist/self.MAX_DIST
+        ball_mult = self.BALL_MULT_A * math.exp(self.BALL_MULT_B * factor)
+        move_angle = self.ball_angle + ball_mult * offset
  
         if move_angle > 360: move_angle -= 360
         
-        print(f"absolute ball angle: {round(self.abs_ball_angle)}, relative ball angle: {round(self.rel_ball_angle)},  move angle: {round(move_angle)}")
+        print(f"ball angle: {round(self.ball_angle)}, move angle: {round(move_angle)}")
         print(f"ball distance: {self.ball_dist}, ball value: {ball_mult}")
         if self.x > 25 * SCALE + INNER_WIDTH * SCALE:
             self.x = 25 * SCALE + INNER_WIDTH * SCALE
@@ -193,7 +203,7 @@ def main():
             attacker.stop = False
             
         attacker.update_move(ball)
-        ball.update_pos(attacker)
+        attacker.ball.update_pos(attacker)
         #opp_goalie.block(ball)
         #if check_collision(attacker.x, attacker.y, opp_goalie.x, opp_goalie.y, attacker.radius, opp_goalie.radius):
         #    attacker.stop = True

@@ -1,13 +1,15 @@
 #include "IMU.h"
 
-IMU::IMU() {
+IMU::IMU(TwoWire *theWire) {
     // bno = Adafruit_BNO055(WIRE2_BUS, -1, 0x29, I2C_MASTER, I2C_PINS_3_4,
     //                       I2C_PULLUP_EXT, I2C_RATE_100, I2C_OP_MODE_ISR);
-    bno = Adafruit_BNO055(55, 0x28);
+    bno = Adafruit_BNO055(55, 0x29, theWire);
 }
 
 void IMU::init() {
-    bno.begin();
+    if (!bno.begin()){
+        while (1);
+    } 
     delay(1000);
     bno.setExtCrystalUse(true);
     read();

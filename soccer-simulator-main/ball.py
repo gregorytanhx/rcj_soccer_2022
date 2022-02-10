@@ -17,7 +17,7 @@ BLUE_GOAL_Y = round((25-7.4) * SCALE)
 
 class Ball(object):
     img = pygame.image.load("assets/ball.png")
-    img = pygame.transform.scale(img, (7 * SCALE, 7 * SCALE))
+    img = pygame.transform.scale(img, (4.2 * SCALE, 4.2 * SCALE))
     def __init__(self, x, y):
         self.x = x
         self.y = y
@@ -68,4 +68,4 @@ class Ball(object):
                 self.vel -= 0.1
             
     def draw(self, screen):
-        screen.blit(self.img, (self.x-(7*SCALE//2), self.y-(7*SCALE//2)))
+        screen.blit(self.img, (self.x-(4.2*SCALE//2), self.y-(4.2*SCALE//2)))

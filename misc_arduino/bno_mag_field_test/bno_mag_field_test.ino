@@ -33,6 +33,7 @@ static const int OUT_PIN = 23;
 
 // Check I2C device address and correct line below (by default address is 0x29 or 0x28)
 //                                   id, address
+
 Adafruit_BNO055 bno = Adafruit_BNO055(55, 0x29);
 int speed = 10000;
 void setup(void)
@@ -56,7 +57,7 @@ void setup(void)
 
 
   delay(1000);
-  bno.setExtCrystalUse(true);
+  bno.setExtCrystalUse(false);
 }
 
 void loop(void)
@@ -82,11 +83,8 @@ void loop(void)
 //  printEvent(&magnetometerData);
 //  printEvent(&accelerometerData);
 //  printEvent(&gravityData);
-y
-  int8_t boardTemp = bno.getTemp();
-  Serial.println();
-  Serial.print(F("temperature: "));
-  Serial.println(boardTemp);
+
+ 
 
 //  uint8_t system, gyro, accel, mag = 0;
 //  bno.getCalibration(&system, &gyro, &accel, &mag);
