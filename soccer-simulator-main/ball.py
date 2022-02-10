@@ -44,11 +44,14 @@ class Ball(object):
         
     def update_pos(self, bot, new_pos = None):
         if new_pos:
-            self.x, self.y = new_pos        
-            self.hit = False
-            self.kick = False
-            self.stop = False
             
+            # constrain new pos to be within window boundary
+            if new_pos[0] <= OUTER_WIDTH * SCALE - 10 and new_pos[1] <= OUTER_HEIGHT * SCALE - 10:
+                self.x, self.y = new_pos        
+                self.hit = False
+                self.kick = False
+                self.stop = False
+                
         elif not self.check_collision():
             if self.caught:
                 self.x = bot.x + (bot.radius //2 + self.diameter) * math.sin(bot.angle * math.pi/180)

@@ -1,7 +1,9 @@
 
 from turtle import window_height
 import pygame, sys, os, math, time
-
+import tkinter as tk
+from tkinter import *
+import pickle
 from background import draw_bg
 from ball import Ball
 pygame.init()
@@ -19,7 +21,35 @@ BLUE_GOAL_RIGHT_X = (OUTER_WIDTH - 61) * SCALE
 BLUE_GOAL_Y = round((25-7.4) * SCALE)
 
 screen = pygame.display.set_mode((OUTER_WIDTH * SCALE, OUTER_HEIGHT * SCALE))
+
+# tkinter gui for tuning
+
+root = tk.Tk()
+root.title("Tuning")
+root.geometry("400x600")
+
+k = tk.Scale(root, from_=0.7, to=1.2, resolution=0.02, orient=HORIZONTAL, length = 300)
+
+a = tk.Scale(root, from_= 0, to=1.2, resolution=0.001, orient=HORIZONTAL, length = 300)
+
+b = tk.Scale(root, from_= 0, to= 8, resolution=0.1, orient=HORIZONTAL, length = 300)
+
+
+def save():       
+    vals = [k.get(), a.get(), b.get()] 
+    with open("settings.pkl", "wb+") as f:
+        pickle.dump(vals, f) 
+
+save_btn=tk.Button(root,text = 'Save', command = save)
+k.grid(row=0, column=0)
+a.grid(row=1, column=0)
+b.grid(row=2, column=0)
+save_btn.grid(row=3, column=0)
+
+
+
 def degtorad(angle):
+    
 	return angle * math.pi/180
 
 def sigmoid(x):
@@ -103,10 +133,16 @@ class Attacker(Bot):
     def __init__(self, x, y, offset_k = 1, mult_a = 0.2, mult_b = 0.7):
         super().__init__(x, y)
         self.MAX_DIST = 800
-        self.OFFSET_K = offset_k
-        self.BALL_MULT_A = mult_a
-        self.BALL_MULT_B = mult_b
-        
+        self.prevVals = None
+        try:
+            with open("settings.pkl", "rb") as f:
+                tmp = pickle.load()
+                self.OFFSET_K, self.BALL_MULT_A, self.BALL_MULT_B = tmp
+        except:
+            self.OFFSET_K = offset_k
+            self.BALL_MULT_A = mult_a
+            self.BALL_MULT_B = mult_b
+            
     def check_ball(self):
         # check collision with ball
         if check_collision(self.x, self.y, self.ball.x, self.ball.y, self.radius, self.ball.diameter):
@@ -123,14 +159,29 @@ class Attacker(Bot):
         self.ball.caught = False
         self.has_ball = False
         
+    def update_vals(self):
+        updated = False
+        
+        self.OFFSET_K = k.get()
+        self.BALL_MULT_A = a.get()
+        self.BALL_MULT_B = b.get()
+        currVals = [self.OFFSET_K, self.BALL_MULT_A, self.BALL_MULT_B]
+        if self.prevVals:
+            for i, item in enumerate(currVals):
+                if item - self.prevVals[i] != 0:
+                    updated = True
+        self.prevVals = currVals
+        return updated
 
     def update_move(self, screen):   
         tmpX, tmpY = OUTER_WIDTH * SCALE // 2 , OUTER_HEIGHT * SCALE // 2
         
+            
         while abs(tmpX - self.ball.x) > 10 or abs(tmpY - self.ball.y) > 10:
        
             self.get_ball_data((tmpX, tmpY))
-                
+            if self.ball_angle > 180:
+                self.ball_angle -= 360
             if self.ball_angle <= 180:
                 offset = min(self.ball_angle * self.OFFSET_K, 90)
             else:
@@ -185,15 +236,15 @@ def main():
              
         buttons = pygame.mouse.get_pressed()
         draw_bg(screen) 
-        if sum(buttons): 
+        if attacker.update_vals() or sum(buttons): 
             attacker.stop = False
             attacker.ball.update_pos(attacker, pygame.mouse.get_pos())
             attacker.update_move(screen)
            
             pygame.display.update()
-        
-
        
+    
+        root.update()
             
         
         #opp_goalie.draw(screen)   

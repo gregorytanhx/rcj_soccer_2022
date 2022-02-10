@@ -176,8 +176,7 @@ def main():
             attacker.ball.caught = False 
             attacker.stop = True          
              
-        buttons = pygame.mouse.get_pressed()
-        if sum(buttons): 
+        if pygame.mouse.get_pressed(): 
             attacker.stop = False
             attacker.ball.update_pos(attacker, pygame.mouse.get_pos())
         else:
