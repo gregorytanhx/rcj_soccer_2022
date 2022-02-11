@@ -39,20 +39,25 @@ a = tk.Scale(root, from_= 0, to= 2, resolution=0.001, orient=HORIZONTAL, length 
  
 b = tk.Scale(root, from_= 0, to= 8, resolution=0.1, orient=HORIZONTAL, length = 300)
 
+c = tk.Scale(root, from_= 200, to=1000, resolution=10, orient=HORIZONTAL, length = 300)
+
 k_label = tk.Label(root, text = 'OFFSET_K', font=('calibre',10, 'bold'))
 
 a_label = tk.Label(root, text = 'BALL_MULT_A', font=('calibre',10, 'bold'))
 
 b_label = tk.Label(root, text = 'BALL_MULT_B', font=('calibre',10, 'bold'))
 
+c_label = tk.Label(root, text = 'MAX_DIST', font=('calibre',10, 'bold'))
+
 # load previously saved values
 try:
     with open("settings.pkl", "rb") as f:
         tmp = pickle.load(f)
-        OFFSET_K, BALL_MULT_A, BALL_MULT_B = tmp
+        OFFSET_K, BALL_MULT_A, BALL_MULT_B, MAX_DIST = tmp
         k.set(OFFSET_K)
         a.set(BALL_MULT_A)
         b.set(BALL_MULT_B)
+        c.set(MAX_DIST)
 except:
     pass
 
@@ -69,8 +74,10 @@ a_label.grid(row=2, column=0)
 a.grid(row=3, column=0)
 b_label.grid(row=4, column=0)
 b.grid(row=5, column=0)
+c_label.grid(row=6, column=0)
+c.grid(row=7, column=0)
 
-save_btn.grid(row=6, column=0)
+save_btn.grid(row=8, column=0)
 
 
 
@@ -158,7 +165,6 @@ class Attacker(Bot):
     speed = 2
     def __init__(self, x, y, offset_k = 1.02, mult_a = 0.075, mult_b = 2.3):
         super().__init__(x, y)
-        self.MAX_DIST = 800
         self.prevVals = None
         self.txt = ""
        
@@ -185,7 +191,8 @@ class Attacker(Bot):
         self.OFFSET_K = k.get()
         self.BALL_MULT_A = a.get()
         self.BALL_MULT_B = b.get()
-        currVals = [self.OFFSET_K, self.BALL_MULT_A, self.BALL_MULT_B]
+        self.MAX_DIST = c.get()
+        currVals = [self.OFFSET_K, self.BALL_MULT_A, self.BALL_MULT_B, self.MAX_DIST]
         if self.prevVals:
             for i, item in enumerate(currVals):
                 if item - self.prevVals[i] != 0:
