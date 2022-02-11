@@ -21,18 +21,40 @@ BLUE_GOAL_RIGHT_X = (OUTER_WIDTH - 61) * SCALE
 BLUE_GOAL_Y = round((25-7.4) * SCALE)
 
 screen = pygame.display.set_mode((OUTER_WIDTH * SCALE, OUTER_HEIGHT * SCALE))
+font = pygame.font.Font('freesansbold.ttf', 16)
 
+ 
 # tkinter gui for tuning
+
+
+#TODO: check if path will end up catching ball (angle <= 5)
 
 root = tk.Tk()
 root.title("Tuning")
-root.geometry("400x600")
+root.geometry("350x300")
 
-k = tk.Scale(root, from_=0.7, to=1.2, resolution=0.02, orient=HORIZONTAL, length = 300)
+k = tk.Scale(root, from_= 0, to= 1.2, resolution=0.02, orient=HORIZONTAL, length = 300)
 
-a = tk.Scale(root, from_= 0, to=1.2, resolution=0.001, orient=HORIZONTAL, length = 300)
-
+a = tk.Scale(root, from_= 0, to= 2, resolution=0.001, orient=HORIZONTAL, length = 300)
+ 
 b = tk.Scale(root, from_= 0, to= 8, resolution=0.1, orient=HORIZONTAL, length = 300)
+
+k_label = tk.Label(root, text = 'OFFSET_K', font=('calibre',10, 'bold'))
+
+a_label = tk.Label(root, text = 'BALL_MULT_A', font=('calibre',10, 'bold'))
+
+b_label = tk.Label(root, text = 'BALL_MULT_B', font=('calibre',10, 'bold'))
+
+# load previously saved values
+try:
+    with open("settings.pkl", "rb") as f:
+        tmp = pickle.load(f)
+        OFFSET_K, BALL_MULT_A, BALL_MULT_B = tmp
+        k.set(OFFSET_K)
+        a.set(BALL_MULT_A)
+        b.set(BALL_MULT_B)
+except:
+    pass
 
 
 def save():       
@@ -41,10 +63,14 @@ def save():
         pickle.dump(vals, f) 
 
 save_btn=tk.Button(root,text = 'Save', command = save)
-k.grid(row=0, column=0)
-a.grid(row=1, column=0)
-b.grid(row=2, column=0)
-save_btn.grid(row=3, column=0)
+k_label.grid(row=0, column=0)
+k.grid(row=1, column=0)
+a_label.grid(row=2, column=0)
+a.grid(row=3, column=0)
+b_label.grid(row=4, column=0)
+b.grid(row=5, column=0)
+
+save_btn.grid(row=6, column=0)
 
 
 
@@ -130,18 +156,12 @@ class Bot(object):
 
 class Attacker(Bot):
     speed = 2
-    def __init__(self, x, y, offset_k = 1, mult_a = 0.2, mult_b = 0.7):
+    def __init__(self, x, y, offset_k = 1.02, mult_a = 0.075, mult_b = 2.3):
         super().__init__(x, y)
         self.MAX_DIST = 800
         self.prevVals = None
-        try:
-            with open("settings.pkl", "rb") as f:
-                tmp = pickle.load()
-                self.OFFSET_K, self.BALL_MULT_A, self.BALL_MULT_B = tmp
-        except:
-            self.OFFSET_K = offset_k
-            self.BALL_MULT_A = mult_a
-            self.BALL_MULT_B = mult_b
+        self.txt = ""
+       
             
     def check_ball(self):
         # check collision with ball
@@ -174,7 +194,7 @@ class Attacker(Bot):
         return updated
 
     def update_move(self, screen):   
-        tmpX, tmpY = OUTER_WIDTH * SCALE // 2 , OUTER_HEIGHT * SCALE // 2
+        tmpX, tmpY = self.x, self.y
         
             
         while abs(tmpX - self.ball.x) > 10 or abs(tmpY - self.ball.y) > 10:
@@ -209,17 +229,28 @@ class Attacker(Bot):
         #     self.x = 25 * SCALE + INNER_WIDTH * SCALE
         # elif self.x < 25 * SCALE:
         #     self.x = 25 * SCALE
+        if abs(self.ball_angle) >= 5:
+            text = font.render(f"{self.ball_angle:.2f} BALL NOT CAUGHT", True, (255, 50, 50))
+        else:
+            text = font.render(f"{self.ball_angle:.2f} BALL CAUGHT", True, (255, 255, 255))
+            
         
-        # else:
-        #     self.move(move_angle, self.speed) 
+        textRect = text.get_rect()
         
+        # set the center of the rectangular object.
+        textRect.center = (120, 20)
+                #self.move(move_angle, self.speed) 
+        screen.blit(text, textRect)
+        pygame.display.update()
     
 
 def main():
-    attacker = Attacker(ATTACKER_START_X, ATTACKER_START_Y)
+    attacker = Attacker(OUTER_WIDTH * SCALE // 2 , OUTER_HEIGHT * SCALE // 2)
     #opp_goalie = Opp_Goalie(OPP_GOALIE_START_X + 100, OPP_GOALIE_START_Y)
     run = True
     last = time.time()
+    draw_bg(screen) 
+    pygame.display.update()
     while run:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -236,12 +267,21 @@ def main():
              
         buttons = pygame.mouse.get_pressed()
         draw_bg(screen) 
-        if attacker.update_vals() or sum(buttons): 
+
+        # change ball position on right click
+        if attacker.update_vals() or buttons[0]: 
             attacker.stop = False
             attacker.ball.update_pos(attacker, pygame.mouse.get_pos())
             attacker.update_move(screen)
            
             pygame.display.update()
+            
+        # change "bot" position on left click
+        if buttons[2]:
+            tmpX, tmpY = pygame.mouse.get_pos()
+            if tmpX <= OUTER_WIDTH * SCALE - 10 and tmpY <= OUTER_HEIGHT * SCALE - 10:
+
+                attacker.x, attacker.y = tmpX, tmpY
        
     
         root.update()
