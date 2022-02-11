@@ -21,6 +21,7 @@ BLUE_GOAL_RIGHT_X = (OUTER_WIDTH - 61) * SCALE
 BLUE_GOAL_Y = round((25-7.4) * SCALE)
 
 screen = pygame.display.set_mode((OUTER_WIDTH * SCALE, OUTER_HEIGHT * SCALE))
+pygame.display.set_caption('Ball Track Tuner')
 font = pygame.font.Font('freesansbold.ttf', 16)
 
  
@@ -33,13 +34,13 @@ root = tk.Tk()
 root.title("Tuning")
 root.geometry("350x300")
 
-k = tk.Scale(root, from_= 0, to= 1.2, resolution=0.02, orient=HORIZONTAL, length = 300)
+k = tk.Scale(root, from_= 0, to = 1.2, resolution=0.02, orient=HORIZONTAL, length = 300)
 
-a = tk.Scale(root, from_= 0, to= 2, resolution=0.001, orient=HORIZONTAL, length = 300)
+a = tk.Scale(root, from_= 0, to = 2, resolution=0.001, orient=HORIZONTAL, length = 300)
  
-b = tk.Scale(root, from_= 0, to= 8, resolution=0.1, orient=HORIZONTAL, length = 300)
+b = tk.Scale(root, from_= 0, to = 8, resolution=0.1, orient=HORIZONTAL, length = 300)
 
-c = tk.Scale(root, from_= 200, to=1000, resolution=10, orient=HORIZONTAL, length = 300)
+c = tk.Scale(root, from_= 200, to= 1000, resolution=10, orient=HORIZONTAL, length = 300)
 
 k_label = tk.Label(root, text = 'OFFSET_K', font=('calibre',10, 'bold'))
 
@@ -63,7 +64,7 @@ except:
 
 
 def save():       
-    vals = [k.get(), a.get(), b.get()] 
+    vals = [k.get(), a.get(), b.get(), c.get()] 
     with open("settings.pkl", "wb+") as f:
         pickle.dump(vals, f) 
 
@@ -117,6 +118,7 @@ class Bot(object):
         self.angle = 0
     
     def move(self, angle, speed):
+        # mimic holonomic movement
         if not self.stop:
             a = math.sin(degtorad(50+angle)) * (1/math.sin(degtorad(80)))
             b = math.sin(degtorad(50-angle)) * (1/math.sin(degtorad(80)))
@@ -229,13 +231,7 @@ class Attacker(Bot):
             self.draw(screen)
             pygame.display.update()
 
-            # print(self.ball.x, self.ball.y, tmpX, tmpY)
-            # print(f"ball angle: {round(self.ball_angle)}, move angle: {round(move_angle)}")
-        #print(f"ball distance: {self.ball_dist}, ball value: {ball_mult}")
-        # if self.x > 25 * SCALE + INNER_WIDTH * SCALE:
-        #     self.x = 25 * SCALE + INNER_WIDTH * SCALE
-        # elif self.x < 25 * SCALE:
-        #     self.x = 25 * SCALE
+           
         if abs(self.ball_angle) >= 5:
             text = font.render(f"{self.ball_angle:.2f} BALL NOT CAUGHT", True, (255, 50, 50))
         else:
