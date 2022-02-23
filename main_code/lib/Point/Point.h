@@ -7,8 +7,8 @@
 class Point {
   // include both polar and cartesian coordinates
   public:
-    int x;
-    int y;
+    int16_t x;
+    int16_t y;
     float angle;
     float distance;
 

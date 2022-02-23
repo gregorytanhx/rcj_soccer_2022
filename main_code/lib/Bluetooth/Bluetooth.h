@@ -9,12 +9,12 @@
 
 #define BLUETOOTH_BAUD 115200
 #define BLUETOOTH_SYNC_BYTE 71
-#define BLUETOOTH_PACKET_SIZE 13
+#define BLUETOOTH_PACKET_SIZE 12
 #define BLUETOOTH_LOST_COMMUNICATION_TIME 5000
 
 typedef union BTbuffer {
-    int16_t value[6];
-    uint8_t b[12];
+    int16_t vals[4];
+    uint8_t b[11];
 } int16Data;
 
 typedef struct BluetoothData {

@@ -33,8 +33,8 @@ Role role;
 uint8_t robotID;
 
 Point botCoords(0, 0);
-Point ballCoords(0, 0);
-
+Point relBallCoords(0, 0);
+Point absBallCoords(0, 0);
 
 PID coordPID(COORD_KP, COORD_KI, COORD_KD);
 PID goaliePID(GOALIE_KP, GOALIE_KI, GOALIE_KD);
@@ -134,17 +134,16 @@ void trackBall() {
 void getBallData() {    
     ballData.visible = camera.ballVisible;
     if (ballData.visible) {
-        Point tmp(camera.ballAngle, camera.ballDist);
-        ballCoords = botCoords + tmp;
+        relBallCoords = Point(camera.ballAngle, camera.ballDist);
+        absBallCoords = relBallCoords + botCoords;
         ballData.angle = camera.ballAngle;
         ballData.dist = camera.ballDist;
-        ballData.x = ballCoords.x;
-        ballData.y = ballCoords.y;
+        ballData.x = absBallCoords.x;
+        ballData.y = absBallCoords.y;
     } else {
         // derive angle and distance of ball relative to robot based on its absolute coordinates
-        ballData.x = otherBallCoords.x;
-        ballData.y = otherBallCoords.y;
-        ballCoords = otherBallCoords - botCoords;
+        absBallCoords = Point(bt.otherData.ballData.x, bt.otherData.ballData.y);
+        relBallCoords = absBallCoords - botCoords;
         ballData.angle = ballCoords.getAngle();
         ballData.dist = ballCoords.getDist();
     }

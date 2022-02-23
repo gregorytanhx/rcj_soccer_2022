@@ -8,15 +8,17 @@ void Bluetooth::init() {
 void Bluetooth::send() {
   BTSerial.write(BLUETOOTH_SYNC_BYTE);
 
-  // set up a buffer
+  // fill buffer and send
+  BTBuffer.vals[0] = ownData.ballData.x;
+  BTBuffer.vals[1] = ownData.ballData.y;
+  BTBuffer.vals[2] = ownData.robotPos.x;
+  BTBuffer.vals[3] = ownData.robotPos.y;
+  BTBuffer.b[8] = ownData.ballData.visible;
+  BTBuffer.b[9] = ownData.onField;
+  BTBuffer.b[10] = ownData.playMode;
+
+  BTSerial.write(BTBuffer, sizeof(BTBuffer.b));
   
-  BTSerial.write(ownData.ballData., 2);
-  BTSerial.write(ownData.ballData.y.b, 2);
-  BTSerial.write(ownData.robotPos.x.b, 2);
-  BTSerial.write(ownData.robotPos.y.b, 2);
-  BTSerial.write(ownData.onField);
-  BTSerial.write(ownData.playMode);
-  BTSerial.write(ownData.ballData.visible);
 }
 
 void Bluetooth::receive() {
@@ -24,10 +26,13 @@ void Bluetooth::receive() {
   while (BTSerial.available() >= BLUETOOTH_PACKET_SIZE) {
     uint8_t syncByte = BTSerial.read();
     if (syncByte == BLUETOOTH_SYNC_BYTE) {
-        for (int i = 0; i < 11; i++) {
-            BTbuffer.b[i] = BTSerial.read();
+        for (int i = 0; i < BLUETOOTH_PACKET_SIZE - 1; i++) {
+            BTBuffer.b[i] = BTSerial.read();
         }
-        otherData.ballData = BallData()
+        otherData.ballData = BallData(BTBuffer.vals[0], BTBuffer.vals[1], (bool) BTBuffer.b[8]);
+        otherData.robotPos = Point(BTBuffer.vals[2], BTBuffer.vals[3]);
+        otherData.onField = (bool) BTBuffer.b[9];
+        otherData.playMode =  static_cast<PlayMode> BTBuffer.b[10];
         timer.update();
       
     }
