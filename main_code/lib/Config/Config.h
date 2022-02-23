@@ -55,7 +55,7 @@
 #define L1Serial Serial1
 #define L4Serial Serial2
 #define CamSerial Serial3
-#define BluetoothSerial Serial4
+#define BTSerial Serial4
 
 #define L1CommSerial Serial1
 #define L1DebugSerial Serial2

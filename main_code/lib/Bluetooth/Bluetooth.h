@@ -3,21 +3,39 @@
 
 #include <Arduino.h>
 #include <Common.h>
+#include <Config.h>
+#include <BallData.h>
+#include <Point.h>
 
 #define BLUETOOTH_BAUD 115200
 #define BLUETOOTH_SYNC_BYTE 71
-#define BLUETOOTH_PACKET_SIZE 15
+#define BLUETOOTH_PACKET_SIZE 13
 #define BLUETOOTH_LOST_COMMUNICATION_TIME 5000
 
+typedef union BTbuffer {
+    int16_t value[6];
+    uint8_t b[12];
+} int16Data;
 
 typedef struct BluetoothData {
-  floatData ballAngle;
-  floatData ballDist;
-  bool ballVisible;
-  int16Data posX;
-  int16Data posY;
-  bool onField;
+  BallData ballData;
+  Point robotPos;
   PlayMode playMode;
+  bool onField;
+
+  BluetoothData() {
+      ballData = BallData();
+      playMode = PlayMode::attackMode;
+      onField = true;
+      robotPosition = Point();
+  }
+
+  BluetoothData(BallData ballData, Point robotPos,
+                PlayMode playMode, bool onField)
+      : ballData(ballData),
+        robotPos(robotPos),
+        playMode(playMode),
+        onField(onField) {}
 } BluetoothData;
 
 class Bluetooth {

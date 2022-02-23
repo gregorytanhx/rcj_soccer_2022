@@ -25,10 +25,10 @@ pygame.display.set_caption('Ball Track Tuner')
 font = pygame.font.Font('freesansbold.ttf', 16)
 
  
+#TODO: try out moving ball? 
+ 
+ 
 # tkinter gui for tuning
-
-
-#TODO: check if path will end up catching ball (angle <= 5)
 
 root = tk.Tk()
 root.title("Tuning")
@@ -59,15 +59,19 @@ try:
         a.set(BALL_MULT_A)
         b.set(BALL_MULT_B)
         c.set(MAX_DIST)
+        vals = {"OFFSET_K": OFFSET_K, "BALL_MULT_A": BALL_MULT_A, "BALL_MULT_B": BALL_MULT_B, "MAX_DIST": MAX_DIST}
+        print(vals)
 except:
     pass
 
 
 def save():       
-    vals = [k.get(), a.get(), b.get(), c.get()] 
+    vals = [k.get(), a.get(), b.get(), c.get()]
+    
     with open("settings.pkl", "wb+") as f:
         pickle.dump(vals, f) 
 
+    
 save_btn=tk.Button(root,text = 'Save', command = save)
 k_label.grid(row=0, column=0)
 k.grid(row=1, column=0)
