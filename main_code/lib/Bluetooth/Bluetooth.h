@@ -11,6 +11,8 @@
 #define BLUETOOTH_SYNC_BYTE 71
 #define BLUETOOTH_PACKET_SIZE 21
 #define BLUETOOTH_LOST_COMMUNICATION_TIME 5000
+// robots ping each other every second
+#define BLUETOOTH_UPDATE_TIME 1000
 
 
 // union to serialise and deserialise bluetooth data
@@ -48,7 +50,8 @@ class Bluetooth {
   public: 
     BluetoothData ownData;
     BluetoothData otherData;
-    
+    bool isConnected = false;
+    bool previouslyConnected = false;
     void init();
     void update(BluetoothData data);
 

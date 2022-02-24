@@ -9,6 +9,10 @@
 
 #define FIELD_WIDTH 1320
 #define FIELD_HEIGHT 1920
+#define GOALIE_HOME_X 0
+#define GOALIE_HOME_Y -760
+#define STRIKER_HOME_X 0
+#define STRIKER_HOME_Y -200
 
 #define EEPROM_ID_ADDR 0
 // robot ID: 0 for striker, 1 for goalie
