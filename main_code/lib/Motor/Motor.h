@@ -5,6 +5,7 @@
 #include <Common.h>
 #include <Pins.h>
 
+// struct for movement data to be sent from teensy to layer1
 typedef struct MoveData {
     floatData speed;
     floatData angle;
@@ -16,6 +17,7 @@ typedef struct MoveData {
     }
 } MoveData;
 
+// class to control single motor
 class Motor {
    public:
     Motor() {}
@@ -30,6 +32,7 @@ class Motor {
     int pwmOut = 0;
 };
 
+// class to control all motors
 class Motors {
    public:
     Motors();
@@ -38,11 +41,7 @@ class Motors {
     Motor BL_Motor;
     Motor BR_Motor;
     void setMove(float speed, float angle, float angVel);
-    void angleCorrect(float angle);
     void moveOut();
-
-   private:
-    float cmp_kp;
 };
 
 #endif

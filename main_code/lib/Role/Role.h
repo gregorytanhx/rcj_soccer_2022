@@ -2,8 +2,8 @@
 #define ROLE_H
 
 enum Role {
-    striker,
-    goalie,
+    attack,
+    defend,
     undecided
 };
 

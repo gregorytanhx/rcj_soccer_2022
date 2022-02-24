@@ -18,6 +18,7 @@ Timer lineTimer(1000);
 
 PID lineTrackPID(LINE_TRACK_KP, LINE_TRACK_KI, LINE_TRACK_KD);
 bool lineTrack = false;
+bool lineAvoid = true;
 
 void sendData() {
     Serial1.write(LAYER1_SEND_SYNC_BYTE);
@@ -35,6 +36,7 @@ void receiveData() {
                 motorBuffer.b[i] = Serial1.read();
             }
             lineTrack = (bool)Serial1.read();
+            lineAvoid = (bool)Serial1.read();
         }
     }
     speed = motorBuffer.vals[0];
@@ -74,8 +76,7 @@ void loop() {
             float correction = lineTrackPID.update(angle - moveData.angle);
 
             motors.setMove(LINE_TRACK_SPEED + correction, angle, 0);
-        }
-        else {
+        } else if (lineAvoid) {
             if (abs(lastLineAngle - lineData.lineAngle.val) >= 90) {
                 // allow chord length to keep increasing as robot goes over
                 // centre of line
@@ -83,6 +84,8 @@ void loop() {
             }
             // line avoidance
             motors.setMove(speed * lineData.chordLength.val, lineData.lineAngle.val, 0);
+        } else {
+            motors.setMove(speed, angle, rotation);
         }
     }
     else {

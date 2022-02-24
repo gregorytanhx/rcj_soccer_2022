@@ -8,6 +8,9 @@ IMU::IMU(TwoWire *theWire) {
 
 void IMU::init() {
     if (!bno.begin()){
+        #ifdef DEBUG
+            Serial.println("No BNO055 detected")
+        #endif
         while (1);
     } 
     delay(1000);
@@ -17,6 +20,7 @@ void IMU::init() {
 }
 
 float IMU::readRaw() {
+    // orientation data without magnetometer
     imu::Vector<3> euler = bno.getVector(Adafruit_BNO055::VECTOR_EULER);
     heading = euler.x();
     heading -= offset;

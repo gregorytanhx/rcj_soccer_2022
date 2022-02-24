@@ -6,18 +6,20 @@
 #include <Math.h>
 #include <Timer.h>
 
+// struct for line data to be sent over serial
 typedef struct LineData {
   floatData lineAngle;
   floatData chordLength;
   bool onLine;
 } LineData;
 
+// threshold values for calibrating light sensors
 typedef union LightThresh {
     int16_t vals[32];
     u_int8_t b[64];
-}
+} LightThresh;
 
-
+// class to control light sensors
 class Light {
   public:
     Light();

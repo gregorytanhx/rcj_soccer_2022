@@ -10,6 +10,7 @@
 #include <math.h>
 #include <utility/imumaths.h>
 
+// class for BNO055 IMU
 class IMU {
    public:
     IMU(TwoWire *theWire);
@@ -17,7 +18,7 @@ class IMU {
     float readRaw();
     float read();
     Adafruit_BNO055 bno;
-    int heading;
+    float heading;
 
    private:
     int offset;

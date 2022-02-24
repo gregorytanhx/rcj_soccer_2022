@@ -12,32 +12,38 @@
 #define BLUETOOTH_PACKET_SIZE 12
 #define BLUETOOTH_LOST_COMMUNICATION_TIME 5000
 
-typedef union BTbuffer {
-    int16_t vals[4];
-    uint8_t b[11];
-} int16Data;
 
+// union to serialise and deserialise bluetooth data
+typedef union BTBuffer {
+    float f[2];
+    int16_t vals[8];
+    uint8_t b[19];
+} BTBuffer;
+
+// struct to hold data for all variables to be sent over bluetooth
 typedef struct BluetoothData {
   BallData ballData;
   Point robotPos;
-  PlayMode playMode;
+  Role role;
   bool onField;
+  float confidence; // confidence of robot position
 
   BluetoothData() {
       ballData = BallData();
-      playMode = PlayMode::attackMode;
+      role = Role::attack;
       onField = true;
       robotPosition = Point();
   }
 
   BluetoothData(BallData ballData, Point robotPos,
-                PlayMode playMode, bool onField)
+                Role role, bool onField)
       : ballData(ballData),
         robotPos(robotPos),
-        playMode(playMode),
+        role(role),
         onField(onField) {}
 } BluetoothData;
 
+// bluetooth class for HC05
 class Bluetooth {
   public: 
     BluetoothData ownData;

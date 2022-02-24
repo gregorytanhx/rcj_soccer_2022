@@ -37,9 +37,8 @@
 #define BALL_MULT_B 1
 
 
-
 // send: sent by layer 1, rec: received by layer 1
-#define LAYER1_REC_PACKET_SIZE 14
+#define LAYER1_REC_PACKET_SIZE 15
 #define LAYER1_SEND_PACKET_SIZE 9
 #define LAYER1_REC_SYNC_BYTE 2
 #define LAYER1_SEND_SYNC_BYTE 2

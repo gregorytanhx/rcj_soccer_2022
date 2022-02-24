@@ -17,6 +17,7 @@ typedef struct BallData {
         angle = 0;
         dist = 0;
         visible = false;
+        captured = false;
     }
     BallData(int16_t X, int16_t Y, bool Visible){
         x = X;

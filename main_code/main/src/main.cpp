@@ -19,7 +19,7 @@ Motors motors;
 
 float lastLineAngle = 0;
 bool lineTrack = false;
-
+bool lineAvoid = true;
 bool hasBall = false;
 
 TOFBuffer tof;
@@ -76,6 +76,7 @@ void sendLayer1() {
     L1Serial.write(moveData.angle.b, 4);
     L1Serial.write(moveData.rotation.b, 4);
     L1Serial.write(lineTrack);
+    L1Serial.write(lineAvoid);
 }
 
 void readLayer1() {
@@ -111,12 +112,6 @@ void processTOF() {
 }
 
 void trackBall() {
-    // TODO: tune using simulator
-    if (!ballData.visible) {
-        Point diff = ballCoords - botCoords;
-        ballData.angle = diff.getAngle();
-        ballData.dist = diff.getDistance();
-    } 
     float ballOffset;
     if (ballData.angle < 180){
         ballOffset = fmin(ballData.angle * 0.96, 90);
@@ -131,8 +126,13 @@ void trackBall() {
      
 }
 
-void getBallData() {    
+bool readLightGate() {
+    return analogRead(LIGHT_GATE_PIN) >= LIGHT_GATE_THRESH;
+} 
+
+void updateBallData() {    
     ballData.visible = camera.ballVisible;
+    ballData.captured = readLightGate;
     if (ballData.visible) {
         relBallCoords = Point(camera.ballAngle, camera.ballDist);
         absBallCoords = relBallCoords + botCoords;
@@ -144,8 +144,8 @@ void getBallData() {
         // derive angle and distance of ball relative to robot based on its absolute coordinates
         absBallCoords = Point(bt.otherData.ballData.x, bt.otherData.ballData.y);
         relBallCoords = absBallCoords - botCoords;
-        ballData.angle = ballCoords.getAngle();
-        ballData.dist = ballCoords.getDist();
+        ballData.angle = relBallCoords.getAngle();
+        ballData.dist = relBallCoords.getDist();
     }
 }
 
@@ -157,7 +157,6 @@ void trackGoal() {
         goalOffset = max((360 - camera.oppAngle), -90);
     }
     float goalMult = 1.5;
-
     robotAngle = camera.oppAngle + goalMult * goalOffset;
     setMove(SPEED, robotAngle, 0);
 }
@@ -169,16 +168,14 @@ void defend() {
 }
 
 void goTo(Point target) {
-    // determine angle from TOF
-    Point tmp = target - botCoords;
-    float moveAngle = tmp.getAngle();
-    float dist = tmp.getDist();
-    float moveSpeed = (dist < COORD_LEEWAY_DIST) ? 0 : max(coordPID.update(dist), MIN_SPEED);
-
-    setMove(moveSpeed, moveAngle, 0);
+    // go to point based on robot's coordinates
+    Point moveVector = target - botCoords;
+    float moveSpeed = (moveVector.getDist() < COORD_LEEWAY_DIST) ? 0 : max(coordPID.update(moveVector.getDist()), MIN_SPEED);
+    setMove(moveSpeed, moveVector.getAngle(), 0);
 }
 
 void goToWithCam(Point target) {
+    // go to point based on vector calculations
     Point oppGoalVec(Camera.oppGoalAngle, Camera.oppGoalDistance);
     Point ownGoalVec(Camera.ownGoalAngle, Camera.ownGoalDistance);
 
@@ -186,17 +183,22 @@ void goToWithCam(Point target) {
     Point centre = oppGoalVec + ownGoalVec;
     centre.distance /= 2;
     Point moveVector = centre + target;
+    float moveSpeed = (moveVector.getDist() < COORD_LEEWAY_DIST) ? 0 : max(coordPID.update(moveVector.getDist()), MIN_SPEED);
     setMove(moveSpeed, moveVector.getAngle(), 0);
-
 }
 
 void updateBluetooth() {
-    btData = BluetoothData(....)
+    btData = BluetoothData(ballData, botCoords, role, onField)
+    bt.update(btData);
 }
 
 bool shouldSwitchRoles() { 
     // switch roles if goalie has ball or ball is much closer to goalie or striker went out out field
     return (role == Role::goalie && hasBall)
+}
+
+void angleCorrect() {
+    moveData.rotation.val = IMU.read();
 }
 
 // void getCameraCoords() {
@@ -217,9 +219,9 @@ void setup() {
 #endif
 
     if (robotID)
-        role = Role::striker;
+        role = Role::attack;
     else
-        role = Role::goalie;
+        role = Role::defend;
 
 #ifdef DEBUG
     Serial.begin(9600);
@@ -248,11 +250,11 @@ void loop() {
     camera.process();
     heading = imu.read();
     readLayer4();
+    processTOF();
+    updateBallData();
 
-    hasBall = analogRead(LIGHT_GATE_PIN) >= LIGHT_GATE_THRESH;
-
-    if (role == striker) {
-        if (hasBall) {
+    if (role == Role::attack) {
+        if (ballData.captured) {
             trackGoal();
         } else {
             trackBall();
@@ -260,7 +262,7 @@ void loop() {
     } else {
         defend();
     }
-
+    angleCorrect();
     sendLayer1();
     readLayer1();
 }

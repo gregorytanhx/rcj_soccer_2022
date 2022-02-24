@@ -10,6 +10,7 @@
 #include <vl53l1_error_codes.h>
 #include <vl53l1x_class.h>
 
+// wrapper for VL53L1X TOF sensors
 class TOF {
    public:
     TOF(TwoWire &i2cPort, int shutdownPin, int interruptPin)
@@ -22,6 +23,7 @@ class TOF {
     int interruptPin;
 }
 
+// class for reading from all TOFs
 class TOF_Array {
    public:
     TOF_Array(TwoWire &i2cPort);

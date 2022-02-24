@@ -12,8 +12,7 @@ enum Side {
   unset
 };
 
-Camera camera;
-
+// class to receive and process data from OpenMV 
 class Camera {
   public:
     void init();
