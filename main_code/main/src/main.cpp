@@ -26,6 +26,7 @@ TOFBuffer tof;
 IMU imu;
 float heading;
 float robotAngle;
+float frontTOF, backTOF, leftTOF, rightTOF;
 
 Timer kickerTimer(500);
 
@@ -108,7 +109,9 @@ void readLayer4() {
 void processTOF() {
     // TODO: convert TOF distances to bounding box of robot on field
     // use kalman filter to detect if TOF is temporarily blocked?
-
+   
+    
+    
 }
 
 void trackBall() {
@@ -226,7 +229,6 @@ void setup() {
 #ifdef DEBUG
     Serial.begin(9600);
 #endif
-
     L1Serial.begin(STM32_BAUD);
     L4Serial.begin(STM32_BAUD);
     CamSerial.begin(CAMERA_BAUD);

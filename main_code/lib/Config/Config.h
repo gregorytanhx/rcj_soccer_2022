@@ -6,6 +6,10 @@
 #define DEBUG
 #define SET_ID
 
+
+#define FIELD_WIDTH 1320
+#define FIELD_HEIGHT 1920
+
 #define EEPROM_ID_ADDR 0
 // robot ID: 0 for striker, 1 for goalie
 #define ID 0

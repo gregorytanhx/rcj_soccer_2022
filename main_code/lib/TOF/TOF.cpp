@@ -60,3 +60,32 @@ void TOF_Array::send() {
     Serial1.write(LAYER4_SYNC_BYTE);
     Serial1.write(buffer.b, 8);
 }
+
+void BBox::update(TOFBuffer tof) {
+    frontTOF = tof.vals[0];
+    rightTOF = tof.vals[1];
+    backTOF = tof.vals[2];
+    leftTOF = tof.vals[3];
+
+    Xstart = leftTOF;
+    Xend = FIELD_WIDTH - rightTOF;
+    Ystart = frontTOF;
+    Yend = FIELD_HEIGHT - backTOF;
+
+    width = Xend - Xstart;
+    height = Yend - Ystart;
+
+    // recenter to obtain coordinates
+    Xstart -= FIELD_WIDTH / 2;
+    Xend -= FIELD_WIDTH / 2;
+    Ystart = FIELD_HEIGHT / 2 - Ystart;
+    Yend = FIELD_HEIGHT / 2 - Yend;
+
+    x = (Xstart - Xend) / 2;
+    y = (Ystart - Yend) / 2;
+
+    // take area of robot over area of bbox as confidence score
+    confidence = (18 * 18) / (width * height);
+
+    
+}

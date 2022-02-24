@@ -37,4 +37,18 @@ class TOF_Array {
     TOFBuffer buffer;
 };
 
+// class for bounding box for robot's position
+class BBox {
+    public:
+      int width;
+      int height;
+      int x;
+      int y;
+      int Xstart;
+      int Xend;
+      int Ystart;
+      int Yend;
+      float confidence;
+      void update(TOFBuffer tof);
+}
 #endif

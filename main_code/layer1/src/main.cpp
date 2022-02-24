@@ -47,7 +47,8 @@ void receiveData() {
 // handle line avoidance directly through stm32
 void setup() {
     light.init();
-    motors.init() pinMode(PB1, OUTPUT);
+    motors.init();
+    pinMode(PB1, OUTPUT);
     digitalWrite(PB1, HIGH);
     L1DebugSerial.begin(9600);
     L1CommSerial.begin(STM32_BAUD);
@@ -59,7 +60,6 @@ void loop() {
     light.getLineData(LineData);
     receiveData();
     sendData();
-
 
     if (lineData.onLine) {
 
