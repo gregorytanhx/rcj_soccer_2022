@@ -16,6 +16,10 @@ Light light;
 LineData lineData;
 MoveData moveData;
 Motors motors;
+BallData ballData;
+Bluetooth bt;
+BluetoothData btData;
+BBox bbox;
 
 float lastLineAngle = 0;
 bool lineTrack = false;
@@ -40,16 +44,12 @@ Point absBallCoords(0, 0);
 PID coordPID(COORD_KP, COORD_KI, COORD_KD);
 PID goaliePID(GOALIE_KP, GOALIE_KI, GOALIE_KD);
 
-BallData ballData;
-Bluetooth bt;
-BluetoothData btData;
 
 // initialise neutral point coordinates
 // Point neutralPoints[] = {
 //     Point(10, 10);
 //     ...
 // };
-
 
 
 void dribble() { 
@@ -109,9 +109,9 @@ void readLayer4() {
 void processTOF() {
     // TODO: convert TOF distances to bounding box of robot on field
     // use kalman filter to detect if TOF is temporarily blocked?
-   
-    
-    
+    bbox.update(tof);
+    botCoords.x = bbox.x;
+    botCoords.y = bbox.y; 
 }
 
 void trackBall() {
@@ -135,7 +135,7 @@ bool readLightGate() {
 
 void updateBallData() {    
     ballData.visible = camera.ballVisible;
-    ballData.captured = readLightGate;
+    ballData.captured = readLightGate();
     if (ballData.visible) {
         relBallCoords = Point(camera.ballAngle, camera.ballDist);
         absBallCoords = relBallCoords + botCoords;
@@ -174,7 +174,11 @@ void goTo(Point target) {
     // go to point based on robot's coordinates
     Point moveVector = target - botCoords;
     float moveSpeed = (moveVector.getDist() < COORD_LEEWAY_DIST) ? 0 : max(coordPID.update(moveVector.getDist()), MIN_SPEED);
-    setMove(moveSpeed, moveVector.getAngle(), 0);
+    // adjust speed based on confidence in position along each axis
+    float moveAngle = moveVector.getAngle();
+    moveSpeed = distance(moveSpeed * sin(rad2deg(moveAngle)) * bbox.Xconfidence, 
+                         moveSpeed * cos(rad2deg(moveAngle)) * bbox.Yconfidence); 
+    setMove(moveSpeed, moveAngle, 0);
 }
 
 void goToWithCam(Point target) {
@@ -187,7 +191,8 @@ void goToWithCam(Point target) {
     centre.distance /= 2;
     Point moveVector = centre + target;
     float moveSpeed = (moveVector.getDist() < COORD_LEEWAY_DIST) ? 0 : max(coordPID.update(moveVector.getDist()), MIN_SPEED);
-    setMove(moveSpeed, moveVector.getAngle(), 0);
+    float moveAngle = moveVector.getAngle();
+    setMove(moveSpeed, moveAngle, 0);
 }
 
 void updateBluetooth() {

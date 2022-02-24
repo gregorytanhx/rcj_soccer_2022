@@ -48,7 +48,8 @@ class BBox {
       int Xend;
       int Ystart;
       int Yend;
-      float confidence;
+      float Xconfidence;
+      float Yconfidence;
       void update(TOFBuffer tof);
 }
 #endif

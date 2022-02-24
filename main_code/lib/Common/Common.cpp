@@ -22,3 +22,7 @@ double nonReflex(double angle) {
   if (angle > 180) return angle - 360;
   return angle;
 }
+
+double distance(double x, double y) {
+    return sqrt(x * x, y * y);
+}

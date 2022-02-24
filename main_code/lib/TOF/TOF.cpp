@@ -85,7 +85,7 @@ void BBox::update(TOFBuffer tof) {
     y = (Ystart - Yend) / 2;
 
     // take area of robot over area of bbox as confidence score
-    confidence = (18 * 18) / (width * height);
-
+    Xconfidence = 180 / width;
+    Yconfidence = 180 / height;
     
 }
