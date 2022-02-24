@@ -35,6 +35,9 @@ float frontTOF, backTOF, leftTOF, rightTOF;
 Timer kickerTimer(500);
 Timer bluetoothTimer(BLUETOOTH_UPDATE_TIME);
 
+// decide if bots will switch roles mid match (while both still in)
+bool roleSwitching = false;
+bool movingSideway = false;
 Role role = Role::undecided;
 Role defaultRole;
 uint8_t robotID;
@@ -63,7 +66,7 @@ Role currentRole() {
         return Role::defend;
     } else {
         // if robot is only one on field, default to striker
-        return Role::attack
+        return Role::attack;
     }
 }
 
@@ -232,14 +235,55 @@ void goToWithCam(Point target) {
     setMove(moveSpeed, moveAngle, 0);
 }
 
+void updateRole() {
+    Role previousRole = role;
+
+    if (role == Role::undecided) {
+        // Undecided play mode, pick default unless the other robot has a play
+        // mode
+
+        if (bt.otherData.role == Role::undecided) {
+            role = defaultRole;
+        } else {
+            // take the other role based on the other robot's role
+            role = bt.otherData.role == Role::attack ? Role::defend : Role::attack;
+        }
+    } else if (robotID == 1) {
+        // Robot ID 1 (default defender) decides on play mode
+
+        BluetoothData attackerData = role == Role::attack ? btData : bt.otherData;
+        BluetoothData defenderData = role == Role::defend ? btData : bt.otherData;
+
+        if (shouldSwitchRoles(attackerData, defenderData)) {
+            role = role == Role::attack ? Role::defend : Role::attack;
+        }
+    } else {
+        // Robot ID 0 is always the the opposite of the other robot
+        playMode = bt.otherData.role == Role::attack ? Role::defend : Role::attack;
+    }
+
+    if (role != previousRole &&
+        previousRole == Role::attack) {
+        // If switched to defender, move to the side to prevent collision
+        movingSideways = true;
+        sidewaysCoordinate = Point(40 * sign(botCoords.x), botCoords.y);
+    } else {
+        movingSideways = false;
+    }
+}
 void updateBluetooth() {
     btData = BluetoothData(ballData, botCoords, role, onField);
     bt.update(btData);
+    if (bt.isConnected && roleSwitching) {
+        updateRole();
+    } else if (bt.previouslyConnected) {
+        role = Role::defend;
+    }
 }
 
-bool shouldSwitchRoles() { 
+bool shouldSwitchRoles(BluetoothData attackerData, BluetoothData defenderData) { 
     // switch roles if goalie has ball or ball is much closer to goalie or striker went out out field
-    return (role == Role::defend && ballData.dist <= SWITCH_ROLE_BALL_DIST_THRESH );
+    return ();
 }
 
 void angleCorrect() {
@@ -255,6 +299,10 @@ void angleCorrect() {
 
 //   Point centre(vecX, vecY);
 // }
+
+void debug() {
+    
+}
 
 
 
@@ -275,9 +323,6 @@ void setup() {
     CamSerial.begin(CAMERA_BAUD);
     BluetoothSerial.begin(BLUETOOTH_BAUD);
 
-    pinMode(LED_BUILTIN, OUTPUT);
-    digitalWrite(LED_BUILTIN, HIGH);
-
     imu.init();
 
     pinMode(KICKER_PIN, OUTPUT);
@@ -285,6 +330,9 @@ void setup() {
     analogWriteFrequency(DRIBBLER_PIN, 1000);
     analogWrite(DRIBBLER_PIN, 32);
     delay(DRIBBLER_WAIT);
+
+    pinMode(LED_BUILTIN, OUTPUT);
+    digitalWrite(LED_BUILTIN, HIGH);
 }
 
 void loop() {
@@ -294,8 +342,13 @@ void loop() {
     heading = imu.read();
     readLayer4();
     processTOF();
-    updateBallData();
 
+    if (bluetoothTimer.timeHasPassed()) {
+        updateBluetooth();
+    }
+
+    updateBallData();
+    
     if (currentRole() == Role::attack) {
         if (ballData.captured) {
             trackGoal();

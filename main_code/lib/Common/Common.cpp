@@ -26,3 +26,7 @@ double nonReflex(double angle) {
 double distance(double x, double y) {
     return sqrt(x * x, y * y);
 }
+
+int sign(int x) {
+    return (x >= 0) ? 1 : -1;
+}
