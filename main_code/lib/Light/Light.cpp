@@ -41,11 +41,14 @@ void Light::init() {
         lightThresh.b[i*2] = eeprom_buffered_read_byte(i+1);
         lightThresh.b[i*2+1] = eeprom_buffered_read_byte(i+33);
     }
-#ifdef DEBUG
-    L1DebugSerial.print(i);
-    L1DebugSerial.print("Thresh");
-    L1DebugSerial.println(lightThresh.vals[i]);
-#endif
+    #ifdef DEBUG
+    for (int i = 0; i < 32; i++){
+        L1DebugSerial.print(i);
+        L1DebugSerial.print("Thresh: ");
+        L1DebugSerial.println(lightThresh.vals[i]);
+    }
+    #endif
+    
 }
 
 
@@ -103,7 +106,8 @@ void Light::calibrate() {
     lightTimer.update();
 
     while (!lightTimer.timeHasPassed(false)) {
-        read() for (int = 0; i < 32; i++) {
+        read();
+        for (int = 0; i < 32; i++) {
             if (lightVals[i] > maxVals[i]) {
                 maxVals[i] = lightVals[i];
             }

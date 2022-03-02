@@ -10,11 +10,11 @@ typedef struct MoveData {
     floatData speed;
     floatData angle;
     floatData rotation;
-    MoveData(int moveSpeed, int moveAngle, int moveRotation) {
-        speed.val = moveSpeed;
-        angle.val = moveAngle;
-        rotation.val = moveRotation;
-    }
+    // MoveData(int moveSpeed, int moveAngle, int moveRotation) {
+    //     speed.val = moveSpeed;
+    //     angle.val = moveAngle;
+    //     rotation.val = moveRotation;
+    // }
 } MoveData;
 
 // class to control single motor

@@ -6,7 +6,6 @@
 #include <math.h>
 
 #define pi 3.1415926536
-#define e 2.7182818284
 
 float deg2rad(float angle);
 float rad2deg(float angle);
@@ -15,6 +14,9 @@ double distance(double x, double y);
 double norm(float val, int max, int min);
 int sign(int x);
 double nonReflex(double angle);
+bool angleIsInside(double angleBoundCounterClockwise,
+                   double angleBoundClockwise,
+                   double angleCheck);
 
 typedef union floatData {
     float val;

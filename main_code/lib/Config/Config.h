@@ -34,6 +34,12 @@
 #define LINE_TRACK_KD 1
 #define LINE_TRACK_SPEED 60
 
+#define GOALIE_KP 1
+#define GOALIE_KI 0
+#define GOALIE_KD 0
+
+#define GOALIE_LEEWAY_DIST 5
+
 #define CAMERA_PACKET_SIZE 13
 #define CAMERA_SYNC_BYTE 42
 #define CAMERA_BAUD 115200
@@ -51,6 +57,7 @@
 #define LAYER1_SEND_PACKET_SIZE 9
 #define LAYER1_REC_SYNC_BYTE 2
 #define LAYER1_SEND_SYNC_BYTE 2
+#define LAYER4_PACKET_SIZE 9
 
 // tof settings
 #define TIME_BUDGET 33

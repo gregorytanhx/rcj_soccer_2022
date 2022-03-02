@@ -40,13 +40,13 @@ TOF_Array::TOF_Array(TwoWire &i2cPort) {
 
 void TOF_Array::init() {
     Serial1.begin(STM32_BAUD);
-    FrontTOF.init();
+    FrontTOF.init(0x30);
     delay(10);
-    BackTOF.init();
+    BackTOF.init(0x32);
     delay(10);
-    LeftTOF.init();
+    LeftTOF.init(0x34);
     delay(10);
-    RightTOF.init();
+    RightTOF.init(0x36);
     delay(10);
 }
 

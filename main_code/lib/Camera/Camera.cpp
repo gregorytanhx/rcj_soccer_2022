@@ -13,7 +13,6 @@ void Camera::read() {
         buffer.b[i] = CamSerial.read();
       }
     }
-  
 
     ballAngle = buffer.vals[0];
     ballPixelDist = buffer.vals[1];
@@ -21,11 +20,7 @@ void Camera::read() {
     bluePixelDist = buffer.vals[3];
     yellowAngle = buffer.vals[4];
     yellowPixelDist = buffer.vals[5];
-    for (int i = 0; i < 6; i++) {
-      Serial.print(buffer.vals[i]);
-      Serial.print(" ");
-    }
-    Serial.println();
+
   }
 }
 

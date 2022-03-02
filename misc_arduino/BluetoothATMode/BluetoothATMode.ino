@@ -1,5 +1,6 @@
 int led = LED_BUILTIN;
 char c;
+#define EN_PIN 6
 
 
 
@@ -7,8 +8,11 @@ char c;
 void setup() {
   // initialize digital pin LED_BUILTIN as an output.
   Serial.begin(9600);
+
   Serial.println("ready");
   Serial2.begin(9600);
+  pinMode(EN_PIN, OUTPUT);
+  digitalWrite(EN_PIN, HIGH);
 
 }
 

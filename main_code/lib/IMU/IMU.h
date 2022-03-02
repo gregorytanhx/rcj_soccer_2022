@@ -1,7 +1,7 @@
 #ifndef IMU_H
 #define IMU_H
 
-#include <Adafruit_BNO055.h>
+#include <Adafruit_BNO055_t4.h>
 #include <Adafruit_Sensor.h>
 #include <Arduino.h>
 #include <Common.h>

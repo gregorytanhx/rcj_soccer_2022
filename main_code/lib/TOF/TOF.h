@@ -5,6 +5,7 @@
 #include <Config.h>
 #include <Pins.h>
 #include <Common.h>
+#include <Wire.h>
 #include <RangeSensor.h>
 #include <SparkFun_VL53L1X.h>
 #include <vl53l1_error_codes.h>
@@ -18,6 +19,7 @@ typedef union TOFBuffer {
 // wrapper for VL53L1X TOF sensors
 class TOF {
    public:
+    TOF() {};
     TOF(TwoWire &i2cPort, int shutdownPin, int interruptPin);
     void init(int i2cAddress);
     SFEVL53L1X sensor;
