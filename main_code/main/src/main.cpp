@@ -9,8 +9,10 @@
 #include <PID.h>
 #include <Pins.h>
 #include <Point.h>
+#include <Role.h>
 #include <Wire.h>
 #include <utility/imumaths.h>
+#include <Debug.h>
 
 Light light;
 LineData lineData;
@@ -123,10 +125,11 @@ void readLayer4() {
     }
 }
 
-void processTOF() {
-    // TODO: convert TOF distances to bounding box of robot on field
-    // use kalman filter to detect if TOF is temporarily blocked?
-    bbox.update(tof);
+void updatePosition() {
+    // TODO: combine camera data with TOF data
+    // TODO: use light sensors to confirm robot's position along x-axis
+
+    bbox.update(tof, lineData, moveData.rotation);
     botCoords.x = bbox.x;
     botCoords.y = bbox.y; 
 }
@@ -188,15 +191,15 @@ void trackGoal() {
 
 void defend() {
     // align robot to x-coordinate of ball while tracking line 
+    // TODO: slowdown nearer to edges
     if (lineData.onLine()) {
-
         if (abs(ballData.x) < GOALIE_LEEWAY_DIST) {
             // stop once ball is within certain horizontal distance
             float moveSpeed = 0;
         } else {
             float moveSpeed = max(goaliePID.update(abs(ballData.x)), MIN_SPEED);
         }
-            
+        
         float moveAngle = (ballData.angle > 180) ? -90 : 90;
         lineTrack = true;
     } else {
@@ -300,36 +303,34 @@ void angleCorrect() {
 //   Point centre(vecX, vecY);
 // }
 
-void debug() {
-    
-}
+
 
 
 
 void setup() {
 
-#ifdef SET_ID
-    EEPROM.write(EEPROM_ID_ADDR, ID);
-#else
-    robotID = EEPROM.read(EEPROM_ID_ADDR);
-#endif
-    defaultPlayMode = robotID == 0 ? Role::attack : Role::defend;
+// #ifdef SET_ID
+//     EEPROM.write(EEPROM_ID_ADDR, ID);
+// #else
+//     robotID = EEPROM.read(EEPROM_ID_ADDR);
+// #endif
+//     defaultPlayMode = robotID == 0 ? Role::attack : Role::defend;
 
 #ifdef DEBUG
     Serial.begin(9600);
 #endif
-    L1Serial.begin(STM32_BAUD);
-    L4Serial.begin(STM32_BAUD);
+    // L1Serial.begin(STM32_BAUD);
+    // L4Serial.begin(STM32_BAUD);
     CamSerial.begin(CAMERA_BAUD);
-    BluetoothSerial.begin(BLUETOOTH_BAUD);
+    // BluetoothSerial.begin(BLUETOOTH_BAUD);
 
-    imu.init();
+    // imu.init();
 
-    pinMode(KICKER_PIN, OUTPUT);
-    pinMode(DRIBBLER_PIN, OUTPUT);
-    analogWriteFrequency(DRIBBLER_PIN, 1000);
-    analogWrite(DRIBBLER_PIN, 32);
-    delay(DRIBBLER_WAIT);
+    // pinMode(KICKER_PIN, OUTPUT);
+    // pinMode(DRIBBLER_PIN, OUTPUT);
+    // analogWriteFrequency(DRIBBLER_PIN, 1000);
+    // analogWrite(DRIBBLER_PIN, 32);
+    // delay(DRIBBLER_WAIT);
 
     pinMode(LED_BUILTIN, OUTPUT);
     digitalWrite(LED_BUILTIN, HIGH);
@@ -339,32 +340,33 @@ void loop() {
     // put your main code here, to run repeatedly:
     camera.read();
     camera.process();
-    heading = imu.read();
-    readLayer4();
-    processTOF();
+    Serial.println(camera.ballAngle);
+    // heading = imu.read();
+    // readLayer4();
+    // updatePosition();
 
-    if (bluetoothTimer.timeHasPassed()) {
-        updateBluetooth();
-    }
+    // if (bluetoothTimer.timeHasPassed()) {
+    //     updateBluetooth();
+    // }
 
-    updateBallData();
+    // updateBallData();
     
-    if (currentRole() == Role::attack) {
-        if (ballData.captured) {
-            trackGoal();
-        } else if (ballData.visible) {
-            trackBall();
-        } else {
-            goTo(Point(STRIKER_HOME_X, STRIKER_HOME_Y));
-        }
-    } else {
-        if (ballData.visible) {
-            defend();
-        } else {
-            goTo(Point(GOALIE_HOME_X, GOALIE_HOME_Y));
-        }
-    }
-    angleCorrect();
-    sendLayer1();
-    readLayer1();
+    // if (currentRole() == Role::attack) {
+    //     if (ballData.captured) {
+    //         trackGoal();
+    //     } else if (ballData.visible) {
+    //         trackBall();
+    //     } else {
+    //         goTo(Point(STRIKER_HOME_X, STRIKER_HOME_Y));
+    //     }
+    // } else {
+    //     if (ballData.visible) {
+    //         defend();
+    //     } else {
+    //         goTo(Point(GOALIE_HOME_X, GOALIE_HOME_Y));
+    //     }
+    // }
+    // angleCorrect();
+    // sendLayer1();
+    // readLayer1();
 }

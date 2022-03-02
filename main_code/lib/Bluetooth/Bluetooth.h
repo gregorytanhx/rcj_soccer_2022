@@ -6,6 +6,7 @@
 #include <Config.h>
 #include <BallData.h>
 #include <Point.h>
+#include <Role.h>
 
 #define BLUETOOTH_BAUD 115200
 #define BLUETOOTH_SYNC_BYTE 71
@@ -48,6 +49,7 @@ typedef struct BluetoothData {
 // bluetooth class for HC05
 class Bluetooth {
   public: 
+    BTBuffer btBuffer;
     BluetoothData ownData;
     BluetoothData otherData;
     bool isConnected = false;

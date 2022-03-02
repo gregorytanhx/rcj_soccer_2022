@@ -6,23 +6,23 @@ void Bluetooth::send() {
     // fill buffer and send
 
     // 2 x 4 bytes for floats
-    BTBuffer.f[0] = ownData.ballData.dist;
-    BTBuffer.f[1] = ownData.confidence;
+    btBuffer.f[0] = ownData.ballData.dist;
+    btBuffer.f[1] = ownData.confidence;
 
     // 4 x 2 bytes for int16s
-    BTBuffer.vals[4] = ownData.ballData.x;
-    BTBuffer.vals[5] = ownData.ballData.y;
-    BTBuffer.vals[6] = ownData.robotPos.x;
-    BTBuffer.vals[7] = ownData.robotPos.y;
+    btBuffer.vals[4] = ownData.ballData.x;
+    btBuffer.vals[5] = ownData.ballData.y;
+    btBuffer.vals[6] = ownData.robotPos.x;
+    btBuffer.vals[7] = ownData.robotPos.y;
 
     // 4 bytes for uint8s
-    BTBuffer.b[16] = ownData.ballData.visible;
-    BTBuffer.b[17] = ownData.ballData.captured;
-    BTBuffer.b[18] = ownData.onField;
-    BTBuffer.b[19] = ownData.role;
+    btBuffer.b[16] = ownData.ballData.visible;
+    btBuffer.b[17] = ownData.ballData.captured;
+    btBuffer.b[18] = ownData.onField;
+    btBuffer.b[19] = ownData.role;
 
     BTSerial.write(BLUETOOTH_SYNC_BYTE);
-    BTSerial.write(BTBuffer, sizeof(BTBuffer.b));
+    BTSerial.write(btBuffer, sizeof(btBuffer.b));
 }
 
 void Bluetooth::receive() {
@@ -32,16 +32,16 @@ void Bluetooth::receive() {
         if (syncByte == BLUETOOTH_SYNC_BYTE) {
             // read into buffer
             for (int i = 0; i < BLUETOOTH_PACKET_SIZE - 1; i++) {
-                BTBuffer.b[i] = BTSerial.read();
+                btBuffer.b[i] = BTSerial.read();
             }
             // obtain data from buffer
-            otherData.ballData = BallData(BTBuffer.vals[4], BTBuffer.vals[5],
-                                          (bool)BTBuffer.b[16]);
-            otherData.ballData.dist = BTBuffer.f[0];
-            otherData.robotPos = Point(BTBuffer.vals[6], BTBuffer.vals[7]);
-            otherData.onField = (bool)BTBuffer.b[18];
-            otherData.role = static_cast<Role> BTBuffer.b[19];
-            otherData.confidence = BTBuffer.f[1];
+            otherData.ballData = BallData(btBuffer.vals[4], btBuffer.vals[5],
+                                          (bool)btBuffer.b[16]);
+            otherData.ballData.dist = btBuffer.f[0];
+            otherData.robotPos = Point(btBuffer.vals[6], btBuffer.vals[7]);
+            otherData.onField = (bool)btBuffer.b[18];
+            otherData.role = static_cast<Role> btBuffer.b[19];
+            otherData.confidence = btBuffer.f[1];
             timer.update();
         }
         nothingRecieved = false;
@@ -61,9 +61,4 @@ void Bluetooth::update(BluetoothData data) {
     send();
     receive();
 }
-
-// TODO: Add functions for bluetooth debugging
-// current plans: 
-// send over ball data and position data
-// receive target position for movement and ball curve tuning parameters
 
