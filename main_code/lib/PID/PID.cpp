@@ -5,7 +5,7 @@ PID::PID(float p, float i, float d, float limit = 0) {
   ki = i;
   kd = d;
   integral = 0;
-  integralLimit = limit
+  integralLimit = limit;
   lastTime = millis();
 }
 

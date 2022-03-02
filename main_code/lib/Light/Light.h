@@ -5,6 +5,7 @@
 #include <Common.h>
 #include <Math.h>
 #include <Timer.h>
+#include <Pins.h>
 
 // struct for line data to be sent over serial
 typedef struct LineData {
@@ -57,6 +58,7 @@ class Light {
         {1, 1, 1, 1}  //channel 15
     };
     LightThresh lightThresh;
+    LineData lineData;
     int lightVals[32];
     int pinsA[4];
     int pinsB[4];
@@ -64,7 +66,8 @@ class Light {
     int sigB;
     int readMux(int channel, int controlPin[4], int sig);
 
-    Timer lightTimer(5000);
+    Timer lightTimer = Timer(5000);
+    ;
 };
 
 #endif

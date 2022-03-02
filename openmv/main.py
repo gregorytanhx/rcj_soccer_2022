@@ -1,20 +1,22 @@
 import time
-from pyb import UART
+from pyb import UART, LED
 
 import sensor, image, time, math
 import ulab
 
 from ulab import numpy as np
 
-np_dot = np.linalg.dot
+np_dot = np.dot
 print( "version", ulab.__version__ )
+led = LED(2) # green led
+led.on()
 
 class KalmanFilter:
     def __init__(self, F = None, B = None, H = None, Q = None, R = None, P = None, x0 = None):
         if(F is None or H is None):
             raise ValueError("Set proper system dynamics.")
-        self.n = F.shape()[1]
-        self.m = H.shape()[1]
+        self.n = F.shape[1]
+        self.m = H.shape[1]
         self.F = F
         self.H = H
         #self.B = np.zeros(1, dtype=np.float) if B is None else B
@@ -111,7 +113,7 @@ sensor.skip_frames(time=1000)
 # UART 3, and baudrate.
 
 clock = time.clock()
-uart = UART(3, 115200)
+uart = UART(1, 115200)
 
 IMG_WIDTH = 320
 IMG_HEIGHT = 240
@@ -211,7 +213,7 @@ def find_objects(debug=False):
         z = np.array([[ballX], [ballY], [ballW], [ballH]], dtype=np.float)
         if not ballFound:
             # first detection!
-            kf.P = np.eye(kf.F.shape()[1])
+            kf.P = np.eye(kf.F.shape[1])
 
             kf.x = np.array([z[0],z[1], [0], [0], z[2], z[3]], dtype=np.float)
 
@@ -230,19 +232,19 @@ def find_objects(debug=False):
     blueAngle, blueDist = processObj(blueX, blueY, selfX, selfY)
     ballAngle, ballDist = processObj(ballX, ballY, selfX, selfY)
     #print(ballAngle, ballDist)
-    if blueY > yellowY: side = 1
-    else: side = 0
     #return ballAngle #, int(ballDist)]
-    return [ballAngle, ballDist, blueAngle, blueDist, yellowAngle, yellowDist, side]
+    return [ballAngle, ballDist, blueAngle, blueDist, yellowAngle, yellowDist]
 
 def send(data):
-    sendData = [0x42]
+    sendData = [42]
 
     for num in data:
         num = round(num)
-        sendData.append((num >> 8) & 0x8F)
-        sendData.append(num & 0x8F)
+        sendData.append((num >> 8) & 0xFF)
+        sendData.append(num & 0xFF)
 
+
+    print(sendData)
     for num in sendData:
         try:
             uart.writechar(num)
@@ -256,8 +258,9 @@ while(True):
 
     dT = 1/clock.fps()
 
-    data = find_objects(debug=debug)
 
+    #data = find_objects(debug=debug)
+    data = [232, 544, 555, 454, 454, 44]
     send(data)
 
     if debug:

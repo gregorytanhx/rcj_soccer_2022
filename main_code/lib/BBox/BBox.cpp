@@ -1,6 +1,6 @@
 #include "BBox.h"
 
-void BBox::update(TOFBuffer tof, LineData lineData, heading) {
+void BBox::update(TOFBuffer tof, LineData lineData, float heading) {
     // TODO: use kalman filter to detect if TOF is temporarily blocked?
     // TODO: integrate camera coordinates as weighted sum?
     // TODO: integrate light sensors to confirm x-position

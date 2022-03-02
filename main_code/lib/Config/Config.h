@@ -19,13 +19,14 @@
 #define ID 0
 
 #define MIN_SPEED 40
+#define SPEED 80
 #define MAX_SPEED 100
 
-#define IMU_KP = 0.8
+#define IMU_KP 0.8
 
-#define COORD_KP = 2
-#define COORD_KI = 0
-#define COORD_KD = 1
+#define COORD_KP 2
+#define COORD_KI 0
+#define COORD_KD 1
 #define COORD_LEEWAY_DIST 5 
 
 #define LINE_TRACK_KP 2
@@ -34,7 +35,7 @@
 #define LINE_TRACK_SPEED 60
 
 #define CAMERA_PACKET_SIZE 13
-#define CAMERA_SYNC_BYTE 0x80
+#define CAMERA_SYNC_BYTE 42
 #define CAMERA_BAUD 115200
 
 #define STM32_BAUD 250000

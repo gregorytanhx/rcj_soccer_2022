@@ -7,10 +7,8 @@
 class Timer {
   public:
     Timer(long duration);
-    bool timeHasPassed();
+    bool timeHasPassed(bool Update = true);
     long timerDuration = 0;
-
-  private:
     void update();
     long lastTime = 0;
 };

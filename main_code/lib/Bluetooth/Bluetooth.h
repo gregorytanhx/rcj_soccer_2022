@@ -6,6 +6,7 @@
 #include <Config.h>
 #include <BallData.h>
 #include <Point.h>
+#include <Timer.h>
 #include <Role.h>
 
 #define BLUETOOTH_BAUD 115200
@@ -35,7 +36,7 @@ typedef struct BluetoothData {
       ballData = BallData();
       role = Role::attack;
       onField = true;
-      robotPosition = Point();
+      robotPos = Point();
   }
 
   BluetoothData(BallData ballData, Point robotPos,
@@ -57,8 +58,7 @@ class Bluetooth {
     void init();
     void update(BluetoothData data);
 
-  private:
-    Timer(BLUETOOTH_LOST_COMMUNICATION_TIME);
+    Timer timer = Timer(BLUETOOTH_LOST_COMMUNICATION_TIME);
     void send();
     void receive();
 };

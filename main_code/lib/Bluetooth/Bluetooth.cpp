@@ -22,7 +22,7 @@ void Bluetooth::send() {
     btBuffer.b[19] = ownData.role;
 
     BTSerial.write(BLUETOOTH_SYNC_BYTE);
-    BTSerial.write(btBuffer, sizeof(btBuffer.b));
+    BTSerial.write(btBuffer.b, sizeof(btBuffer.b));
 }
 
 void Bluetooth::receive() {
@@ -40,7 +40,7 @@ void Bluetooth::receive() {
             otherData.ballData.dist = btBuffer.f[0];
             otherData.robotPos = Point(btBuffer.vals[6], btBuffer.vals[7]);
             otherData.onField = (bool)btBuffer.b[18];
-            otherData.role = static_cast<Role> btBuffer.b[19];
+            otherData.role = static_cast<Role> (btBuffer.b[19]);
             otherData.confidence = btBuffer.f[1];
             timer.update();
         }

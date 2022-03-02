@@ -9,7 +9,7 @@ IMU::IMU(TwoWire *theWire) {
 void IMU::init() {
     if (!bno.begin()){
         #ifdef DEBUG
-            Serial.println("No BNO055 detected")
+            Serial.println("No BNO055 detected");
         #endif
         while (1);
     } 

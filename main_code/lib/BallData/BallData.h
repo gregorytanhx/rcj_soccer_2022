@@ -11,6 +11,7 @@ typedef struct BallData {
     float angle;
     float dist;
     bool visible;
+    bool captured;
     BallData() {
         x = 0;
         y = 0;
@@ -25,7 +26,7 @@ typedef struct BallData {
         visible = Visible;
         Point tmp(x, y);
         angle = tmp.getAngle();
-        dist = tmp.getDist();
+        dist = tmp.getDistance();
     }
     
 } BallData;

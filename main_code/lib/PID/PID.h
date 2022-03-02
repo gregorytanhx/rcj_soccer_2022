@@ -7,10 +7,10 @@
 class PID{
   public:
     PID() {};
-    PID(float kp, float ki, float kd);
+    PID(float kp, float ki, float kd, float limit = 0);
     float update(float error);
     void resetIntegral();
-  
+
     float kp;
     float ki;
     float kd;
@@ -20,6 +20,7 @@ class PID{
     int elapsedTime;
     float lastError = 0;
     float integral;
+    float integralLimit;
 };
 
 #endif

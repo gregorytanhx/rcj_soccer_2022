@@ -1,13 +1,19 @@
 #include "Camera.h"
 
+
+void Camera::init() {
+  CamSerial.begin(CAMERA_BAUD);
+}
+
 void Camera::read() {
-  while (Serial1.available() >= CAMERA_PACKET_SIZE) {
-    uint8_t syncByte = Serial1.read();
+  while (CamSerial.available() >= CAMERA_PACKET_SIZE) {
+    uint8_t syncByte = CamSerial.read();
     if (syncByte == CAMERA_SYNC_BYTE) {
       for (int i = 0; i < CAMERA_PACKET_SIZE - 1; i++) {
-        buffer.b[i] = Serial1.read();
+        buffer.b[i] = CamSerial.read();
       }
     }
+  
 
     ballAngle = buffer.vals[0];
     ballPixelDist = buffer.vals[1];
@@ -15,10 +21,15 @@ void Camera::read() {
     bluePixelDist = buffer.vals[3];
     yellowAngle = buffer.vals[4];
     yellowPixelDist = buffer.vals[5];
+    for (int i = 0; i < 6; i++) {
+      Serial.print(buffer.vals[i]);
+      Serial.print(" ");
+    }
+    Serial.println();
   }
 }
 
-float cmDist(float pixelDist) {
+double Camera::cmDist(double pixelDist) {
   // TO BE DONE
   return pixelDist * 10;
 }

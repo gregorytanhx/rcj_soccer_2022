@@ -3,6 +3,8 @@
 
 #include <Config.h>
 #include <TOF.h>
+#include <Common.h>
+#include <Light.h>
 #include <Arduino.h>
 #include <Point.h>
 
@@ -19,7 +21,7 @@ class BBox {
     int Yend;
     float Xconfidence;
     float Yconfidence;
-    void update(TOFBuffer tof);
-}
+    void update(TOFBuffer tof, LineData lineData, float heading);
+};
 
 #endif

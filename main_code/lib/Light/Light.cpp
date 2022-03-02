@@ -1,6 +1,7 @@
 #include "Light.h"
 
 Light::Light() {
+ 
     sigA = SIG_A;
     sigB = SIG_B;
 
