@@ -2,16 +2,17 @@
 #include <Common.h>
 #include <Config.h>
 #include <Light.h>
-#include <Motors.h>
+#include <Motor.h>
 #include <PID.h>
 #include <Pins.h>
 
 Light light;
-Motors motors;
+Motor motors;
 float speed;
 float angle;
 float rotation;
 LineData lineData;
+MoveData moveData;
 motorBuffer buffer;
 float lastLineAngle;
 Timer lineTimer(1000);
@@ -32,16 +33,16 @@ void receiveData() {
     while (Serial1.available() >= LAYER1_REC_PACKET_SIZE) {
         uint8_t syncByte = Serial1.read();
         if (syncByte == LAYER1_REC_SYNC_BYTE) {
-            for (int i = 0; i < MOTOR_PACKET_SIZE - 2; i++) {
-                motorBuffer.b[i] = Serial1.read();
+            for (int i = 0; i < LAYER1_REC_PACKET_SIZE - 2; i++) {
+                buffer.b[i] = Serial1.read();
             }
             lineTrack = (bool)Serial1.read();
             lineAvoid = (bool)Serial1.read();
         }
     }
-    speed = motorBuffer.vals[0];
-    angle = motorBuffer.vals[1];
-    rotation = motorBuffer.vals[2];
+    speed = buffer.vals[0];
+    angle = buffer.vals[1];
+    rotation = buffer.vals[2];
 }
 
 // handle line avoidance directly through stm32
@@ -57,7 +58,7 @@ void setup() {
 
 void loop() {
     light.read();
-    light.getLineData(LineData);
+    light.getLineData(lineData);
     receiveData();
     sendData();
 
