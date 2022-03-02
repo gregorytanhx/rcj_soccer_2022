@@ -7,8 +7,8 @@
 
 #define pi 3.1415926536
 
-float deg2rad(float angle);
-float rad2deg(float angle);
+double deg2rad(double angle);
+double rad2deg(double angle);
 float angleDiff(float angle1, float angle2);
 double distance(double x, double y);
 double norm(float val, int max, int min);
@@ -34,6 +34,11 @@ typedef union motorBuffer {
     uint8_t b[sizeof(vals)];
 } motorBuffer;
 
-
+// struct for line data to be sent over serial
+typedef struct LineData {
+    floatData lineAngle;
+    floatData chordLength;
+    bool onLine;
+} LineData;
 
 #endif

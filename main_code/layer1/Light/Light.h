@@ -6,13 +6,9 @@
 #include <Math.h>
 #include <Timer.h>
 #include <Pins.h>
+#include <EEPROM.h>
 
-// struct for line data to be sent over serial
-typedef struct LineData {
-  floatData lineAngle;
-  floatData chordLength;
-  bool onLine;
-} LineData;
+
 
 // threshold values for calibrating light sensors
 typedef union LightThresh {

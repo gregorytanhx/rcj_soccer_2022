@@ -1,7 +1,6 @@
 #include "Light.h"
 
 Light::Light() {
- 
     sigA = SIG_A;
     sigB = SIG_B;
 
@@ -42,11 +41,11 @@ void Light::init() {
         lightThresh.b[i*2+1] = eeprom_buffered_read_byte(i+33);
     }
     #ifdef DEBUG
-    for (int i = 0; i < 32; i++){
-        L1DebugSerial.print(i);
-        L1DebugSerial.print("Thresh: ");
-        L1DebugSerial.println(lightThresh.vals[i]);
-    }
+        for (int i = 0; i < 32; i++){
+            L1DebugSerial.print(i);
+            L1DebugSerial.print("Thresh: ");
+            L1DebugSerial.println(lightThresh.vals[i]);
+        }
     #endif
     
 }
@@ -107,13 +106,13 @@ void Light::calibrate() {
 
     while (!lightTimer.timeHasPassed(false)) {
         read();
-        for (int = 0; i < 32; i++) {
-            if (lightVals[i] > maxVals[i]) {
+        for (int i = 0; i < 32; i++) {
+            if (lightVals[i] > maxVals[i]) 
                 maxVals[i] = lightVals[i];
-            }
-            if (lightVals[i] < minVals[i]) {
+
+            if (lightVals[i] < minVals[i]) 
                 minVals[i] = lightVals[i];
-            }
+            
             lightThresh.vals[i] = (maxVals[i] + minVals[i]) / 2;
 #ifdef DEBUG
             L1DebugSerial.print(i);
@@ -124,7 +123,7 @@ void Light::calibrate() {
     }
 
     // write calibrated threshold to eeprom memory
-    for (int i = 0; i < ; i++) {
+    for (int i = 0; i < 32; i++) {
         eeprom_buffered_write_byte(i + 1, lightThresh.b[i*2]);
         eeprom_buffered_write_byte(i + 33, lightThresh.b[i*2+1]);
     }

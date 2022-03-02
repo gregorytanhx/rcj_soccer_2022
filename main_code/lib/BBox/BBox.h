@@ -4,7 +4,6 @@
 #include <Config.h>
 #include <TOF.h>
 #include <Common.h>
-#include <Light.h>
 #include <Arduino.h>
 #include <Point.h>
 
