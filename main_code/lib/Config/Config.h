@@ -72,8 +72,8 @@
 #define CamSerial Serial3
 #define BTSerial Serial4
 
-#define L1CommSerial Serial1
-#define L1DebugSerial Serial2
+#define L1CommSerial Serial3
+#define L1DebugSerial Serial1
 #define L4CommSerial Serial1
 #define L4DebugSerial Serial2
 

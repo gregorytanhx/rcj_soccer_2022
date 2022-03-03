@@ -1,6 +1,6 @@
 #include "PID.h"
 
-PID::PID(float p, float i, float d, float limit = 0) {
+PID::PID(float p, float i, float d, float limit) {
   kp = p;
   ki = i;
   kd = d;

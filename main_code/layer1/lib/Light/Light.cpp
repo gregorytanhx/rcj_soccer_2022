@@ -51,7 +51,7 @@ void Light::init() {
 
 int Light::readMux(int channel, int controlPin[4], int sig) {
     for (int i = 0; i < 4; i++) {
-        digitalWriteFast(controlPin[i], muxChannel[channel][i]);
+        digitalWrite(controlPin[i], muxChannel[channel][i]);
     }
     // read the value at the SIG pin
     // delayMicroseconds(5);

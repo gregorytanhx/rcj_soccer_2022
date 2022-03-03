@@ -5,6 +5,7 @@
 #include <Motor.h>
 #include <PID.h>
 #include <Pins.h>
+#include <SoftwareSerial.h>
 #include <MyTimer.h>
 
 Light light;
@@ -46,20 +47,24 @@ void receiveData() {
     rotation = buffer.vals[2];
 }
 
+
+
 // handle line avoidance directly through stm32
 void setup() {
     light.init();
     motors.init();
-    pinMode(PB1, OUTPUT);
-    digitalWrite(PB1, HIGH);
-    #ifdef DEBUG
-        L1DebugSerial.begin(9600);
-    #endif
+#ifdef DEBUG
+    L1DebugSerial.begin(9600);
+#endif
     L1CommSerial.begin(STM32_BAUD);
     lineTimer.update();
+
+    pinMode(PB1, OUTPUT);
+    digitalWrite(PB1, HIGH);
 }
 
 void loop() {
+    L1DebugSerial.println("test");
     light.read();
     light.getLineData(lineData);
     receiveData();
@@ -75,19 +80,22 @@ void loop() {
 
         if (lineTrack) {
             lineTimer.update();
-            float angle = nonReflex(light.getClosestAngle(moveData.angle.val));
+            float angle =
+            nonReflex(light.getClosestAngle(moveData.angle.val));
             // use PID to control speed of correction
-            float correction = lineTrackPID.update(angle - moveData.angle.val);
+            float correction = lineTrackPID.update(angle -
+            moveData.angle.val);
 
             motors.setMove(LINE_TRACK_SPEED + correction, angle, 0);
         } else if (lineAvoid) {
             if (abs(lastLineAngle - lineData.lineAngle.val) >= 90) {
-                // allow chord length to keep increasing as robot goes over
-                // centre of line
+                // allow chord length to keep increasing as robot goes
+                // over centre of line
                 lineData.chordLength.val = 2 - lineData.chordLength.val;
             }
             // line avoidance
-            motors.setMove(speed * lineData.chordLength.val, lineData.lineAngle.val, 0);
+            motors.setMove(speed * lineData.chordLength.val,
+            lineData.lineAngle.val, 0);
         } else {
             motors.setMove(speed, angle, rotation);
         }
