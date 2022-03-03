@@ -36,8 +36,8 @@ float heading;
 float robotAngle;
 float frontTOF, backTOF, leftTOF, rightTOF;
 
-Timer kickerTimer(500);
-Timer bluetoothTimer(BLUETOOTH_UPDATE_TIME);
+MyTimer kickerTimer(500);
+MyTimer bluetoothTimer(BLUETOOTH_UPDATE_TIME);
 
 // decide if bots will switch roles mid match (while both still in)
 bool roleSwitching = false;

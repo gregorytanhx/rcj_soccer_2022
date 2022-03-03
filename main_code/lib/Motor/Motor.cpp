@@ -14,7 +14,7 @@ void Motor::update(int pwm) { pwmOut = pwm; }
 
 void Motor::move() {
     analogWrite(pwmPin, abs(pwmOut));
-    digitalWriteFast(digPin, (pwmOut > 0 ? HIGH : LOW));
+    digitalWrite(digPin, (pwmOut > 0 ? HIGH : LOW));
 }
 
 Motors::Motors() {
@@ -22,6 +22,13 @@ Motors::Motors() {
     FR_Motor = Motor(FR_DIG, FR_PWM);
     BL_Motor = Motor(BL_DIG, BL_PWM);
     BR_Motor = Motor(BR_DIG, BR_PWM);
+}
+
+void Motors::init() {
+    FL_Motor.init();
+    FR_Motor.init();
+    BL_Motor.init();
+    BR_Motor.init();
 }
 
 void Motors::setMove(float speed, float angle, float rotation) {

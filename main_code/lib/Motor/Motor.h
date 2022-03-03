@@ -42,6 +42,7 @@ class Motors {
     Motor BR_Motor;
     void setMove(float speed, float angle, float angVel);
     void moveOut();
+    void init();
 };
 
 #endif

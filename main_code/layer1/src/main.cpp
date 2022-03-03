@@ -5,9 +5,10 @@
 #include <Motor.h>
 #include <PID.h>
 #include <Pins.h>
+#include <MyTimer.h>
 
 Light light;
-Motor motors;
+Motors motors;
 float speed;
 float angle;
 float rotation;
@@ -15,7 +16,7 @@ LineData lineData;
 MoveData moveData;
 motorBuffer buffer;
 float lastLineAngle;
-Timer lineTimer(1000);
+MyTimer lineTimer(1000);
 
 PID lineTrackPID(LINE_TRACK_KP, LINE_TRACK_KI, LINE_TRACK_KD);
 bool lineTrack = false;
@@ -51,7 +52,9 @@ void setup() {
     motors.init();
     pinMode(PB1, OUTPUT);
     digitalWrite(PB1, HIGH);
-    L1DebugSerial.begin(9600);
+    #ifdef DEBUG
+        L1DebugSerial.begin(9600);
+    #endif
     L1CommSerial.begin(STM32_BAUD);
     lineTimer.update();
 }
@@ -66,15 +69,15 @@ void loop() {
 
 #ifdef DEBUG
         L1DebugSerial.print("Line Angle: ");
-        L1DebugSerial.print(lineAngle);
+        L1DebugSerial.print(lineData.lineAngle.val);
         L1DebugSerial.println("\tChord Length: ");
 #endif
 
         if (lineTrack) {
             lineTimer.update();
-            float angle = nonReflex(light.getClosestAngle(moveData.angle));
+            float angle = nonReflex(light.getClosestAngle(moveData.angle.val));
             // use PID to control speed of correction
-            float correction = lineTrackPID.update(angle - moveData.angle);
+            float correction = lineTrackPID.update(angle - moveData.angle.val);
 
             motors.setMove(LINE_TRACK_SPEED + correction, angle, 0);
         } else if (lineAvoid) {
@@ -96,6 +99,6 @@ void loop() {
         lineTrackPID.resetIntegral();
     }
 
-    lastLineAngle = lineData.lineAngle;
+    lastLineAngle = lineData.lineAngle.val;
     motors.moveOut();
 }

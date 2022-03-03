@@ -27,8 +27,8 @@ void Light::init() {
     pinMode(mux_B4, OUTPUT);
 
     for (int i = 0; i < 4; i++) {
-        digitalWriteFast(pinsA[i], LOW);
-        digitalWriteFast(pinsB[i], LOW);
+        digitalWrite(pinsA[i], LOW);
+        digitalWrite(pinsB[i], LOW);
     }
 
     // retrieve threshold from eeprom memory
@@ -39,15 +39,13 @@ void Light::init() {
     for (int i = 0; i < 32; i++) {
         lightThresh.b[i*2] = eeprom_buffered_read_byte(i+1);
         lightThresh.b[i*2+1] = eeprom_buffered_read_byte(i+33);
-    }
-    #ifdef DEBUG
-        for (int i = 0; i < 32; i++){
-            L1DebugSerial.print(i);
-            L1DebugSerial.print("Thresh: ");
-            L1DebugSerial.println(lightThresh.vals[i]);
-        }
-    #endif
     
+    #ifdef DEBUG
+        L1DebugSerial.print(i);
+        L1DebugSerial.print("Thresh: ");
+        L1DebugSerial.println(lightThresh.vals[i]);
+    #endif
+    }
 }
 
 

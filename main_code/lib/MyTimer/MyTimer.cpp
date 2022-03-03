@@ -1,15 +1,15 @@
-#include "Timer.h"
+#include "MyTimer.h"
 
-Timer::Timer(long duration) {
+MyTimer::MyTimer(long duration) {
   timerDuration = duration;
   lastTime = millis();
 }
 
-void Timer::update() {
+void MyTimer::update() {
   lastTime = millis();
 }
 
-bool Timer::timeHasPassed(bool Update = true) {
+bool MyTimer::timeHasPassed(bool Update = true) {
   if (millis() - timerDuration > lastTime) {
     if (Update) update();
     return true;

@@ -6,7 +6,7 @@
 #include <Config.h>
 #include <BallData.h>
 #include <Point.h>
-#include <Timer.h>
+#include <MyTimer.h>
 #include <Role.h>
 
 #define BLUETOOTH_BAUD 115200
@@ -58,7 +58,7 @@ class Bluetooth {
     void init();
     void update(BluetoothData data);
 
-    Timer timer = Timer(BLUETOOTH_LOST_COMMUNICATION_TIME);
+    MyTimer timer = MyTimer(BLUETOOTH_LOST_COMMUNICATION_TIME);
     void send();
     void receive();
 };

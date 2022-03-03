@@ -1,12 +1,12 @@
-#ifndef TIMER_H
-#define TIMER_H
+#ifndef MYTIMER_H
+#define MYTIMER_H
 
 #include <Arduino.h>
 #include <Common.h>
 
-class Timer {
+class MyTimer {
   public:
-    Timer(long duration);
+    MyTimer(long duration);
     bool timeHasPassed(bool Update = true);
     long timerDuration = 0;
     void update();

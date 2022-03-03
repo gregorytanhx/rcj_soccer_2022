@@ -4,7 +4,7 @@
 #include <Arduino.h>
 #include <Common.h>
 #include <Math.h>
-#include <Timer.h>
+#include <MyTimer.h>
 #include <Pins.h>
 #include <EEPROM.h>
 
@@ -62,8 +62,8 @@ class Light {
     int sigB;
     int readMux(int channel, int controlPin[4], int sig);
 
-    Timer lightTimer = Timer(5000);
-    ;
+    MyTimer lightTimer = MyTimer(5000);
+    
 };
 
 #endif
