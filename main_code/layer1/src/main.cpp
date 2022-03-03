@@ -24,22 +24,23 @@ bool lineTrack = false;
 bool lineAvoid = true;
 
 void sendData() {
-    Serial1.write(LAYER1_SEND_SYNC_BYTE);
-    Serial1.write(lineData.lineAngle.b, sizeof(lineData.lineAngle.b));
-    Serial1.write(lineData.chordLength.b, sizeof(lineData.chordLength.b));
-    Serial1.write(lineData.onLine);
+    L1CommSerial.write(LAYER1_SEND_SYNC_BYTE);
+    L1CommSerial.write(lineData.lineAngle.b, sizeof(lineData.lineAngle.b));
+    L1CommSerial.write(lineData.chordLength.b, sizeof(lineData.chordLength.b));
+    L1CommSerial.write(lineData.onLine);
 }
 
 void receiveData() {
     // receive teensy data
-    while (Serial1.available() >= LAYER1_REC_PACKET_SIZE) {
-        uint8_t syncByte = Serial1.read();
+    while (L1CommSerial.available() >= LAYER1_REC_PACKET_SIZE) {
+        uint8_t syncByte = L1CommSerial.read();
         if (syncByte == LAYER1_REC_SYNC_BYTE) {
-            for (int i = 0; i < LAYER1_REC_PACKET_SIZE - 2; i++) {
-                buffer.b[i] = Serial1.read();
+            // exclude last 2 bytes
+            for (int i = 0; i < LAYER1_REC_PACKET_SIZE - 3; i++) {
+                buffer.b[i] = L1CommSerial.read();
             }
-            lineTrack = (bool)Serial1.read();
-            lineAvoid = (bool)Serial1.read();
+            lineTrack = (bool)L1CommSerial.read();
+            lineAvoid = (bool)L1CommSerial.read();
         }
     }
     speed = buffer.vals[0];

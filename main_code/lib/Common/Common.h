@@ -30,7 +30,7 @@ typedef union int16Data {
 
 
 typedef union motorBuffer {
-    uint16_t vals[3];
+    float vals[3];
     uint8_t b[sizeof(vals)];
 } motorBuffer;
 
