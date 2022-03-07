@@ -32,10 +32,11 @@ void Light::init() {
     }
 
     // retrieve threshold from eeprom memory
+#ifdef USE_EEPROM
     eeprom_buffer_fill();
-#ifdef DEBUG
-    L1DebugSerial.println("Loading thresholds...");
-#endif
+    #ifdef DEBUG
+        L1DebugSerial.println("Loading thresholds...");
+    #endif
     for (int i = 0; i < 32; i++) {
         lightThresh.b[i*2] = eeprom_buffered_read_byte(i+1);
         lightThresh.b[i*2+1] = eeprom_buffered_read_byte(i+33);
@@ -45,6 +46,8 @@ void Light::init() {
         L1DebugSerial.print("Thresh: ");
         L1DebugSerial.println(lightThresh.vals[i]);
     #endif
+
+#endif
     }
 }
 
@@ -54,7 +57,7 @@ int Light::readMux(int channel, int controlPin[4], int sig) {
         digitalWrite(controlPin[i], muxChannel[channel][i]);
     }
     // read the value at the SIG pin
-    // delayMicroseconds(5);
+    delayMicroseconds(5);
     int val = analogRead(sig);
     // return the value
     return val;
@@ -81,12 +84,11 @@ void Light::read() {
     
     onLine = outSensors > 0;
 
+
 #ifdef DEBUG
     for (int i = 0; i < 32; i++) {
-        L1DebugSerial.print(i);
-        L1DebugSerial.print(": ");
-        L1DebugSerial.print((int)(lightVals[i] > lightThresh.vals[i]));
-        L1DebugSerial.print(" ");
+        L1DebugSerial.print(lightVals[i]);
+        L1DebugSerial.print(",");
     }    
     L1DebugSerial.println();
 #endif

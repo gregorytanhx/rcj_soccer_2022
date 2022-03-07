@@ -20,7 +20,8 @@
 
 #define MIN_SPEED 40
 #define SPEED 80
-#define MAX_SPEED 100
+// #define MAX_SPEED 100
+#define MAX_PWM 65535
 
 #define IMU_KP 0.8
 

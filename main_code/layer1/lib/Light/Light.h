@@ -8,7 +8,7 @@
 #include <Pins.h>
 #include <EEPROM.h>
 
-
+#define USE_EEPROM 
 
 // threshold values for calibrating light sensors
 typedef union LightThresh {

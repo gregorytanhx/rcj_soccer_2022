@@ -94,7 +94,7 @@ sensor.set_auto_gain(False, gain_db=15)
 # === EXPOSURE ===
 curr_exposure = sensor.get_exposure_us()
 print(curr_exposure)
-sensor.set_auto_exposure(False, exposure_us = int(curr_exposure * 0.3))
+#sensor.set_auto_exposure(False, exposure_us = int(curr_exposure * 0.3))
 #sensor.set_auto_exposure(False, exposure_us = 1000)
 
 sensor.skip_frames(time = 1000)
@@ -240,11 +240,12 @@ def send(data):
 
     for num in data:
         num = round(num)
-        sendData.append((num >> 8) & 0xFF)
-        sendData.append(num & 0xFF)
+        sendData += list(num.to_bytes(2, 'little'))
 
 
-    print(sendData)
+
+
+
     for num in sendData:
         try:
             uart.writechar(num)
@@ -252,16 +253,20 @@ def send(data):
             pass
 
 while(True):
-    debug = False
+    debug = True
     clock.tick()
     img = sensor.snapshot()
 
     dT = 1/clock.fps()
 
 
-    #data = find_objects(debug=debug)
-    data = [232, 544, 555, 454, 454, 44]
+    data = find_objects(debug=debug)
+
     send(data)
+    ids = [sensor.OV5640, sensor.OV5640, sensor.OV7725, sensor.MT9M114, sensor.MT9V034]
+    for i in range(len(ids)):
+        if sensor.get_id() == ids[i]:
+            print(i)
 
     if debug:
         print(clock.fps())

@@ -21,7 +21,7 @@ typedef struct MoveData {
 class Motor {
    public:
     Motor() {}
-    Motor(int pwm, int dig);
+    Motor(int pwm, int dig, int pol);
     void update(int pwm);
     void move();
     void init();
@@ -30,6 +30,7 @@ class Motor {
     int pwmPin;
     int digPin;
     int pwmOut = 0;
+    int polarity;
 };
 
 // class to control all motors

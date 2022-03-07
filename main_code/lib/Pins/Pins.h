@@ -2,31 +2,31 @@
 #define PINS_H
 
 // motor pins
-#define FL_PWM 21
-#define FL_DIG 7
+#define FL_PWM PA3
+#define FL_DIG PB3
 
-#define FR_PWM 23
-#define FR_DIG 11
+#define FR_PWM PA1
+#define FR_DIG PB5
 
-#define BL_PWM 22
-#define BL_DIG 10
+#define BL_PWM PA2
+#define BL_DIG PB4
 
-#define BR_PWM 20
-#define BR_DIG 5
+#define BR_PWM PA0
+#define BR_DIG PB6
 
 // mux pins
-#define mux_A1 25
-#define mux_A2 26
-#define mux_A3 27
-#define mux_A4 28
+#define mux_A1 PA8
+#define mux_A2 PA11
+#define mux_A3 PA12
+#define mux_A4 PB15
 
-#define mux_B1 21
-#define mux_B2 22
-#define mux_B3 23
-#define mux_B4 24
+#define mux_B1 PA5
+#define mux_B2 PA6
+#define mux_B3 PA7
+#define mux_B4 PB14
 
-#define SIG_A 22
-#define SIG_B 21
+#define SIG_A PA4
+#define SIG_B PB0
 
 // tof pins
 #define SHUT_1 1
