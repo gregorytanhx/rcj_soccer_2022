@@ -39,8 +39,10 @@
 #define INT_3 7
 #define INT_4 8
 
+// misc pins
 #define DRIBBLER_PIN 1
 #define KICKER_PIN 2
 #define LIGHT_GATE_PIN A0
+#define LAYER1_LED PB1
 
 #endif 

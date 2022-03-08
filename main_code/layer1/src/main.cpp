@@ -41,8 +41,8 @@ void receiveData() {
             for (int i = 0; i < LAYER1_REC_PACKET_SIZE - 3; i++) {
                 buffer.b[i] = L1CommSerial.read();
             }
-            lineTrack = (bool)L1CommSerial.read();
-            lineAvoid = (bool)L1CommSerial.read();
+            lineTrack = (bool) L1CommSerial.read();
+            lineAvoid = (bool) L1CommSerial.read();
         }
     }
     speed = buffer.vals[0];
@@ -50,44 +50,34 @@ void receiveData() {
     rotation = buffer.vals[2];
 }
 
-Motor motorA(FL_PWM, FL_DIG, 1);
-Motor motorB(FR_PWM, FR_DIG, 1);
-Motor motorC(BL_PWM, BL_DIG, 1);
-Motor motorD(BR_PWM, BR_DIG, 1);
+
 
 // handle line avoidance directly through stm32
 void setup() {
     light.init();
-    // motorA.init();
-    // motorB.init();
-    // motorC.init();
-    // motorD.init();
+    motors.init();
+
 
     L1DebugSerial.begin(9600);
     L1CommSerial.begin(STM32_BAUD);
-    //lineTimer.update();
-    pinMode(PB1, OUTPUT);
-    digitalWrite(PB1, HIGH);
+    lineTimer.update();
+    pinMode(LAYER1_LED, OUTPUT);
+    digitalWrite(LAYER1_LED, HIGH);
 }
 
 void loop() {
 
-    light.read();
-    // motorA.update(-100);
-    // motorB.update(-100);
-    // motorC.update(-100);
-    // motorD.update(-100);
-    // motorA.move();
-    // motorB.move();
-    // motorC.move();
-    // motorD.move();
-    // delay(1000);
+    //light.read();
+    //light.calibrate();
+    motors.setMove(10, 0, 0);
+    motors.moveOut();
+    
 
     //     L1DebugSerial.println("test");
     //     light.read();
     //     light.getLineData(lineData);
-    //     receiveData();
-    //     sendData();
+    // receiveData();
+    // sendData();
 
     //     if (lineData.onLine) {
 

@@ -7,16 +7,16 @@
 
 #define pi 3.1415926536
 
-double deg2rad(double angle);
-double rad2deg(double angle);
+float deg2rad(float angle);
+float rad2deg(float angle);
 float angleDiff(float angle1, float angle2);
-double distance(double x, double y);
-double norm(float val, int max, int min);
+float distance(float x, float y);
+float norm(float val, int max, int min);
 int sign(int x);
-double nonReflex(double angle);
-bool angleIsInside(double angleBoundCounterClockwise,
-                   double angleBoundClockwise,
-                   double angleCheck);
+float nonReflex(float angle);
+bool angleIsInside(float angleBoundCounterClockwise,
+                   float angleBoundClockwise,
+                   float angleCheck);
 
 typedef union floatData {
     float val;

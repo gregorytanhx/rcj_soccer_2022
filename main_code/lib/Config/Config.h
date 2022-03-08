@@ -21,7 +21,12 @@
 #define MIN_SPEED 40
 #define SPEED 80
 // #define MAX_SPEED 100
-#define MAX_PWM 65535
+#define MAX_PWM 255
+
+#define MOTOR_MULT 1.0154266118857451
+
+// kick ball when 40cm to the goal
+#define KICK_DISTANCE_THRES 40 
 
 #define IMU_KP 0.8
 

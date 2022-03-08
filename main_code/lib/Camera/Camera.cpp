@@ -24,7 +24,7 @@ void Camera::read() {
   }
 }
 
-double Camera::cmDist(double pixelDist) {
+float Camera::cmDist(float pixelDist) {
   // TO BE DONE
   return pixelDist * 10;
 }

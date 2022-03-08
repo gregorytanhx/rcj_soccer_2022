@@ -8,7 +8,7 @@
 #include <Pins.h>
 #include <EEPROM.h>
 
-#define USE_EEPROM 
+//#define USE_EEPROM 
 
 // threshold values for calibrating light sensors
 typedef union LightThresh {
@@ -61,8 +61,9 @@ class Light {
     int sigA;
     int sigB;
     int readMux(int channel, int controlPin[4], int sig);
-
-    MyTimer lightTimer = MyTimer(5000);
+    int maxVals[32];
+    int minVals[32];
+    MyTimer lightTimer = MyTimer(10000);
     
 };
 

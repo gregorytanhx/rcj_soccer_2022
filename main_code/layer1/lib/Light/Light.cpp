@@ -13,6 +13,11 @@ Light::Light() {
     pinsB[1] = mux_B2;
     pinsB[2] = mux_B3;
     pinsB[3] = mux_B4;
+
+    for (int i = 0; i < 32; i++) {
+        maxVals[i] = 0;
+        minVals[i] = 1200;
+    }
 }
 
 void Light::init() {
@@ -46,11 +51,10 @@ void Light::init() {
         L1DebugSerial.print("Thresh: ");
         L1DebugSerial.println(lightThresh.vals[i]);
     #endif
-
-#endif
     }
+#endif
+    
 }
-
 
 int Light::readMux(int channel, int controlPin[4], int sig) {
     for (int i = 0; i < 4; i++) {
@@ -67,7 +71,7 @@ void Light::read() {
     bool out = false;
     outSensors = 0;
     for (int i = 0; i < 16; i++) {
-        lightVals[i] = readMux(i, pinsA, sigA);
+        lightVals[i] = readMux(i, pinsB, sigB);
         if (lightVals[i] > lightThresh.vals[i]) {
             lineDetected[outSensors] = i;
             outSensors++;
@@ -75,7 +79,7 @@ void Light::read() {
     }
 
     for (int i = 16; i < 32; i++) {
-        lightVals[i] = readMux(i - 16, pinsB, sigB);
+        lightVals[i] = readMux(i - 16, pinsA, sigA);
         if (lightVals[i] > lightThresh.vals[i]) {
             lineDetected[outSensors] = i;
             outSensors++;
@@ -85,25 +89,22 @@ void Light::read() {
     onLine = outSensors > 0;
 
 
-#ifdef DEBUG
-    for (int i = 0; i < 32; i++) {
-        L1DebugSerial.print(lightVals[i]);
-        L1DebugSerial.print(",");
-    }    
-    L1DebugSerial.println();
-#endif
+// #ifdef DEBUG
+//     for (int i = 0; i < 32; i++) {
+//         L1DebugSerial.print(lightVals[i]);
+//         L1DebugSerial.print(",");
+//     }    
+//     L1DebugSerial.println();
+// #endif
    
 }
 
 void Light::calibrate() {
-    int maxVals[32];
-    int minVals[32];
-    for (int i = 0; i < 32; i++) {
-        maxVals[i] = 0;
-        minVals[i] = 1200;
-    }
+    
+    
     lightTimer.update();
 
+#ifdef USE_EEPROM 
     while (!lightTimer.timeHasPassed(false)) {
         read();
         for (int i = 0; i < 32; i++) {
@@ -114,35 +115,68 @@ void Light::calibrate() {
                 minVals[i] = lightVals[i];
             
             lightThresh.vals[i] = (maxVals[i] + minVals[i]) / 2;
-#ifdef DEBUG
-            L1DebugSerial.print(i);
-            L1DebugSerial.print("Thresh");
-            L1DebugSerial.println(lightThresh.vals[i]);
-#endif
+
         }
     }
+#else
+    read();
+    for (int i = 0; i < 32; i++) {
+        if (lightVals[i] > maxVals[i]) 
+            maxVals[i] = lightVals[i];
 
+        if (lightVals[i] < minVals[i]) 
+            minVals[i] = lightVals[i];
+        
+        lightThresh.vals[i] = (maxVals[i] + minVals[i]) / 2;
+
+    }
+    delay(100);
+#endif
+
+#ifdef DEBUG
+    L1DebugSerial.print("Max: ");
+    for (int i = 0; i < 32; i++) {
+        L1DebugSerial.print(maxVals[i]);
+        L1DebugSerial.print(" ");
+    }
+    L1DebugSerial.println();
+    L1DebugSerial.print("Min: ");
+    for (int i = 0; i < 32; i++) {
+        L1DebugSerial.print(minVals[i]);
+        L1DebugSerial.print(" ");
+    }
+    L1DebugSerial.println();
+    L1DebugSerial.print("Thresh: ");
+    for (int i = 0; i < 32; i++) {
+        L1DebugSerial.print(lightThresh.vals[i]);
+        L1DebugSerial.print(" ");
+    }
+    L1DebugSerial.println();
+#endif
+
+#ifdef USE_EEPROM
     // write calibrated threshold to eeprom memory
     for (int i = 0; i < 32; i++) {
         eeprom_buffered_write_byte(i + 1, lightThresh.b[i*2]);
         eeprom_buffered_write_byte(i + 33, lightThresh.b[i*2+1]);
     }
     eeprom_buffer_flush();
+#endif
 }
 
 // TO DO: WRITE CALIBRATED LIGHT VALS TO STM32 EEPROM MEMORY
 
 void Light::getLineData(LineData& data) {
-    double vecX = 0;
-    double vecY = 0;
+    float vecX = 0;
+    float vecY = 0;
     int chordStart = 0;
     int chordEnd = 0;
-    double largestDiff = 0;
+    float largestDiff = 0;
 
     if (onLine) {
         // get line angle and chord length
         for (int i = 0; i < outSensors; i++) {
-            double tmpAngle = deg2rad(i * 360 / 32);
+            float tmpAngle = deg2rad(i * 360 / 32);
             vecY += cos(tmpAngle);
             vecX += sin(tmpAngle);
 

@@ -355,8 +355,12 @@ void loop() {
     if (currentRole() == Role::attack) {
         if (ballData.captured) {
             trackGoal();
+            if (camera.oppDist <= KICK_DISTANCE_THRES) {
+                kick();
+            }
         } else if (ballData.visible) {
             trackBall();
+           
         } else {
             goTo(Point(STRIKER_HOME_X, STRIKER_HOME_Y));
         }

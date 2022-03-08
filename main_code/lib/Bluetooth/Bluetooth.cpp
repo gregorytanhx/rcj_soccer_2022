@@ -36,11 +36,11 @@ void Bluetooth::receive() {
             }
             // obtain data from buffer
             otherData.ballData = BallData(btBuffer.vals[4], btBuffer.vals[5],
-                                          (bool)btBuffer.b[16]);
+                                          (bool) btBuffer.b[16]);
             otherData.ballData.dist = btBuffer.f[0];
             otherData.robotPos = Point(btBuffer.vals[6], btBuffer.vals[7]);
-            otherData.onField = (bool)btBuffer.b[18];
-            otherData.role = static_cast<Role> (btBuffer.b[19]);
+            otherData.onField = (bool) btBuffer.b[18];
+            otherData.role = static_cast <Role> (btBuffer.b[19]);
             otherData.confidence = btBuffer.f[1];
             timer.update();
         }

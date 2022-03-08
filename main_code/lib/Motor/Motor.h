@@ -4,6 +4,7 @@
 #include <Arduino.h>
 #include <Common.h>
 #include <Pins.h>
+#include <Config.h>
 
 // struct for movement data to be sent from teensy to layer1
 typedef struct MoveData {
@@ -17,21 +18,6 @@ typedef struct MoveData {
     // }
 } MoveData;
 
-// class to control single motor
-class Motor {
-   public:
-    Motor() {}
-    Motor(int pwm, int dig, int pol);
-    void update(int pwm);
-    void move();
-    void init();
-
-   private:
-    int pwmPin;
-    int digPin;
-    int pwmOut = 0;
-    int polarity;
-};
 
 // class to control all motors
 class Motors {
@@ -44,6 +30,7 @@ class Motors {
     void setMove(float speed, float angle, float angVel);
     void moveOut();
     void init();
+    float FL_OUT, FR_OUT, BR_OUT, BL_OUT;
 };
 
 #endif

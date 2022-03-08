@@ -24,11 +24,11 @@ class Camera {
     void init();
     void read();
     void process();
-    double cmDist(double pixelDist);
+    float cmDist(float pixelDist);
 
-    double ballDist;
-    double yellowDist;
-    double blueDist;
+    float ballDist;
+    float yellowDist;
+    float blueDist;
 
     int ballAngle;
     int ballPixelDist;
@@ -38,9 +38,9 @@ class Camera {
     int yellowPixelDist;
 
     int oppAngle;
-    double ownDist;
+    float ownDist;
     int ownAngle;
-    double oppDist;
+    float oppDist;
 
     bool blueVisible = true;
     bool yellowVisible = true;
