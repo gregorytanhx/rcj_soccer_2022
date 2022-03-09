@@ -27,6 +27,7 @@ float lastLineAngle = 0;
 bool lineTrack = false;
 bool lineAvoid = true;
 bool hasBall = false;
+bool calibrate = false;
 
 TOFBuffer tof;
 IMU cmp(&Wire1);
@@ -98,6 +99,7 @@ void sendLayer1() {
     L1Serial.write(moveData.rotation.b, 4);
     L1Serial.write(lineTrack);
     L1Serial.write(lineAvoid);
+    L1Serial.write(calibrate);
 }
 
 void readLayer1() {
