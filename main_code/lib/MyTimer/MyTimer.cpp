@@ -10,7 +10,7 @@ void MyTimer::update() {
 }
 
 bool MyTimer::timeHasPassed(bool Update) {
-  if (millis() - timerDuration > lastTime) {
+  if ((millis() - timerDuration) > lastTime) {
     if (Update) update();
     return true;
   }   

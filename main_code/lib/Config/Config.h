@@ -28,7 +28,7 @@
 // kick ball when 40cm to the goal
 #define KICK_DISTANCE_THRES 40 
 
-#define IMU_KP 0.8
+#define CMP_KP 0.8
 
 #define COORD_KP 2
 #define COORD_KI 0

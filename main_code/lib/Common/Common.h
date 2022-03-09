@@ -41,4 +41,17 @@ typedef struct LineData {
     bool onLine;
 } LineData;
 
+// struct for movement data to be sent from teensy to layer1
+typedef struct MoveData {
+    floatData speed;
+    floatData angle;
+    floatData rotation;
+
+    MoveData(int moveSpeed, int moveAngle, int moveRotation) {
+        speed.val = moveSpeed;
+        angle.val = moveAngle;
+        rotation.val = moveRotation;
+    }
+} MoveData;
+
 #endif

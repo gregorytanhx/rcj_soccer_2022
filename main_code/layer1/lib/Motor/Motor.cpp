@@ -15,7 +15,7 @@ void Motors::init() {
 }
 
 void Motors::setMove(float speed, float angle, float rotation) {
-    float outSpeed = map(speed, 0, 100, 0, MAX_PWM);
+    float outSpeed = speed;
 
     float a = sin(deg2rad(50 + angle)) * MOTOR_MULT;
     float b = sin(deg2rad(50 - angle)) * MOTOR_MULT;
@@ -41,8 +41,8 @@ void Motors::moveOut() {
     digitalWrite(FR_DIG, FR_OUT > 0 ? HIGH : LOW);
 
     analogWrite(BL_PWM, abs(BL_OUT));
-    digitalWrite(BL_DIG, BL_OUT > 0 ? HIGH : LOW);
+    digitalWrite(BL_DIG, BL_OUT > 0 ? LOW : HIGH);
 
     analogWrite(BR_PWM, abs(BR_OUT));
-    digitalWrite(BR_DIG, BR_OUT > 0 ? HIGH : LOW);
+    digitalWrite(BR_DIG, BR_OUT > 0 ? LOW : HIGH);
 }

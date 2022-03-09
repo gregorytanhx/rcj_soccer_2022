@@ -10,12 +10,15 @@
 
 Light light;
 Motors motors;
-float speed;
-float angle;
-float rotation;
+float speed = 0;
+float angle = 0;
+float rotation = 0;
 LineData lineData;
-MoveData moveData;
+MoveData moveData(0, 0, 0);
+
+// buffer for receiving data from teensy
 motorBuffer buffer;
+
 float lastLineAngle;
 MyTimer lineTimer(1000);
 
@@ -67,12 +70,11 @@ void setup() {
 
 void loop() {
 
-    //light.read();
-    //light.calibrate();
-    motors.setMove(10, 0, 0);
+    // light.read();
+    // light.calibrate();
+    receiveData();
+    motors.setMove(speed, angle, rotation);
     motors.moveOut();
-    
-
     //     L1DebugSerial.println("test");
     //     light.read();
     //     light.getLineData(lineData);

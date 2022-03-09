@@ -30,21 +30,23 @@ class Camera {
     float yellowDist;
     float blueDist;
 
-    int ballAngle;
+    float ballAngle;
     int ballPixelDist;
-    int blueAngle;
+    float blueAngle;
     int bluePixelDist;
-    int yellowAngle;
+    float yellowAngle;
     int yellowPixelDist;
 
-    int oppAngle;
+    float oppAngle;
     float ownDist;
-    int ownAngle;
+    float ownAngle;
     float oppDist;
 
-    bool blueVisible = true;
-    bool yellowVisible = true;
-    bool ballVisible = true;
+    bool oppVisible = true;
+    bool ownVisible = true;
+    bool blueVisible = false;
+    bool yellowVisible = false;
+    bool ballVisible = false;
 
     Side side = facingYellow; // face yellow goal by default;
     camBuffer buffer;
