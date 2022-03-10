@@ -1,18 +1,31 @@
 #include <Arduino.h>
 #include <SoftwareSerial.h>
+#include <Config.h>
+#include <Common.h> 
+#include <Pins.h> 
+#include <TOF.h>
 
-uint8_t i = 0;
-TOF_Array tofArray;
+TOF_Array tofArray(Wire1);
 
-SoftwareSerial mySerial(PA10, PA9);
 void setup() {
-    pinMode(PA4, OUTPUT);
-    mySerial.begin(9600);
+#ifdef DEBUG
+    L4DebugSerial.begin(9600);
+#endif
     tofArray.init();
 }
 
 void loop() {
-    digitalWrite(PA4, LOW);
     tofArray.update();
     tofArray.send();
+
+#ifdef DEBUG
+    L4DebugSerial.print("Front: ");
+    L4DebugSerial.print(tofArray.buffer[0]);
+    L4DebugSerial.print("Right: ");
+    L4DebugSerial.print(tofArray.buffer[1]);
+    L4DebugSerial.print("Back: ");
+    L4DebugSerial.print(tofArray.buffer[2]);
+    L4DebugSerial.print("Left: ");
+    L4DebugSerial.print(tofArray.buffer[3]);
+#endif
 }

@@ -18,6 +18,7 @@ class TOF {
     TOF() {};
     TOF(TwoWire &i2cPort, int shutdownPin, int interruptPin);
     void init(int i2cAddress);
+    void setLow();
     SFEVL53L1X sensor;
     int16_t read();
 
@@ -34,6 +35,7 @@ class TOF_Array {
     TOF BackTOF;
     TOF LeftTOF;
     TOF RightTOF;
+ 
     void init();
     void update();
     void send();

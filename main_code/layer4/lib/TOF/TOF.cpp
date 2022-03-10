@@ -6,6 +6,9 @@ TOF::TOF(TwoWire &i2cPort, int shutdownPin, int interruptPin) {
     interruptPin = interruptPin;
     pinMode(shutdownPin, OUTPUT);
     pinMode(interruptPin, OUTPUT);
+}
+
+void TOF::setLow() {
     digitalWrite(shutdownPin, LOW);
 }
 
@@ -39,7 +42,13 @@ TOF_Array::TOF_Array(TwoWire &i2cPort) {
 }
 
 void TOF_Array::init() {
-    Serial1.begin(STM32_BAUD);
+    L4CommSerial.begin(STM32_BAUD);
+
+    FrontTOF.setLow();
+    BackTOF.setLow();
+    LeftTOF.setLow();
+    RightTOF.setLow();
+
     FrontTOF.init(0x30);
     delay(10);
     BackTOF.init(0x32);
@@ -58,6 +67,6 @@ void TOF_Array::update() {
 }
 
 void TOF_Array::send() {
-    Serial1.write(LAYER4_SYNC_BYTE);
-    Serial1.write(buffer.b, 8);
+    L4CommSerial.write(LAYER4_SYNC_BYTE);
+    L4CommSerial.write(buffer.b, 8);
 }
