@@ -11,10 +11,6 @@
 #include <vl53l1_error_codes.h>
 #include <vl53l1x_class.h>
 
-typedef union TOFBuffer {
-    int16_t vals[4] = {0, 0, 0, 0};
-    uint8_t b[8];
-} TOFBuffer;
 
 // wrapper for VL53L1X TOF sensors
 class TOF {

@@ -54,4 +54,10 @@ typedef struct MoveData {
     }
 } MoveData;
 
+// struct for TOF values, sent from layer4 to teensy
+typedef union TOFBuffer {
+    int16_t vals[4] = {0, 0, 0, 0};
+    uint8_t b[8];
+} TOFBuffer;
+
 #endif

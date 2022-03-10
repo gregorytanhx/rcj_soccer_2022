@@ -148,8 +148,7 @@ void trackBall() {
     float ballMult = fmin(1, 0.0134 * exp(factor * 2.6));
 
     robotAngle = ballData.angle + ballMult * ballOffset;
-    setMove(SPEED, robotAngle, 0);
-     
+    setMove(SPEED, robotAngle, 0);    
 }
 
 bool readLightGate() {
