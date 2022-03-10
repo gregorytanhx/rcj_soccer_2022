@@ -41,8 +41,8 @@ void receiveData() {
     while (L1CommSerial.available() >= LAYER1_REC_PACKET_SIZE) {
         uint8_t syncByte = L1CommSerial.read();
         if (syncByte == LAYER1_REC_SYNC_BYTE) {
-            // exclude last 2 bytes
-            for (int i = 0; i < LAYER1_REC_PACKET_SIZE - 3; i++) {
+            // exclude last 3 bytes
+            for (int i = 0; i < LAYER1_REC_PACKET_SIZE - 4; i++) {
                 buffer.b[i] = L1CommSerial.read();
             }
             lineTrack = (bool) L1CommSerial.read();
@@ -71,61 +71,55 @@ void setup() {
 }
 
 void loop() {
-
-    // light.read();
-    // light.calibrate();
     receiveData();
+    calibrate = false;
     if (calibrate) {
         light.calibrate();
     } else {
-        motors.setMove(speed, angle, rotation);
-        motors.moveOut();
-        //     L1DebugSerial.println("test");
-        //     light.read();
-        //     light.getLineData(lineData);
-        // receiveData();
-        // sendData();
+        light.read();
+        light.getLineData(lineData);
+        L1DebugSerial.println(light.lightVals[31]);
 
-        //     if (lineData.onLine) {
+        sendData();
 
-        // #ifdef DEBUG
-        //         L1DebugSerial.print("Line Angle: ");
-        //         L1DebugSerial.print(lineData.lineAngle.val);
-        //         L1DebugSerial.println("\tChord Length: ");
-        // #endif
+        if (lineData.onLine) {
+    // #ifdef DEBUG
+    //         L1DebugSerial.print("Line Angle: ");
+    //         L1DebugSerial.print(lineData.lineAngle.val);
+    //         L1DebugSerial.println("\tChord Length: ");
+    // #endif
 
-        //         if (lineTrack) {
-        //             lineTimer.update();
-        //             float angle =
-        //             nonReflex(light.getClosestAngle(moveData.angle.val));
-        //             // use PID to control speed of correction
-        //             float correction = lineTrackPID.update(angle -
-        //             moveData.angle.val);
+            if (lineTrack) {
+                lineTimer.update();
+                float angle =
+                nonReflex(light.getClosestAngle(moveData.angle.val));
+                // use PID to control speed of correction
+                float correction = lineTrackPID.update(angle -
+                moveData.angle.val);
 
-        //             motors.setMove(LINE_TRACK_SPEED + correction, angle, 0);
-        //         } else if (lineAvoid) {
-        //             if (abs(lastLineAngle - lineData.lineAngle.val) >= 90) {
-        //                 // allow chord length to keep increasing as robot
-        //                 goes
-        //                 // over centre of line
-        //                 lineData.chordLength.val = 2 -
-        //                 lineData.chordLength.val;
-        //             }
-        //             // line avoidance
-        //             motors.setMove(speed * lineData.chordLength.val,
-        //             lineData.lineAngle.val, 0);
-        //         } else {
-        //             motors.setMove(speed, angle, rotation);
-        //         }
-        //     }
-        //     else {
-        //         motors.setMove(speed, angle, rotation);
-        //     }
-        //     if (lineTimer.timeHasPassed()) {
-        //         lineTrackPID.resetIntegral();
-        //     }
+                motors.setMove(LINE_TRACK_SPEED + correction, angle, 0);
+            } else if (lineAvoid) {
+                if (abs(lastLineAngle - lineData.lineAngle.val) >= 90) {
+                    // allow chord length to keep increasing as robot
+                    // goes over centre of line
+                    lineData.chordLength.val = 2 -
+                    lineData.chordLength.val;
+                }
+                // line avoidance
+                motors.setMove(speed * lineData.chordLength.val,
+                lineData.lineAngle.val, 0);
+            } else {
+                motors.setMove(speed, angle, rotation);
+            }
+        }
+        else {
+            motors.setMove(speed, angle, rotation);
+        }
+        if (lineTimer.timeHasPassed()) {
+            lineTrackPID.resetIntegral();
+        }
 
-        //     lastLineAngle = lineData.lineAngle.val;
+        lastLineAngle = lineData.lineAngle.val;
     }
    
 }

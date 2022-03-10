@@ -8,7 +8,7 @@
 #include <Pins.h>
 #include <EEPROM.h>
 
-//#define USE_EEPROM 
+#define USE_EEPROM 
 
 // threshold values for calibrating light sensors
 typedef union LightThresh {
@@ -23,6 +23,7 @@ class Light {
     void calibrate();
     void init();
     void read();
+    void printLight();
     void getLineData(LineData& data);
     float lineTrack(float target);
     float getClosestAngle(float angle);
@@ -34,7 +35,8 @@ class Light {
     int lineDetected[32];
     int outSensors = 0;
 
-  private:
+    int lightMap[32] = {7, 6, 5, 4, 3, 2, 31, 0, 1, 30, 29, 28, 27, 26, 25, 24, 23, 22, 21, 20, 19, 18, 17, 16, 15, 14, 13, 12, 11, 10, 9, 8};
+
     int muxChannel[16][4] = {
         {0, 0, 0, 0}, //channel 0
         {1, 0, 0, 0}, //channel 1

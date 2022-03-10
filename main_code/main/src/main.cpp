@@ -354,8 +354,16 @@ void setup() {
 }
 
 void loop() {
-    setMove(30, 0, 0);
+    //setMove(30, 0, 0);
     sendLayer1();
+    readLayer1();
+    if (lineData.onLine) {
+        Serial.println("Line Detected");
+        Serial.print("Angle: ");
+        Serial.print(lineData.lineAngle.val);
+        Serial.print(" Chord Length: ");
+        Serial.println(lineData.chordLength.val);
+    }
 
     // camera.read();
 

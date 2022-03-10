@@ -2,7 +2,6 @@
 #define BBOX_H
 
 #include <Config.h>
-#include <TOF.h>
 #include <Common.h>
 #include <Arduino.h>
 #include <Point.h>

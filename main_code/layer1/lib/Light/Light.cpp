@@ -39,22 +39,34 @@ void Light::init() {
     // retrieve threshold from eeprom memory
 #ifdef USE_EEPROM
     eeprom_buffer_fill();
-    #ifdef DEBUG
-        L1DebugSerial.println("Loading thresholds...");
-    #endif
+    
     for (int i = 0; i < 32; i++) {
         lightThresh.b[i*2] = eeprom_buffered_read_byte(i+1);
         lightThresh.b[i*2+1] = eeprom_buffered_read_byte(i+33);
-    
-    #ifdef DEBUG
-        L1DebugSerial.print(i);
-        L1DebugSerial.print("Thresh: ");
-        L1DebugSerial.println(lightThresh.vals[i]);
-    #endif
     }
+    
 #endif
     
 }
+
+void Light::printLight() {
+    L1DebugSerial.print("Thresh: ");
+    for (int i = 0; i < 32; i++) {
+        L1DebugSerial.print(lightThresh.vals[i]);
+        L1DebugSerial.print(" ");
+    }
+    L1DebugSerial.println();
+
+#ifdef DEBUG
+    for (int i = 0; i < 32; i++) {
+        L1DebugSerial.print(lightVals[i]);
+        L1DebugSerial.print(",");
+    }
+    L1DebugSerial.println();
+#endif
+}
+
+
 
 int Light::readMux(int channel, int controlPin[4], int sig) {
     for (int i = 0; i < 4; i++) {
@@ -71,7 +83,7 @@ void Light::read() {
     bool out = false;
     outSensors = 0;
     for (int i = 0; i < 16; i++) {
-        lightVals[i] = readMux(i, pinsB, sigB);
+        lightVals[i] = readMux(i, pinsA, sigA);
         if (lightVals[i] > lightThresh.vals[i]) {
             lineDetected[outSensors] = i;
             outSensors++;
@@ -79,7 +91,7 @@ void Light::read() {
     }
 
     for (int i = 16; i < 32; i++) {
-        lightVals[i] = readMux(i - 16, pinsA, sigA);
+        lightVals[i] = readMux(i - 16, pinsB, sigB);
         if (lightVals[i] > lightThresh.vals[i]) {
             lineDetected[outSensors] = i;
             outSensors++;
@@ -89,23 +101,20 @@ void Light::read() {
     onLine = outSensors > 0;
 
 
-// #ifdef DEBUG
-//     for (int i = 0; i < 32; i++) {
-//         L1DebugSerial.print(lightVals[i]);
-//         L1DebugSerial.print(",");
-//     }    
-//     L1DebugSerial.println();
-// #endif
    
 }
 
 void Light::calibrate() {
     
     
-    lightTimer.update();
 
-#ifdef USE_EEPROM 
-    while (!lightTimer.timeHasPassed(false)) {
+#ifdef USE_EEPROM
+#ifdef DEBUG
+    L1DebugSerial.print("Calibrating...");
+#endif
+	const unsigned long timeOut = 60000;
+	unsigned long timeStart = millis();
+    while ((millis() - timeStart) < timeOut) {
         read();
         for (int i = 0; i < 32; i++) {
             if (lightVals[i] > maxVals[i]) 
@@ -115,9 +124,12 @@ void Light::calibrate() {
                 minVals[i] = lightVals[i];
             
             lightThresh.vals[i] = (maxVals[i] + minVals[i]) / 2;
-
         }
     }
+#ifdef DEBUG
+    L1DebugSerial.print("Done!");
+#endif
+
 #else
     read();
     for (int i = 0; i < 32; i++) {
