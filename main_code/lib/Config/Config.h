@@ -21,7 +21,7 @@
 #define MIN_SPEED 40
 #define SPEED 80
 // #define MAX_SPEED 100
-#define MAX_PWM 255
+#define MAX_PWM 120
 
 #define MOTOR_MULT 1.0154266118857451
 

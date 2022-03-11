@@ -66,28 +66,35 @@ void setup() {
     L1DebugSerial.begin(9600);
     L1CommSerial.begin(STM32_BAUD);
     lineTimer.update();
-    pinMode(LAYER1_LED, OUTPUT);
-    digitalWrite(LAYER1_LED, HIGH);
+    pinMode(STM32_LED, OUTPUT);
+    digitalWrite(STM32_LED, HIGH);
 }
 
 void loop() {
-    receiveData();
+    //receiveData();
     calibrate = false;
     if (calibrate) {
         light.calibrate();
     } else {
-        light.read();
-        light.getLineData(lineData);
-        L1DebugSerial.println(light.lightVals[31]);
 
+        light.readRaw();
+
+        // light.getLineData(lineData);
+        // light.printLight();
+        L1DebugSerial.println(light.lightVals[19]);
+        // L1DebugSerial.print(light.lightVals[1]);
+        // L1DebugSerial.print(" ");
+        // L1DebugSerial.print(light.lightVals[23]);
+        // L1DebugSerial.print(" ");
+        // L1DebugSerial.println(light.lightVals[27]);
         sendData();
-
-        if (lineData.onLine) {
-    // #ifdef DEBUG
-    //         L1DebugSerial.print("Line Angle: ");
-    //         L1DebugSerial.print(lineData.lineAngle.val);
-    //         L1DebugSerial.println("\tChord Length: ");
-    // #endif
+        delay(200);
+        if (lineData.onLine) {            
+    #ifdef DEBUG
+            L1DebugSerial.print("Line Angle: ");
+            L1DebugSerial.print(lineData.lineAngle.val);
+            L1DebugSerial.println("\tChord Length: ");
+    #endif
 
             if (lineTrack) {
                 lineTimer.update();

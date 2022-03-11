@@ -8,10 +8,14 @@
 TOF_Array tofArray(Wire);
 
 void setup() {
+    pinMode(STM32_LED, OUTPUT);
+    digitalWrite(STM32_LED, HIGH);
 #ifdef DEBUG
     L4DebugSerial.begin(9600);
 #endif
     tofArray.init();
+    
+    digitalWrite(STM32_LED, LOW);
 }
 
 void loop() {
@@ -28,4 +32,5 @@ void loop() {
     L4DebugSerial.print("Left: ");
     L4DebugSerial.print(tofArray.buffer.vals[3]);
 #endif
+
 }

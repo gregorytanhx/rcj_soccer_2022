@@ -41,29 +41,31 @@ void Light::init() {
     eeprom_buffer_fill();
     
     for (int i = 0; i < 32; i++) {
-        lightThresh.b[i*2] = eeprom_buffered_read_byte(i+1);
-        lightThresh.b[i*2+1] = eeprom_buffered_read_byte(i+33);
+        lightThresh.b[lightMap[i] * 2] =
+            eeprom_buffered_read_byte(lightMap[i] + 1);
+        lightThresh.b[lightMap[i] * 2 + 1] =
+            eeprom_buffered_read_byte(lightMap[i] + 33);
     }
     
 #endif
     
 }
-
-void Light::printLight() {
+void Light::printThresh() {
     L1DebugSerial.print("Thresh: ");
     for (int i = 0; i < 32; i++) {
         L1DebugSerial.print(lightThresh.vals[i]);
         L1DebugSerial.print(" ");
     }
     L1DebugSerial.println();
+}
 
-#ifdef DEBUG
-    for (int i = 0; i < 32; i++) {
+void Light::printLight() {
+     for (int i = 0; i < 32; i++) {
         L1DebugSerial.print(lightVals[i]);
-        L1DebugSerial.print(",");
+        L1DebugSerial.print(" ");
     }
     L1DebugSerial.println();
-#endif
+
 }
 
 
@@ -83,17 +85,17 @@ void Light::read() {
     bool out = false;
     outSensors = 0;
     for (int i = 0; i < 16; i++) {
-        lightVals[i] = readMux(i, pinsA, sigA);
-        if (lightVals[i] > lightThresh.vals[i]) {
-            lineDetected[outSensors] = i;
+        lightVals[lightMap[i]] = readMux(i, pinsA, sigA);
+        if (lightVals[lightMap[i]] > lightThresh.vals[lightMap[i]]) {
+            lineDetected[outSensors] = lightMap[i];
             outSensors++;
         }
     }
 
     for (int i = 16; i < 32; i++) {
-        lightVals[i] = readMux(i - 16, pinsB, sigB);
-        if (lightVals[i] > lightThresh.vals[i]) {
-            lineDetected[outSensors] = i;
+        lightVals[lightMap[i]] = readMux(i - 16, pinsB, sigB);
+        if (lightVals[lightMap[i]] > lightThresh.vals[lightMap[i]]) {
+            lineDetected[outSensors] = lightMap[i];
             outSensors++;
         }
     }
@@ -104,10 +106,22 @@ void Light::read() {
    
 }
 
+void Light::readRaw() {
+    bool out = false;
+    outSensors = 0;
+    for (int i = 0; i < 16; i++) {
+        lightVals[i] = readMux(i, pinsA, sigA);
+    }
+
+    for (int i = 16; i < 32; i++) {
+        lightVals[i] = readMux(i - 16, pinsB, sigB);
+    }
+
+    onLine = outSensors > 0;
+}
+
 void Light::calibrate() {
     
-    
-
 #ifdef USE_EEPROM
 #ifdef DEBUG
     L1DebugSerial.print("Calibrating...");
@@ -117,50 +131,39 @@ void Light::calibrate() {
     while ((millis() - timeStart) < timeOut) {
         read();
         for (int i = 0; i < 32; i++) {
-            if (lightVals[i] > maxVals[i]) 
-                maxVals[i] = lightVals[i];
+            if (lightVals[lightMap[i]] > maxVals[lightMap[i]]){
+                maxVals[lightMap[i]] = lightVals[lightMap[i]];
+            }
+            if (lightVals[lightMap[i]] < minVals[lightMap[i]]){
+                minVals[lightMap[i]] = lightVals[lightMap[i]];
+            }
 
-            if (lightVals[i] < minVals[i]) 
-                minVals[i] = lightVals[i];
-            
-            lightThresh.vals[i] = (maxVals[i] + minVals[i]) / 2;
+            lightThresh.vals[lightMap[i]] = (maxVals[lightMap[i]] + minVals[lightMap[i]]) / 2;
         }
+        printLight();
     }
 #ifdef DEBUG
     L1DebugSerial.print("Done!");
 #endif
 
-#else
-    read();
-    for (int i = 0; i < 32; i++) {
-        if (lightVals[i] > maxVals[i]) 
-            maxVals[i] = lightVals[i];
-
-        if (lightVals[i] < minVals[i]) 
-            minVals[i] = lightVals[i];
-        
-        lightThresh.vals[i] = (maxVals[i] + minVals[i]) / 2;
-
-    }
-    delay(100);
 #endif
 
 #ifdef DEBUG
     L1DebugSerial.print("Max: ");
     for (int i = 0; i < 32; i++) {
-        L1DebugSerial.print(maxVals[i]);
+        L1DebugSerial.print(maxVals[lightMap[i]]);
         L1DebugSerial.print(" ");
     }
     L1DebugSerial.println();
     L1DebugSerial.print("Min: ");
     for (int i = 0; i < 32; i++) {
-        L1DebugSerial.print(minVals[i]);
+        L1DebugSerial.print(minVals[lightMap[i]]);
         L1DebugSerial.print(" ");
     }
     L1DebugSerial.println();
     L1DebugSerial.print("Thresh: ");
     for (int i = 0; i < 32; i++) {
-        L1DebugSerial.print(lightThresh.vals[i]);
+        L1DebugSerial.print(lightThresh.vals[lightMap[i]]);
         L1DebugSerial.print(" ");
     }
     L1DebugSerial.println();
@@ -169,8 +172,10 @@ void Light::calibrate() {
 #ifdef USE_EEPROM
     // write calibrated threshold to eeprom memory
     for (int i = 0; i < 32; i++) {
-        eeprom_buffered_write_byte(i + 1, lightThresh.b[i*2]);
-        eeprom_buffered_write_byte(i + 33, lightThresh.b[i*2+1]);
+        eeprom_buffered_write_byte(lightMap[i] + 1,
+                                   lightThresh.b[lightMap[i] * 2]);
+        eeprom_buffered_write_byte(lightMap[i] + 33,
+                                   lightThresh.b[lightMap[i] * 2 + 1]);
     }
     eeprom_buffer_flush();
 #endif
@@ -188,12 +193,22 @@ void Light::getLineData(LineData& data) {
     if (onLine) {
         // get line angle and chord length
         for (int i = 0; i < outSensors; i++) {
-            float tmpAngle = deg2rad(i * 360 / 32);
+#ifdef DEBUG
+            L1DebugSerial.print(lineDetected[i]);
+            L1DebugSerial.print(" Val: ");
+            L1DebugSerial.print(lightVals[lineDetected[i]]);
+            L1DebugSerial.print(" Thresh: ");
+            L1DebugSerial.print(lightThresh.vals[lineDetected[i]]);
+            L1DebugSerial.print(" ");
+
+#endif
+            float tmpAngle = deg2rad(lineDetected[i] * 360 / 32);
             vecY += cos(tmpAngle);
             vecX += sin(tmpAngle);
 
             for (int j = i + 1; j < outSensors; j++) {
-                float tmpDiff = angleDiff(i * 360 / 32, j * 360 / 32);
+                float tmpDiff = angleDiff(lineDetected[i] * 360 / 32,
+                                          lineDetected[j] * 360 / 32);
                 if (tmpDiff > largestDiff) {
                     chordStart = j;
                     chordEnd = i;
@@ -205,8 +220,11 @@ void Light::getLineData(LineData& data) {
         lineAngle = rad2deg(atan2(vecX, vecY));
         if (lineAngle < 0) lineAngle += 360;
         lineAngle = fmod(lineAngle + 180, 360);
-    } 
+    }
 
+#ifdef DEBUG
+    L1DebugSerial.println();
+#endif
     // update data
     data.onLine = onLine;
     data.lineAngle.val = lineAngle;

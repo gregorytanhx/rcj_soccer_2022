@@ -43,7 +43,7 @@
 #define DRIBBLER_PIN 1
 #define KICKER_PIN 22
 #define LIGHT_GATE_PIN A9
-#define LAYER1_LED PB1
+#define STM32_LED PB1
 #define BOARD_LED_1 8
 #define BOARD_LED_2 9
 
