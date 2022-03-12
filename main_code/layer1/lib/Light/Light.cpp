@@ -14,10 +14,6 @@ Light::Light() {
     pinsB[2] = mux_B3;
     pinsB[3] = mux_B4;
 
-    for (int i = 0; i < 32; i++) {
-        maxVals[i] = 0;
-        minVals[i] = 1200;
-    }
 }
 
 void Light::init() {
@@ -81,6 +77,8 @@ int Light::readMux(int channel, int controlPin[4], int sig) {
     return val;
 }
 
+
+
 void Light::read() {
     bool out = false;
     outSensors = 0;
@@ -100,10 +98,15 @@ void Light::read() {
         }
     }
     
-    onLine = outSensors > 0;
+    onLine = outSensors > 0;   
+}
 
-
-   
+void Light::sendVals() {
+    L1CommSerial.write(LAYER1_SEND_SYNC_BYTE);
+    for (int i = 0; i < 32; i++) {
+        lightBuffer.vals[i] = lightVals[i];
+        L1CommSerial.write(lightBuffer.b, 2);
+    }
 }
 
 void Light::readRaw() {
@@ -126,7 +129,12 @@ void Light::calibrate() {
 #ifdef DEBUG
     L1DebugSerial.print("Calibrating...");
 #endif
-	const unsigned long timeOut = 60000;
+    // reset max and min values each time
+    for (int i = 0; i < 32; i++) {
+        maxVals[i] = 0;
+        minVals[i] = 1200;
+    }
+    const unsigned long timeOut = 60000;
 	unsigned long timeStart = millis();
     while ((millis() - timeStart) < timeOut) {
         read();
@@ -178,7 +186,14 @@ void Light::calibrate() {
                                    lightThresh.b[lightMap[i] * 2 + 1]);
     }
     eeprom_buffer_flush();
+
 #endif
+
+    L1CommSerial.write(LAYER1_SEND_SYNC_BYTE);
+    // send thresholds to teensy for checking
+    for (int i = 0; i < 32; i++) {
+        L1CommSerial.write(lightThresh.b, 2);
+    }
 }
 
 // TO DO: WRITE CALIBRATED LIGHT VALS TO STM32 EEPROM MEMORY

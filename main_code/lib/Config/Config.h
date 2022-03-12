@@ -20,8 +20,8 @@
 
 #define MIN_SPEED 40
 #define SPEED 80
-// #define MAX_SPEED 100
-#define MAX_PWM 120
+#define MAX_SPEED 110
+
 
 #define MOTOR_MULT 1.0154266118857451
 
@@ -64,6 +64,7 @@
 #define LAYER1_REC_SYNC_BYTE 2
 #define LAYER1_SEND_SYNC_BYTE 2
 #define LAYER4_PACKET_SIZE 9
+#define LIGHT_PACKET_SIZE 65
 
 // tof settings
 #define TIME_BUDGET 33

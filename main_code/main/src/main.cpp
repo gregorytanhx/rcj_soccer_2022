@@ -16,18 +16,21 @@
 #include <utility/imumaths.h>
 
 LineData lineData;
+
 MoveData moveData(0, 0, 0);
 BallData ballData;
 Bluetooth bt;
 BluetoothData btData;
 Camera camera;
 BBox bbox;
+LightBuffer lightVals;
 
 float lastLineAngle = 0;
 bool lineTrack = false;
 bool lineAvoid = true;
 bool hasBall = false;
 bool calibrate = false;
+bool doneCalibrating = false;
 
 TOFBuffer tof;
 IMU cmp(&Wire1);
@@ -113,6 +116,52 @@ void readLayer1() {
                 lineData.chordLength.b[i] = L1Serial.read();
             }
             lineData.onLine = L1Serial.read();
+        }
+    }
+}
+
+void calibrateLight() {
+    calibrate = true;
+    bool printNormalVals = false;
+    sendLayer1();
+   
+    if (!doneCalibrating) {
+        Serial.println("Calibrating...");
+        while (L1Serial.available() >= LIGHT_PACKET_SIZE) {
+            doneCalibrating = true;
+            uint8_t syncByte = L1Serial.read();
+            if (syncByte == LAYER1_REC_SYNC_BYTE) {
+                Serial.println("Calibration done!");
+                Serial.println("Thresh: ");
+                for (int i = 0; i < 32; i++) {
+                    for (int j = 0; j < 2; j++) {
+                        lightVals.b[j] = L1Serial.read();
+                    }
+                    Serial.print(lightVals.vals[i]);
+                    Serial.print(" ");
+                }
+            }
+            Serial.println();
+        }
+    } else {
+        if (Serial.available()) {
+            printNormalVals = true;
+        }
+        if (printNormalVals) {
+            while (L1Serial.available() >= LIGHT_PACKET_SIZE) {
+                uint8_t syncByte = L1Serial.read();
+                if (syncByte == LAYER1_REC_SYNC_BYTE) {
+                    Serial.println("Vals: ");
+                    for (int i = 0; i < 32; i++) {
+                        for (int j = 0; j < 2; j++) {
+                            lightVals.b[j] = L1Serial.read();
+                        }
+                        Serial.print(lightVals.vals[i]);
+                        Serial.print(" ");
+                    }
+                }
+            }
+            Serial.println();
         }
     }
 }

@@ -1,20 +1,22 @@
 #include <Arduino.h>
 #include <SoftwareSerial.h>
 #include <Config.h>
+#include <Wire.h>
 #include <Common.h> 
 #include <Pins.h> 
 #include <TOF.h>
 
-TOF_Array tofArray(Wire);
+TwoWire Wire1(LAYER4_SDA, LAYER4_SCL);
+TOF_Array tofArray(Wire1);
 
 void setup() {
+    L4CommSerial.begin(STM32_BAUD);
     pinMode(STM32_LED, OUTPUT);
     digitalWrite(STM32_LED, HIGH);
 #ifdef DEBUG
     L4DebugSerial.begin(9600);
 #endif
     tofArray.init();
-    
     digitalWrite(STM32_LED, LOW);
 }
 

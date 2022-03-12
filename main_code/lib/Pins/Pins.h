@@ -29,15 +29,18 @@
 #define SIG_B PB0
 
 // tof pins
-#define SHUT_1 1
-#define SHUT_2 2
-#define SHUT_3 3
-#define SHUT_4 4
+#define SHUT_1 PA12
+#define SHUT_2 PA0
+#define SHUT_3 PA4
+#define SHUT_4 PA6
 
-#define INT_1 5
-#define INT_2 6
-#define INT_3 7
-#define INT_4 8
+#define INT_1 PA11
+#define INT_2 PA1
+#define INT_3 PA5
+#define INT_4 PA7
+
+#define LAYER4_SDA PB11
+#define LAYER4_SCL PB10
 
 // misc pins
 #define DRIBBLER_PIN 1

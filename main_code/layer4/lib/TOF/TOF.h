@@ -2,15 +2,15 @@
 #define TOF_H
 
 #include <Arduino.h>
+#include <Common.h>
+#include <ComponentObject.h>
 #include <Config.h>
 #include <Pins.h>
-#include <Common.h>
-#include <Wire.h>
 #include <RangeSensor.h>
 #include <SparkFun_VL53L1X.h>
+#include <Wire.h>
 #include <vl53l1_error_codes.h>
 #include <vl53l1x_class.h>
-
 
 // wrapper for VL53L1X TOF sensors
 class TOF {

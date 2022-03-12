@@ -15,7 +15,7 @@ void Motors::init() {
 }
 
 void Motors::setMove(float speed, float angle, float rotation) {
-    float outSpeed = map(speed, 0, 100, 0, MAX_PWM);
+    float outSpeed = speed;
 
     float a = sin(deg2rad(50 + angle)) * MOTOR_MULT;
     float b = sin(deg2rad(50 - angle)) * MOTOR_MULT;

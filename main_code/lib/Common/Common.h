@@ -60,4 +60,10 @@ typedef union TOFBuffer {
     uint8_t b[8];
 } TOFBuffer;
 
+// threshold values for calibrating light sensors
+typedef union LightBuffer {
+    int16_t vals[32];
+    u_int8_t b[64];
+} LightBuffer;
+
 #endif

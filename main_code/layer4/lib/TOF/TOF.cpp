@@ -4,17 +4,18 @@ TOF::TOF(TwoWire &i2cPort, int shutdownPin, int interruptPin) {
     sensor = SFEVL53L1X(i2cPort, shutdownPin, interruptPin);
     shutdownPin = shutdownPin;
     interruptPin = interruptPin;
-    pinMode(shutdownPin, OUTPUT);
-    pinMode(interruptPin, OUTPUT);
 }
 
 void TOF::setLow() {
+    pinMode(shutdownPin, OUTPUT);
+    pinMode(interruptPin, OUTPUT);
     digitalWrite(shutdownPin, LOW);
 }
 
 void TOF::init(int i2cAddress) {
     digitalWrite(shutdownPin, HIGH);
     sensor.init();
+    digitalWrite(STM32_LED, LOW);
     sensor.setI2CAddress(i2cAddress);
     // select smallest ROI 
     sensor.setROI(4, 4, 199);
@@ -36,19 +37,17 @@ int16_t TOF::read() {
 
 TOF_Array::TOF_Array(TwoWire &i2cPort) {
     FrontTOF = TOF(i2cPort, SHUT_1, INT_1);
-    BackTOF = TOF(i2cPort, SHUT_2, INT_2);
-    LeftTOF = TOF(i2cPort, SHUT_3, INT_3);
+    LeftTOF = TOF(i2cPort, SHUT_2, INT_2);
+    BackTOF = TOF(i2cPort, SHUT_3, INT_3);
     RightTOF = TOF(i2cPort, SHUT_4, INT_4);
 }
 
 void TOF_Array::init() {
-    L4CommSerial.begin(STM32_BAUD);
-
     FrontTOF.setLow();
     BackTOF.setLow();
     LeftTOF.setLow();
     RightTOF.setLow();
-
+   
     FrontTOF.init(0x30);
     delay(10);
     BackTOF.init(0x32);
