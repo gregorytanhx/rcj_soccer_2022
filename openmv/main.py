@@ -11,6 +11,8 @@ print( "version", ulab.__version__ )
 led = LED(2) # green led
 led.on()
 
+'''Kalman Filter for smoother ball following'''
+
 class KalmanFilter:
     def __init__(self, F = None, B = None, H = None, Q = None, R = None, P = None, x0 = None):
         if(F is None or H is None):
@@ -40,10 +42,8 @@ class KalmanFilter:
             (I - np_dot( K, self.H ) ).transpose().copy() ) + np_dot( np_dot( K, self.R ), K.transpose().copy() )
         return self.x
 
-
-
 # set dT at each processing step
-F = np.eye(6,  dtype=np.float)
+F = np.eye(6, dtype=np.float)
 B = 0
 
 H = np.array([[1, 0, 0, 0, 0, 0],
@@ -113,7 +113,7 @@ sensor.skip_frames(time=1000)
 # UART 3, and baudrate.
 
 clock = time.clock()
-uart = UART(1, 115200)
+uart = UART(1, 1000000)
 
 IMG_WIDTH = 320
 IMG_HEIGHT = 240
@@ -122,7 +122,6 @@ selfX = IMG_WIDTH // 2
 selfY = IMG_HEIGHT // 2
 
 dT = 0
-
 
 ballFound = False
 notFoundCount = 0
@@ -242,10 +241,6 @@ def send(data):
         num = round(num)
         sendData += list(num.to_bytes(2, 'little'))
 
-
-
-
-
     for num in sendData:
         try:
             uart.writechar(num)
@@ -259,14 +254,9 @@ while(True):
 
     dT = 1/clock.fps()
 
-
     data = find_objects(debug=debug)
 
     send(data)
-    ids = [sensor.OV5640, sensor.OV5640, sensor.OV7725, sensor.MT9M114, sensor.MT9V034]
-    for i in range(len(ids)):
-        if sensor.get_id() == ids[i]:
-            print(i)
 
     if debug:
         print(clock.fps())
