@@ -13,6 +13,7 @@ void setup() {
     L4CommSerial.begin(STM32_BAUD);
     pinMode(STM32_LED, OUTPUT);
     digitalWrite(STM32_LED, HIGH);
+    
 #ifdef DEBUG
     L4DebugSerial.begin(9600);
 #endif
