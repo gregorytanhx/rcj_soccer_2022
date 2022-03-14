@@ -83,10 +83,8 @@ void dribble() {
 }
 
 void kick() {
-    if (kickerTimer.timeHasPassed() && ballData.captured) 
-        digitalWriteFast(KICKER_PIN, LOW);
-    else 
-        digitalWriteFast(KICKER_PIN, HIGH);
+    digitalWriteFast(KICKER_PIN, LOW);
+    kickerTimer.update();       
 }
 
 void setMove(float speed, float angle, float rotation) {
@@ -352,7 +350,7 @@ void updateBluetooth() {
 }
 
 void angleCorrect() {
-    moveData.rotation.val = cmp.read() * CMP_KP * -1;
+    moveData.rotation.val = cmp.readRaw() * CMP_KP * -1;
 }
 
 // TODO: triangulate position based on coords of both goals
@@ -386,7 +384,7 @@ void setup() {
     // camera.init();
     // BTSerial.begin(BLUETOOTH_BAUD);
 
-    // cmp.init();
+    cmp.init();
 
     // pinMode(KICKER_PIN, OUTPUT);
     // pinMode(DRIBBLER_PIN, OUTPUT);
@@ -399,16 +397,20 @@ void setup() {
 }
 
 void loop() {
-    //setMove(30, 0, 0);
+    setMove(50, 0, 0);
+    //angleCorrect();
     sendLayer1();
-    readLayer1();
-    if (lineData.onLine) {
-        Serial.println("Line Detected");
-        Serial.print("Angle: ");
-        Serial.print(lineData.lineAngle.val);
-        Serial.print(" Chord Length: ");
-        Serial.println(lineData.chordLength.val);
-    }
+    Serial.println(cmp.readRaw());
+    //cmp.printAllData();
+
+    // readLayer1();
+    // if (lineData.onLine) {
+    //     Serial.println("Line Detected");
+    //     Serial.print("Angle: ");
+    //     Serial.print(lineData.lineAngle.val);
+    //     Serial.print(" Chord Length: ");
+    //     Serial.println(lineData.chordLength.val);
+    // }
 
     // camera.read();
 
@@ -426,7 +428,7 @@ void loop() {
     //     if (ballData.captured) {
     //         trackGoal();
     //         if (camera.oppDist <= KICK_DISTANCE_THRES) {
-    //             kick();bak
+    //             kick();
     //         }
     //     } else if (ballData.visible) {
     //         trackBall();
@@ -441,6 +443,10 @@ void loop() {
     //         goTo(Point(GOALIE_HOME_X, GOALIE_HOME_Y));
     //     }
     // }
+
+
+    // if (kickerTimer.timeHasPassed()) digitalWriteFast(KICKER_PIN, HIGH);
+
     // angleCorrect();
     // sendLayer1();
     // readLayer1();

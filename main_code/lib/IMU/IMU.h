@@ -15,13 +15,14 @@ class IMU {
    public:
     IMU(TwoWire *theWire);
     void init();
+    void printAllData();
+    void printCalib();
+    void printEvent(sensors_event_t* event);
     float readRaw();
     float read();
     Adafruit_BNO055 bno;
     float heading;
-
-   private:
-    int offset;
+    float offset = 0;
 };
 
 #endif

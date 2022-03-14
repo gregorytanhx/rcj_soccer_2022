@@ -1,6 +1,7 @@
-#define KICKER_PIN 22
+#define KICKER_PIN 12
 
 int lightVal;
+long lastKickTime = 0;
 void setup() {
   // put your setup code here, to run once:
   pinMode(KICKER_PIN, OUTPUT);
@@ -11,15 +12,15 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
-//  lightVal = analogRead(A9);
-//  Serial.println(lightVal);
-//  if (lightVal < 20) {
-//    digitalWrite(KICKER_PIN, HIGH);
-//    delay(500);
-//  }
-  digitalWrite(KICKER_PIN, HIGH);
-  delay(1000);
-  digitalWrite(KICKER_PIN, LOW);
-  delay(1000);
+  lightVal = analogRead(A9);
+  Serial.println(lightVal);
+  if (lightVal < 20) {
+    digitalWrite(KICKER_PIN, LOW);
+    lastKickTime = millis();
+  }
+  if (millis() - lastKickTime > 200){
+    digitalWrite(KICKER_PIN, HIGH);
+  }
+  
 
 }

@@ -72,7 +72,7 @@
 #define LAYER4_SYNC_BYTE 1
 
 #define DRIBBLER_WAIT 3000
-#define LIGHT_GATE_THRESH 100
+#define LIGHT_GATE_THRESH 20
 
 #define L1Serial Serial1
 #define L4Serial Serial2

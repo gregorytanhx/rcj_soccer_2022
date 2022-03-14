@@ -49,13 +49,13 @@ void receiveData() {
             lineTrack = (bool)L1CommSerial.read();
             lineAvoid = (bool)L1CommSerial.read();
             calibrate = (bool)L1CommSerial.read();
+            speed = buffer.vals[0];
+            angle = buffer.vals[1];
+            rotation = buffer.vals[2];
         }
     }
-    speed = buffer.vals[0];
-    angle = buffer.vals[1];
-    rotation = buffer.vals[2];
+    
 }
-
 
 // handle line avoidance directly through stm32
 void setup() {
@@ -70,71 +70,75 @@ void setup() {
 }
 
 void loop() {
-    // receiveData();
-    if (calibrate) {
-        if (doneCalibrating){
-            light.read();
-            light.sendVals();
-        } else {
-            light.calibrate();
-            doneCalibrating = true;
-        }
+    receiveData();
+    //L1DebugSerial.println(speed);
+    motors.setMove(speed, angle, rotation);
+    motors.moveOut();
+    //     if (calibrate) {
+    //         if (doneCalibrating){
+    //             light.read();
+    //             light.sendVals();
+    //         } else {
+    //             light.calibrate();
+    //             doneCalibrating = true;
+    //         }
 
-    } else {
-        
-        light.readRaw();
-        // light.getLineData(lineData);
-        // light.printLight();
-        for (int i = 16; i < 32; i++){
-            L1DebugSerial.print(i+1);
-            L1DebugSerial.print(": ");
-            L1DebugSerial.print(light.lightVals[i]);
-            L1DebugSerial.print(" ");
-        }
-        L1DebugSerial.println();
-        
-        // L1DebugSerial.print(" ");
-        // L1DebugSerial.print(light.lightVals[23]);
-        // L1DebugSerial.print(" ");
-        // L1DebugSerial.println(light.lightVals[27]);
-        sendData();
-        delay(200);
-        if (lineData.onLine) {
-#ifdef DEBUG
-            L1DebugSerial.print("Line Angle: ");
-            L1DebugSerial.print(lineData.lineAngle.val);
-            L1DebugSerial.print("\tChord Length: ");
-            L1DebugSerial.println(lineData.chordLength.val);
-#endif
+    //     } else {
 
-            if (lineTrack) {
-                lineTimer.update();
-                float angle =
-                    nonReflex(light.getClosestAngle(moveData.angle.val));
-                // use PID to control speed of correction
-                float correction =
-                    lineTrackPID.update(angle - moveData.angle.val);
+    //         light.readRaw();
+    //         // light.getLineData(lineData);
+    //         // light.printLight();
+    //         for (int i = 16; i < 32; i++){
+    //             L1DebugSerial.print(i+1);
+    //             L1DebugSerial.print(": ");
+    //             L1DebugSerial.print(light.lightVals[i]);
+    //             L1DebugSerial.print(" ");
+    //         }
+    //         L1DebugSerial.println();
 
-                motors.setMove(LINE_TRACK_SPEED + correction, angle, 0);
-            } else if (lineAvoid) {
-                if (abs(lastLineAngle - lineData.lineAngle.val) >= 90) {
-                    // allow chord length to keep increasing as robot
-                    // goes over centre of line
-                    lineData.chordLength.val = 2 - lineData.chordLength.val;
-                }
-                // line avoidance
-                motors.setMove(speed * lineData.chordLength.val,
-                               lineData.lineAngle.val, 0);
-            } else {
-                motors.setMove(speed, angle, rotation);
-            }
-        } else {
-            motors.setMove(speed, angle, rotation);
-        }
-        if (lineTimer.timeHasPassed()) {
-            lineTrackPID.resetIntegral();
-        }
+    //         // L1DebugSerial.print(" ");
+    //         // L1DebugSerial.print(light.lightVals[23]);
+    //         // L1DebugSerial.print(" ");
+    //         // L1DebugSerial.println(light.lightVals[27]);
+    //         sendData();
+    //         // delay(200);
+    //         if (lineData.onLine) {
+    // #ifdef DEBUG
+    //             L1DebugSerial.print("Line Angle: ");
+    //             L1DebugSerial.print(lineData.lineAngle.val);
+    //             L1DebugSerial.print("\tChord Length: ");
+    //             L1DebugSerial.println(lineData.chordLength.val);
+    // #endif
 
-        lastLineAngle = lineData.lineAngle.val;
-    }
+    //             if (lineTrack) {
+    //                 lineTimer.update();
+    //                 float angle =
+    //                     nonReflex(light.getClosestAngle(moveData.angle.val));
+    //                 // use PID to control speed of correction
+    //                 float correction =
+    //                     lineTrackPID.update(angle - moveData.angle.val);
+
+    //                 motors.setMove(LINE_TRACK_SPEED + correction, angle, 0);
+    //             } else if (lineAvoid) {
+    //                 if (abs(lastLineAngle - lineData.lineAngle.val) >= 90) {
+    //                     // allow chord length to keep increasing as robot
+    //                     // goes over centre of line
+    //                     lineData.chordLength.val = 2 -
+    //                     lineData.chordLength.val;
+    //                 }
+    //                 // line avoidance
+    //                 motors.setMove(speed * lineData.chordLength.val,
+    //                                lineData.lineAngle.val, 0);
+    //             } else {
+    //                 motors.setMove(speed, angle, rotation);
+    //             }
+    //         } else {
+    //             motors.setMove(speed, angle, rotation);
+    //         }
+    //         if (lineTimer.timeHasPassed()) {
+    //             lineTrackPID.resetIntegral();
+    //         }
+
+    //         lastLineAngle = lineData.lineAngle.val;
+    //     }
 }

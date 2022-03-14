@@ -29,7 +29,6 @@ void init_sensors() {
     }
 
     // set i2c addresses one by one
-    // set addresses with difference of 2 cus source code fucking gay
     for (int i = 0; i < 4; i++) {
         digitalWrite(shutPins[i], HIGH);
         sensors[i].init();
@@ -103,7 +102,6 @@ void setup() {
 #endif
     Wire1.begin();
     Wire1.setClock(400000);
-    // tofArray.init();
     init_sensors();
     digitalWrite(STM32_LED, HIGH);
 }
