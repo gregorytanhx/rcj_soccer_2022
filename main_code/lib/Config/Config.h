@@ -81,7 +81,7 @@
 
 #define L1CommSerial Serial3
 #define L1DebugSerial Serial1
-#define L4CommSerial Serial1
-#define L4DebugSerial Serial2
+#define L4CommSerial Serial2
+#define L4DebugSerial Serial1
 
 #endif

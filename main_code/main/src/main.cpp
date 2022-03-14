@@ -83,10 +83,10 @@ void dribble() {
 }
 
 void kick() {
-    if (kickerTimer.timeHasPassed()) 
-        digitalWriteFast(KICKER_PIN, HIGH);
-    else 
+    if (kickerTimer.timeHasPassed() && ballData.captured) 
         digitalWriteFast(KICKER_PIN, LOW);
+    else 
+        digitalWriteFast(KICKER_PIN, HIGH);
 }
 
 void setMove(float speed, float angle, float rotation) {
@@ -240,7 +240,6 @@ void trackGoal() {
     setMove(SPEED, robotAngle, 0);
 }
 
-
 void goTo(Point target) {
     // Point target: vector pointing from centre of field to point on field
 
@@ -341,6 +340,7 @@ void updateRole() {
         movingSideways = false;
     }
 }
+
 void updateBluetooth() {
     btData = BluetoothData(ballData, botCoords, role, onField);
     bt.update(btData);
@@ -350,7 +350,6 @@ void updateBluetooth() {
         role = Role::defend;
     }
 }
-
 
 void angleCorrect() {
     moveData.rotation.val = cmp.read() * CMP_KP * -1;
@@ -369,9 +368,6 @@ void getCameraCoords() {
 
   Point centre(vecX, vecY);
 }
-
-
-
 
 void setup() {
 
@@ -430,7 +426,7 @@ void loop() {
     //     if (ballData.captured) {
     //         trackGoal();
     //         if (camera.oppDist <= KICK_DISTANCE_THRES) {
-    //             kick();
+    //             kick();bak
     //         }
     //     } else if (ballData.visible) {
     //         trackBall();
