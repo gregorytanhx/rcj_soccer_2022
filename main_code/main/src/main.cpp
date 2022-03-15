@@ -384,23 +384,25 @@ void setup() {
     // camera.init();
     // BTSerial.begin(BLUETOOTH_BAUD);
 
-    cmp.init();
+    //cmp.init();
 
-    // pinMode(KICKER_PIN, OUTPUT);
-    // pinMode(DRIBBLER_PIN, OUTPUT);
-    // analogWriteFrequency(DRIBBLER_PIN, 1000);
-    // analogWrite(DRIBBLER_PIN, 32);
-    // delay(DRIBBLER_WAIT);
+    pinMode(KICKER_PIN, OUTPUT);
+    digitalWrite(KICKER_PIN, HIGH);
+    pinMode(DRIBBLER_PIN, OUTPUT);
+    analogWriteFrequency(DRIBBLER_PIN, 1000);
+    analogWrite(DRIBBLER_PIN, 32);
+    delay(DRIBBLER_WAIT);
 
     pinMode(LED_BUILTIN, OUTPUT);
     digitalWrite(LED_BUILTIN, HIGH);
 }
 
 void loop() {
-    setMove(50, 0, 0);
+    setMove(0, 0, 0);
     //angleCorrect();
     sendLayer1();
-    Serial.println(cmp.readRaw());
+    dribble();
+    // Serial.println(cmp.readRaw());
     //cmp.printAllData();
 
     // readLayer1();

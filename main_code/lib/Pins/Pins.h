@@ -43,7 +43,7 @@
 #define LAYER4_SCL PB10
 
 // misc pins
-#define DRIBBLER_PIN 1
+#define DRIBBLER_PIN 18
 #define KICKER_PIN 12
 #define LIGHT_GATE_PIN A9
 #define STM32_LED PB1

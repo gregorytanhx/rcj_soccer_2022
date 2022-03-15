@@ -34,7 +34,7 @@ void Motors::setMove(float speed, float angle, float rotation) {
 }
 
 void Motors::moveOut() {
-    analogWrite(FL_PWM, abs(FL_OUT));
+    analogWrite(FL_PWM, abs(FL_OUT)*1.2);
     digitalWrite(FL_DIG, FL_OUT > 0 ? LOW : HIGH);
 
     analogWrite(FR_PWM, abs(FR_OUT));
