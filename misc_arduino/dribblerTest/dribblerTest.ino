@@ -16,15 +16,17 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
-  for (int i = 32; i < 64; i++){
-    analogWrite(DRIBBLER_PIN, i);
-    delay(1);
-  }
+//  for (int i = 32; i < 64; i++){
+//    analogWrite(DRIBBLER_PIN, i);
+//    delay(1);
+//  }
+  analogWrite(DRIBBLER_PIN, 64);
   delay(2000);
-  for (int i = 64; i > 32; i--){
-    analogWrite(DRIBBLER_PIN, i);
-    delay(1);
-  }
+    analogWrite(DRIBBLER_PIN, 32);
+//  for (int i = 64; i > 32; i--){
+//    analogWrite(DRIBBLER_PIN, i);
+//    delay(1);
+//  }
   delay(2000);
   
 //  for (int i = 8192; i < 16384; i++){
