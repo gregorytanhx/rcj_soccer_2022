@@ -40,6 +40,7 @@ float frontTOF, backTOF, leftTOF, rightTOF;
 
 MyTimer kickerTimer(500);
 MyTimer bluetoothTimer(BLUETOOTH_UPDATE_TIME);
+MyTimer dribblerTimer(2000);
 
 // decide if bots will switch roles mid match (while both still in)
 bool roleSwitching = false;
@@ -77,9 +78,16 @@ Role currentRole() {
     }
 }
 
-void dribble() { 
+void controlDribbler() { 
     // use pwm to control dribbler
-    analogWrite(DRIBBLER_PIN, 64); 
+    bool dribble = ballData.dist <= BALL_DRIBBLE_THRESH;
+    if (dribble || !dribblerTimer.timeHasPassed()){
+        analogWrite(DRIBBLER_PIN, DRIBBLER_UPPER_LIMIT);
+        dribblerTimer.update();
+    } else {
+        analogWrite(DRIBBLER_PIN, DRIBBLER_LOWER_LIMIT);
+    }
+       
 }
 
 void kick() {
@@ -350,7 +358,7 @@ void updateBluetooth() {
 }
 
 void angleCorrect() {
-    moveData.rotation.val = cmp.readRaw() * CMP_KP * -1;
+    moveData.rotation.val = cmp.readEuler() * CMP_KP;
 }
 
 // TODO: triangulate position based on coords of both goals
@@ -380,28 +388,35 @@ void setup() {
     Serial.begin(9600);
 #endif
     L1Serial.begin(STM32_BAUD);
-    // L4Serial.begin(STM32_BAUD);
+    L4Serial.begin(STM32_BAUD);
     // camera.init();
     // BTSerial.begin(BLUETOOTH_BAUD);
 
-    //cmp.init();
+    cmp.init();
 
     pinMode(KICKER_PIN, OUTPUT);
     digitalWrite(KICKER_PIN, HIGH);
     pinMode(DRIBBLER_PIN, OUTPUT);
-    analogWriteFrequency(DRIBBLER_PIN, 1000);
-    analogWrite(DRIBBLER_PIN, 32);
-    delay(DRIBBLER_WAIT);
+    // analogWriteFrequency(DRIBBLER_PIN, 1000);
+    // analogWrite(DRIBBLER_PIN, DRIBBLER_LOWER_LIMIT);
+    // delay(DRIBBLER_WAIT);
 
     pinMode(LED_BUILTIN, OUTPUT);
     digitalWrite(LED_BUILTIN, HIGH);
 }
 
 void loop() {
-    setMove(0, 0, 0);
-    //angleCorrect();
-    sendLayer1();
-    dribble();
+    setMove(50, 0, 0);
+    // //angleCorrect();
+    //sendLayer1();
+    // // controlDribbler();
+    cmp.printCalib();
+    Serial.print("Euler: ");
+    Serial.println(cmp.readEuler());
+    Serial.print("Quaternion: ");
+    Serial.println(cmp.readQuat());
+    
+
     // Serial.println(cmp.readRaw());
     //cmp.printAllData();
 
@@ -434,6 +449,7 @@ void loop() {
     //         }
     //     } else if (ballData.visible) {
     //         trackBall();
+
            
     //     } else {
     //         goTo(Point(STRIKER_HOME_X, STRIKER_HOME_Y));

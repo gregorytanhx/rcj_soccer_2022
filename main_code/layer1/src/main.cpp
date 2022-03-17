@@ -41,7 +41,7 @@ void receiveData() {
     // receive teensy data
     while (L1CommSerial.available() >= LAYER1_REC_PACKET_SIZE) {
         uint8_t syncByte = L1CommSerial.read();
-        L1DebugSerial.println("received")
+        L1DebugSerial.println("received");
         if (syncByte == LAYER1_REC_SYNC_BYTE) {
             // exclude last 3 bytes
             for (int i = 0; i < LAYER1_REC_PACKET_SIZE - 4; i++) {
@@ -60,21 +60,37 @@ void receiveData() {
 
 // handle line avoidance directly through stm32
 void setup() {
-    light.init();
+
+    //light.init();
     motors.init();
 
-    L1DebugSerial.begin(9600);
+    L1DebugSerial.begin(115200);
     L1CommSerial.begin(STM32_BAUD);
-    lineTimer.update();
+    // lineTimer.update();
     pinMode(STM32_LED, OUTPUT);
     digitalWrite(STM32_LED, HIGH);
 }
 
 void loop() {
-    receiveData();
-    motors.setMove(speed, angle, rotation);
+    
+    //receiveData();
+    motors.setMove(50, 0, 0);
     motors.moveOut();
-    L1DebugSerial.println(speed);
+    delay(1000);
+    // motors.setMove(50, 180, 0);
+    // motors.moveOut();
+    // delay(1000);
+
+    // //
+    // for (int i = 16; i < 32; i++) {
+    //     // lightVals[i] = readMux(i - 16, pinsB, sigB);
+    //     L1DebugSerial.print(i);
+    //     L1DebugSerial.print(" ");
+    // }
+
+    //light.printLight();
+    //light.getLineData(lineData);
+    //motors.moveOut();
     //     if (calibrate) {
     //         if (doneCalibrating){
     //             light.read();

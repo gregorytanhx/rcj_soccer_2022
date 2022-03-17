@@ -1,7 +1,6 @@
 #ifndef IMU_H
 #define IMU_H
 
-#include <Adafruit_BNO055_t4.h>
 #include <Adafruit_Sensor.h>
 #include <Arduino.h>
 #include <Common.h>
@@ -9,6 +8,15 @@
 #include <Wire.h>
 #include <math.h>
 #include <utility/imumaths.h>
+#include <EEPROM.h>
+
+#ifdef USE_LAYER4_IMU
+    #include <Adafruit_BNO055.h>
+    #define Serial L4DebugSerial
+#else
+    #include <Adafruit_BNO055_t4.h>
+#endif
+
 
 // class for BNO055 IMU
 class IMU {
@@ -16,13 +24,22 @@ class IMU {
     IMU(TwoWire *theWire);
     void init();
     void printAllData();
+    void calibrate();
+    void displaySensorDetails();
+    void displaySensorOffsets(const adafruit_bno055_offsets_t& calibData);
     void printCalib();
+    void loadCalib();
     void printEvent(sensors_event_t* event);
-    float readRaw();
+    double readQuat();
+    float readEuler();
     float read();
     Adafruit_BNO055 bno;
     float heading;
-    float offset = 0;
+    float eulerOffset = 0;
+    float quatOffset = 0;
+    int eeAddress = IMU_CALIB_ADDR;
+    sensors_event_t event;
+    adafruit_bno055_offsets_t calibrationData;
 };
 
 #endif

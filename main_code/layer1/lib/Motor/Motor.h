@@ -13,6 +13,7 @@ class Motors {
     void setMove(float speed, float angle, float angVel);
     void moveOut();
     void init();
+    float a, b, fl, fr, bl, br;
     float FL_OUT, FR_OUT, BR_OUT, BL_OUT;
 };
 

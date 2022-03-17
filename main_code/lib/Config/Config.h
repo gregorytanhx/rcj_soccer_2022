@@ -5,6 +5,7 @@
 
 #define DEBUG
 #define SET_ID
+#define USE_LAYER4_IMU
 
 
 #define FIELD_WIDTH 1320
@@ -18,11 +19,15 @@
 // robot ID: 0 for striker, 1 for goalie
 #define ID 0
 
+#define IMU_CALIB_ADDR 1
+
 #define MIN_SPEED 40
 #define SPEED 80
 #define MAX_SPEED 110
 
-
+#define DRIBBLER_UPPER_LIMIT 64
+#define DRIBBLER_LOWER_LIMIT 32
+#define BALL_DRIBBLE_THRESH 40
 #define MOTOR_MULT 1.0154266118857451
 
 // kick ball when 40cm to the goal

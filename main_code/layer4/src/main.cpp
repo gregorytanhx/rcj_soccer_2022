@@ -110,7 +110,7 @@ void loop() {
     read_sensors();
 #ifdef DEBUG
     for (int i = 0; i < 4; i++) {
-        L4DebugSerial.print(distances[i]);
+        L4DebugSerial.print(buffer.vals[i]);
         L4DebugSerial.print(" ");
     }
     L4DebugSerial.println();

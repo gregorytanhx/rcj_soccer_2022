@@ -1,30 +1,34 @@
-#include <Adafruit_BNO055.h>
-#include <Adafruit_Sensor.h>
 #include <Arduino.h>
 #include <Common.h>
+#include <Config.h>
+#include <Pins.h>
 #include <IMU.h>
-#include <Servo.h>
-#include <SoftwareSerial.h>
 #include <Wire.h>
-#include <math.h>
-#include <utility/imumaths.h>
 
+TwoWire Wire1(PB11, PB10);
 
-// HardwareSerial ser(PA10, PA9);
-//Adafruit_BNO055 bno = Adafruit_BNO055(55, 0x29, &Wire1);
-void setup() {
+IMU cmp(&Wire1);
+
+#define Serial Serial1
+
+void setup() {    
+    L4CommSerial.begin(STM32_BAUD);
+#ifdef DEBUG
     Serial.begin(9600);
-    // if (!bno.begin()) {
-    //     /* There was a problem detecting the BNO055 ... check your connections
-    //      */
-    //     sendSerial.print("Oops, no BNO055 detected ... Check your wiring or I2C ADDR!");
-    //     while (1);
-    // }
-
-    // delay(1000);
-    // bno.setExtCrystalUse(true);
+#endif
+    //L4DebugSerial.println("test");
+    cmp.init();
+    pinMode(STM32_LED, OUTPUT);
+    digitalWrite(STM32_LED, LOW);
 }
 
 void loop() {
-    Serial.println("FUCK");
+    cmp.printCalib();
+    Serial.print("Euler: ");
+    Serial.println(cmp.readEuler());
+    Serial.print("Quaternion: ");
+    Serial.println(cmp.readQuat());
+    delay(200);
 }
+
+

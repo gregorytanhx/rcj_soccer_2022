@@ -78,7 +78,6 @@ int Light::readMux(int channel, int controlPin[4], int sig) {
 }
 
 
-
 void Light::read() {
     bool out = false;
     outSensors = 0;
@@ -112,9 +111,11 @@ void Light::sendVals() {
 void Light::readRaw() {
     bool out = false;
     outSensors = 0;
-    for (int i = 0; i < 16; i++) {
-        lightVals[i] = readMux(i, pinsA, sigA);
-    }
+    // for (int i = 0; i < 16; i++) {
+    //     lightVals[i] = readMux(i, pinsA, sigA);
+    //     L1DebugSerial.print(i);
+    //     L1DebugSerial.print(" ");
+    // }
 
     for (int i = 16; i < 32; i++) {
         lightVals[i] = readMux(i - 16, pinsB, sigB);
