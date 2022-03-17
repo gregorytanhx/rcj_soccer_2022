@@ -358,7 +358,7 @@ void updateBluetooth() {
 }
 
 void angleCorrect() {
-    moveData.rotation.val = cmp.readEuler() * CMP_KP;
+    moveData.rotation.val = cmp.readQuat() * 0.1;
 }
 
 // TODO: triangulate position based on coords of both goals
@@ -405,17 +405,27 @@ void setup() {
     digitalWrite(LED_BUILTIN, HIGH);
 }
 
+MyTimer circleTimer(5);
+int dir = 0;
+
 void loop() {
-    setMove(50, 0, 0);
-    // //angleCorrect();
-    //sendLayer1();
-    // // controlDribbler();
-    cmp.printCalib();
-    Serial.print("Euler: ");
-    Serial.println(cmp.readEuler());
-    Serial.print("Quaternion: ");
-    Serial.println(cmp.readQuat());
+ 
+    if (circleTimer.timeHasPassed()) {
+        dir++;
+        dir %= 360;
+    }
+    setMove(50, dir, 0);
+    angleCorrect();
+    sendLayer1();
     
+    
+
+    // // controlDribbler();
+    // cmp.printCalib();
+    // Serial.print("Euler: ");
+    // Serial.println(cmp.readEuler());
+    // Serial.print("Quaternion: ");
+    // Serial.println(cmp.readQuat());
 
     // Serial.println(cmp.readRaw());
     //cmp.printAllData();

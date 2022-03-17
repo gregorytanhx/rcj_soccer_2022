@@ -5,14 +5,14 @@
 #define FL_PWM PA3
 #define FL_DIG PB3
 
-#define FR_PWM PA1
-#define FR_DIG PB5
+#define FR_PWM PA0
+#define FR_DIG PB6
 
 #define BL_PWM PA2
 #define BL_DIG PB4
 
-#define BR_PWM PA0
-#define BR_DIG PB6
+#define BR_PWM PA1
+#define BR_DIG PB5
 
 // mux pins
 #define mux_A1 PA8

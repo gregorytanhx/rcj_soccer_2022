@@ -35,11 +35,9 @@ void IMU::init() {
     bno.setExtCrystalUse(true);
     delay(100);
     uint8_t system, gyro, accel, mag = 0;
-    //loadCalib();
+    loadCalib();
     while (gyro != 3) {
-        
         bno.getCalibration(&system, &gyro, &accel, &mag);
-        
         bno.getEvent(&event);
 #ifdef DEBUG
         Serial.println("Uncalibrated!");

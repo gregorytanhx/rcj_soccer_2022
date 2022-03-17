@@ -41,7 +41,6 @@ void receiveData() {
     // receive teensy data
     while (L1CommSerial.available() >= LAYER1_REC_PACKET_SIZE) {
         uint8_t syncByte = L1CommSerial.read();
-        L1DebugSerial.println("received");
         if (syncByte == LAYER1_REC_SYNC_BYTE) {
             // exclude last 3 bytes
             for (int i = 0; i < LAYER1_REC_PACKET_SIZE - 4; i++) {
@@ -73,10 +72,10 @@ void setup() {
 
 void loop() {
     
-    //receiveData();
-    motors.setMove(50, 0, 0);
+    receiveData();
+    motors.setMove(speed, angle, rotation);
     motors.moveOut();
-    delay(1000);
+
     // motors.setMove(50, 180, 0);
     // motors.moveOut();
     // delay(1000);
