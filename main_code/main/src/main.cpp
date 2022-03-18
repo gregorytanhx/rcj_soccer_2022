@@ -53,6 +53,8 @@ uint8_t robotID;
 Point botCoords(0, 0);
 Point relBallCoords(0, 0);
 Point absBallCoords(0, 0);
+Point centreVector(0, 0);
+Point frontVector(0, 0);
 
 PID coordPID(COORD_KP, COORD_KI, COORD_KD);
 PID goaliePID(GOALIE_KP, GOALIE_KI, GOALIE_KD);
@@ -254,15 +256,8 @@ void goTo(Point target) {
     Point moveVector;
     float moveSpeed;
     if (camera.oppVisible && camera.ownVisible) {
-        // go to point based on vector calculations
-        Point oppGoalVec(camera.oppAngle, camera.oppDist);
-        Point ownGoalVec(camera.ownAngle, camera.ownDist);
-
-        // vector pointing to the centre of the field
-        Point centre = oppGoalVec + ownGoalVec;
-        centre.distance /= 2;
-        moveVector = centre + target;
-       
+        // go to point based on vector calculations from camera
+        moveVector = centreVector + target;
     } else {
         // go to point based on robot's coordinates
         moveVector = target - botCoords;
@@ -347,6 +342,18 @@ void updateRole() {
     }
 }
 
+void processCam() {
+    Point oppGoalVec(camera.oppAngle, camera.oppDist);
+    Point ownGoalVec(camera.ownAngle, camera.ownDist);
+
+    // vector pointing to the centre of the field
+    centreVector = oppGoalVec + ownGoalVec;
+    centreVector.distance /= 2;
+
+    // vector pointing to front of field
+    frontVector = oppGoalVec - centreVector;
+}
+
 void updateBluetooth() {
     btData = BluetoothData(ballData, botCoords, role, onField);
     bt.update(btData);
@@ -358,6 +365,7 @@ void updateBluetooth() {
 }
 
 void angleCorrect() {
+    
     moveData.rotation.val = cmp.readQuat() * 0.1;
 }
 

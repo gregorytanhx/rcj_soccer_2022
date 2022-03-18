@@ -94,10 +94,10 @@ sensor.set_auto_gain(False, gain_db=15)
 # === EXPOSURE ===
 curr_exposure = sensor.get_exposure_us()
 print(curr_exposure)
-#sensor.set_auto_exposure(False, exposure_us = int(curr_exposure * 0.3))
+sensor.set_auto_exposure(False, exposure_us = int(curr_exposure * 0.3))
 #sensor.set_auto_exposure(False, exposure_us = 1000)
 
-sensor.skip_frames(time = 1000)
+sensor.skip_frames(time = 2000)
 # === WHITE BAL ===
 sensor.set_auto_whitebal(False) #Must remain false for blob tracking
 
@@ -106,8 +106,8 @@ sensor.set_contrast(3)
 sensor.set_saturation(3)
 
 
-sensor.__write_reg(0x0E, 0b00000000) # Disable night mode
-sensor.__write_reg(0x3E, 0b00000000) # Disable BLC
+#sensor.__write_reg(0x0E, 0b00000000) # Disable night mode
+#sensor.__write_reg(0x3E, 0b00000000) # Disable BLC
 sensor.skip_frames(time=1000)
 
 # UART 3, and baudrate.
