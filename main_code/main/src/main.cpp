@@ -59,7 +59,6 @@ Point frontVector(0, 0);
 PID coordPID(COORD_KP, COORD_KI, COORD_KD);
 PID goaliePID(GOALIE_KP, GOALIE_KI, GOALIE_KD);
 
-
 // initialise neutral point coordinates
 // Point neutralPoints[] = {
 //     Point(10, 10);
@@ -69,7 +68,8 @@ PID goaliePID(GOALIE_KP, GOALIE_KI, GOALIE_KD);
 Role currentRole() {
     // will tell the robot if its supposed to attack or defend
     if (bt.isConnected) {
-        // if role is undecided, pick default, else return the role that has been previously assigned
+        // if role is undecided, pick default, else return the role that has
+        // been previously assigned
         return Role::undecided ? defaultRole : role;
     } else if (bt.previouslyConnected) {
         // robot will come back in as goalie
@@ -80,21 +80,20 @@ Role currentRole() {
     }
 }
 
-void controlDribbler() { 
+void controlDribbler() {
     // use pwm to control dribbler
     bool dribble = ballData.dist <= BALL_DRIBBLE_THRESH;
-    if (dribble || !dribblerTimer.timeHasPassed()){
+    if (dribble || !dribblerTimer.timeHasPassed()) {
         analogWrite(DRIBBLER_PIN, DRIBBLER_UPPER_LIMIT);
         dribblerTimer.update();
     } else {
         analogWrite(DRIBBLER_PIN, DRIBBLER_LOWER_LIMIT);
     }
-       
 }
 
 void kick() {
     digitalWriteFast(KICKER_PIN, LOW);
-    kickerTimer.update();       
+    kickerTimer.update();
 }
 
 void setMove(float speed, float angle, float rotation) {
@@ -132,7 +131,7 @@ void calibrateLight() {
     calibrate = true;
     bool printNormalVals = false;
     sendLayer1();
-   
+
     if (!doneCalibrating) {
         Serial.println("Calibrating...");
         while (L1Serial.available() >= LIGHT_PACKET_SIZE) {
@@ -191,28 +190,26 @@ void updatePosition() {
 
     bbox.update(tof, lineData, moveData.rotation.val);
     botCoords.x = bbox.x;
-    botCoords.y = bbox.y; 
+    botCoords.y = bbox.y;
 }
 
 void trackBall() {
     float ballOffset;
     if (ballData.angle < 180)
         ballOffset = fmin(ballData.angle * 0.96, 90);
-    else 
+    else
         ballOffset = max((360 - ballData.angle) * 0.96, -90);
-    
+
     float factor = 1 - ballData.dist / 520;
     float ballMult = fmin(1, 0.0134 * exp(factor * 2.6));
 
     robotAngle = ballData.angle + ballMult * ballOffset;
-    setMove(SPEED, robotAngle, 0);    
+    setMove(SPEED, robotAngle, 0);
 }
 
-bool readLightGate() {
-    return analogRead(LIGHT_GATE_PIN) >= LIGHT_GATE_THRESH;
-} 
+bool readLightGate() { return analogRead(LIGHT_GATE_PIN) >= LIGHT_GATE_THRESH; }
 
-void updateBallData() {    
+void updateBallData() {
     ballData.visible = camera.ballVisible;
     ballData.captured = readLightGate();
     if (ballData.visible) {
@@ -225,22 +222,23 @@ void updateBallData() {
 
     } else if (bt.otherData.ballData.visible) {
         // find ball position based on other robot's data
-        // derive angle and distance of ball relative to robot based on its absolute coordinates
+        // derive angle and distance of ball relative to robot based on its
+        // absolute coordinates
 
         absBallCoords = Point(bt.otherData.ballData.x, bt.otherData.ballData.y);
         relBallCoords = absBallCoords - botCoords;
         ballData.angle = relBallCoords.getAngle();
         ballData.dist = relBallCoords.getDistance();
-        // treat ball as visible 
+        // treat ball as visible
         ballData.visible = true;
-    } 
+    }
 }
 
 void trackGoal() {
     float goalOffset;
-    if (camera.oppAngle < 180) 
+    if (camera.oppAngle < 180)
         goalOffset = fmin(camera.oppAngle, 90);
-    else 
+    else
         goalOffset = max((360 - camera.oppAngle), -90);
 
     float goalMult = 1.5;
@@ -267,8 +265,7 @@ void goTo(Point target) {
         // stop once robot is close to target position
         moveSpeed = 0;
     } else {
-        moveSpeed =
-            max(coordPID.update(moveVector.getDistance()), MIN_SPEED);
+        moveSpeed = max(coordPID.update(moveVector.getDistance()), MIN_SPEED);
     }
 
     // if using coordinates, adjust speed based on confidence in position along
@@ -277,7 +274,7 @@ void goTo(Point target) {
         float moveSpeed = distance(
             moveSpeed * sin(rad2deg(moveVector.getAngle())) * bbox.Xconfidence,
             moveSpeed * cos(rad2deg(moveVector.getAngle())) * bbox.Yconfidence);
-    } 
+    }
 
     setMove(moveSpeed, moveVector.getAngle(), 0);
 }
@@ -301,8 +298,9 @@ void guardGoal() {
     }
 }
 
-bool shouldSwitchRoles(BluetoothData attackerData, BluetoothData defenderData) { 
-    // switch roles if goalie has ball or ball is much closer to goalie or striker went out out field
+bool shouldSwitchRoles(BluetoothData attackerData, BluetoothData defenderData) {
+    // switch roles if goalie has ball or ball is much closer to goalie or
+    // striker went out out field
     return 0;
 }
 
@@ -316,13 +314,16 @@ void updateRole() {
             role = defaultRole;
         } else {
             // take the other role based on the other robot's role
-            role = bt.otherData.role == Role::attack ? Role::defend : Role::attack;
+            role =
+                bt.otherData.role == Role::attack ? Role::defend : Role::attack;
         }
     } else if (robotID == 1) {
         // Robot ID 1 (default defender) decides on role
 
-        BluetoothData attackerData = role == Role::attack ? btData : bt.otherData;
-        BluetoothData defenderData = role == Role::defend ? btData : bt.otherData;
+        BluetoothData attackerData =
+            role == Role::attack ? btData : bt.otherData;
+        BluetoothData defenderData =
+            role == Role::defend ? btData : bt.otherData;
 
         if (shouldSwitchRoles(attackerData, defenderData)) {
             role = role == Role::attack ? Role::defend : Role::attack;
@@ -332,8 +333,7 @@ void updateRole() {
         role = bt.otherData.role == Role::attack ? Role::defend : Role::attack;
     }
 
-    if (role != previousRole &&
-        previousRole == Role::attack) {
+    if (role != previousRole && previousRole == Role::attack) {
         // If switched to defender, move to the side to prevent collision
         movingSideways = true;
         Point sidewaysCoordinate = Point(40 * sign(botCoords.x), botCoords.y);
@@ -364,27 +364,38 @@ void updateBluetooth() {
     }
 }
 
-void angleCorrect() {
-    
-    moveData.rotation.val = cmp.readQuat() * 0.1;
-}
+void angleCorrect() { moveData.rotation.val = cmp.readQuat() * 0.1; }
 
 // TODO: triangulate position based on coords of both goals
 // TODO: if only one goal visible, use that goal
-// TODO: if goalie, use own goal only 
+// TODO: if goalie, use own goal only
 
 void getCameraCoords() {
-  Point oppGoalVec = Point(camera.oppAngle, camera.oppDist);
-  Point ownGoalVec = Point(camera.ownAngle, camera.ownDist);
+    Point oppGoalVec = Point(camera.oppAngle, camera.oppDist);
+    Point ownGoalVec = Point(camera.ownAngle, camera.ownDist);
 
-  int vecX = (oppGoalVec.x + ownGoalVec.x) / 2;
-  int vecY = (oppGoalVec.y + oppGoalVec.y) / 2;
+    int vecX = (oppGoalVec.x + ownGoalVec.x) / 2;
+    int vecY = (oppGoalVec.y + oppGoalVec.y) / 2;
 
-  Point centre(vecX, vecY);
+    Point centre(vecX, vecY);
+}
+
+void moveInCircle() {
+    MyTimer circleTimer(5);
+    int dir = 0;
+
+    while (true) {
+        if (circleTimer.timeHasPassed()) {
+            dir++;
+            dir %= 360;
+        }
+        setMove(50, dir, 0);
+        angleCorrect();
+        sendLayer1();
+    }
 }
 
 void setup() {
-
 #ifdef SET_ID
     EEPROM.write(EEPROM_ID_ADDR, ID);
 #else
@@ -398,7 +409,7 @@ void setup() {
     L1Serial.begin(STM32_BAUD);
     L4Serial.begin(STM32_BAUD);
     // camera.init();
-    // BTSerial.begin(BLUETOOTH_BAUD);
+    BTSerial.begin(BLUETOOTH_BAUD);
 
     cmp.init();
 
@@ -417,7 +428,6 @@ MyTimer circleTimer(5);
 int dir = 0;
 
 void loop() {
- 
     if (circleTimer.timeHasPassed()) {
         dir++;
         dir %= 360;
@@ -425,8 +435,6 @@ void loop() {
     setMove(50, dir, 0);
     angleCorrect();
     sendLayer1();
-    
-    
 
     // // controlDribbler();
     // cmp.printCalib();
@@ -436,7 +444,7 @@ void loop() {
     // Serial.println(cmp.readQuat());
 
     // Serial.println(cmp.readRaw());
-    //cmp.printAllData();
+    // cmp.printAllData();
 
     // readLayer1();
     // if (lineData.onLine) {
@@ -458,7 +466,7 @@ void loop() {
     // }
 
     // updateBallData();
-    
+
     // if (currentRole() == Role::attack) {
     //     if (ballData.captured) {
     //         trackGoal();
@@ -468,7 +476,6 @@ void loop() {
     //     } else if (ballData.visible) {
     //         trackBall();
 
-           
     //     } else {
     //         goTo(Point(STRIKER_HOME_X, STRIKER_HOME_Y));
     //     }
@@ -479,7 +486,6 @@ void loop() {
     //         goTo(Point(GOALIE_HOME_X, GOALIE_HOME_Y));
     //     }
     // }
-
 
     // if (kickerTimer.timeHasPassed()) digitalWriteFast(KICKER_PIN, HIGH);
 

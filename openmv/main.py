@@ -126,6 +126,27 @@ dT = 0
 ballFound = False
 notFoundCount = 0
 
+class obj:
+    def __init__(self, x, y, w, h):
+        self.x = x
+        self.y = y
+        self.w = w
+        self.h = h
+        self.area = w * h
+        self.angle = 500
+        self.dist = 500
+
+    def centralise(self, selfX, selfY):
+        self.x = selfX * 2 - self.x
+        self.x -= selfX
+        self.y = -self.y + selfY
+
+    def process(self):
+        self.angle = math.degrees(math.atan2(self.x, self.y))
+        if self.angle < 0: self.angle += 360
+        self.dist =  math.sqrt(self.x ** 2 + self.y ** 2)
+
+
 def track_field(thresh, pixel_thresh, area_thresh, color = (255, 255, 255), debug=False, roi = (15, 10, 280, 210), stride = 1, margin = 20):
     blobs = img.find_blobs(thresh, merge=True, roi = roi, x_stride = 5, y_stride = 5, pixels_threshold=pixel_thresh, area_threshold=area_thresh, margin = margin)
     for blob in blobs:
@@ -138,10 +159,7 @@ def track_field(thresh, pixel_thresh, area_thresh, color = (255, 255, 255), debu
 
 
 def track_obj(thresh, pixel_thresh, area_thresh, color = (255, 255, 255), debug=False, roi = (40, 10, 240, 200), stride = 1, margin = 5, merge = False):
-    X = 500
-    Y = 500
-    height = 0
-    width = 0
+    found_obj = None
     max_area = 0
     box = None
     img.draw_rectangle(roi, color = (255, 255, 255))
@@ -149,26 +167,17 @@ def track_obj(thresh, pixel_thresh, area_thresh, color = (255, 255, 255), debug=
     for blob in blobs:
         if blob.area() > max_area:
             max_area = blob.area()
-            X = blob.cx()
-            Y = blob.cy()
-            height = blob.h()
-            width = blob.w()
-            box = blob.rect()
+            found_obj = obj(blob.cx(), blob.cy(), blob.w(), blob.h())
 
     if debug and X < 500:
-        img.draw_rectangle(box, color = color)
-        img.draw_cross(X, Y, color = color)
+        img.draw_rectangle(blob.rect(), color = color)
+        img.draw_cross(blob.cx(), blob.cy(), color = color)
 
-    return X, Y, width, height
+    return found_obj if found_obj else None
 
-def centralise(x, y, selfX, selfY):
-    x = selfX * 2 - x
-    x -= selfX
-    y = -y + selfY
-    return x, y
 
-def processObj(X, Y, selfX, selfY):
-    if X < 500:
+def processObj(obj, selfX, selfY):
+    if obj:
         X, Y = centralise(X, Y, selfX, selfY)
         Angle = math.degrees(math.atan2(X, Y))
         if Angle < 0: Angle += 360
@@ -180,9 +189,9 @@ def processObj(X, Y, selfX, selfY):
 def find_objects(debug=False):
     global ballFound
     global notFoundCount
-    ballX, ballY, ballW, ballH = track_obj(red_thresh, 5, 5, debug = debug, stride=2)
-    blueX, blueY, blueW, blueH = track_obj(blue_thresh, 10, 10, color = (0, 0, 255), stride = 10,  debug = debug, merge = True, margin = 30)
-    yellowX, yellowY, yellowW, yellowH = track_obj(yellow_thresh, 20, 20, color = (0, 255, 0), stride = 10, debug =  debug, merge = True, margin = 30)
+    ball = track_obj(red_thresh, 5, 5, debug = debug, stride=2)
+    blue = track_obj(blue_thresh, 10, 10, color = (0, 0, 255), stride = 10,  debug = debug, merge = True, margin = 30)
+    yellow = track_obj(yellow_thresh, 20, 20, color = (0, 255, 0), stride = 10, debug =  debug, merge = True, margin = 30)
 
     if ballFound:
         kf.F[0][2] = dT
@@ -193,23 +202,21 @@ def find_objects(debug=False):
         predH = state[5][0]
         predX = state[0][0]
         predY = state[1][0]
-        print("Predicted:", predX, predY, "Actual:", ballX, ballY)
+        print("Predicted:", predX, predY, "Actual:", ball.x, ball.y)
         predRect = (int(predX- predH / 2), int(predY- predW / 2), int(predW), int(predH))
 
 
         img.draw_rectangle(predRect, color = (0, 255, 255))
         img.draw_cross(int(predX), int(predY), color = (0, 255, 255))
 
-
-
-    if ballX == 500 and ballY == 500:
+    if ball is not None:
         # ball not detected
         notFoundCount += 1
         if notFoundCount >= 100:
             found = False
     else:
         notFoundCount = 0
-        z = np.array([[ballX], [ballY], [ballW], [ballH]], dtype=np.float)
+        z = np.array([[ball.x], [ball.y], [ball.w], [ball.h]], dtype=np.float)
         if not ballFound:
             # first detection!
             kf.P = np.eye(kf.F.shape[1])
@@ -220,19 +227,27 @@ def find_objects(debug=False):
         else:
             kf.update(z)
 
+    # fuck forgot why i did this
+    if (blue.y > selfY): blue.y -= blue.h / 2
+    else: blue.y += blue.h / 2
+    if (yellow.y > selfY): yellow.y -= yellow.h / 2
+    else: yellow.y += yellow.h / 2
 
-    if (blueY > selfY): blueY -= blueH / 2
-    else: blueY += blueH / 2
-    if (yellowY > selfY): yellowY -= yellowH / 2
-    else: yellowY += yellowH / 2
+    if yellow:
+        yellow.process()
+    else:
+        yellow = obj(0, 0, 0, 0)
+    if blue:
+        blue.process()
+    else:
+        blue = obj(0, 0, 0, 0)
+    if ball:
+        ball.process()
+    else:
+        ball = obj(0, 0, 0, 0)
 
 
-    yellowAngle, yellowDist = processObj(yellowX, yellowY, selfX, selfY)
-    blueAngle, blueDist = processObj(blueX, blueY, selfX, selfY)
-    ballAngle, ballDist = processObj(ballX, ballY, selfX, selfY)
-    #print(ballAngle, ballDist)
-    #return ballAngle #, int(ballDist)]
-    return [ballAngle, ballDist, blueAngle, blueDist, yellowAngle, yellowDist]
+    return [ball.angle, ball.dist, blue.angle, blue.dist, blue.area, yellow.angle, yellow.dist, yellow.area]
 
 def send(data):
     sendData = [42]
