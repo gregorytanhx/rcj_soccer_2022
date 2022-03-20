@@ -401,6 +401,12 @@ void moveInCircle() {
     }
 }
 
+void updateDebug() {
+    ballData.angle = 0;
+    ballData.dist = 0;
+    bt.updateDebug(botCoords, ballData);
+}
+
 
 void setup() {
 #ifdef SET_ID
