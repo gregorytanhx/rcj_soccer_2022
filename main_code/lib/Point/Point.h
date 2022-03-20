@@ -30,7 +30,7 @@ class Point {
     }
 
     float getAngle() { 
-        // calculate polar angle as bearing from north
+        // calculate polar angle as bearing from north in degrees
         return fmod(90 - rad2deg(atan2(y, x)), 360); 
     }
 

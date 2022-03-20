@@ -53,8 +53,6 @@ uint8_t robotID;
 Point botCoords(0, 0);
 Point relBallCoords(0, 0);
 Point absBallCoords(0, 0);
-Point centreVector(0, 0);
-Point frontVector(0, 0);
 
 PID coordPID(COORD_KP, COORD_KI, COORD_KD);
 PID goaliePID(GOALIE_KP, GOALIE_KI, GOALIE_KD);
@@ -64,6 +62,21 @@ PID goaliePID(GOALIE_KP, GOALIE_KI, GOALIE_KD);
 //     Point(10, 10);
 //     ...
 // };
+
+// enum for neutral points
+enum {
+    TopLeftDot, 
+    TopRightDot, 
+    CentreDot, 
+    BottomLeftDot, 
+    BottomRightDot, 
+    LeftSide, 
+    RightSide,
+    TopLeftCorner, 
+    TopRightCorner, 
+    BottomLeftCorner
+    BottomRightCorner
+}
 
 Role currentRole() {
     // will tell the robot if its supposed to attack or defend
@@ -252,10 +265,10 @@ void goTo(Point target) {
     // Use cam by default if both goals are visible
     // otherwise use a combination of camera and TOF coords
     Point moveVector;
-    float moveSpeed;
+    float moveSpeed, moveAngle;
     if (camera.oppVisible && camera.ownVisible) {
         // go to point based on vector calculations from camera
-        moveVector = centreVector + target;
+        moveVector = camera.centreVector + target;
     } else {
         // go to point based on robot's coordinates
         moveVector = target - botCoords;
@@ -268,13 +281,18 @@ void goTo(Point target) {
         moveSpeed = max(coordPID.update(moveVector.getDistance()), MIN_SPEED);
     }
 
-    // if using coordinates, adjust speed based on confidence in position along
-    // each axis
+    // if using coordinates, adjust angle based on confidence in position along
+    // each axis eg. if x-axis is completely blocked, move along y-axis until robot is not blocked
     if (!(camera.oppVisible && camera.ownVisible)) {
-        float moveSpeed = distance(
-            moveSpeed * sin(rad2deg(moveVector.getAngle())) * bbox.Xconfidence,
-            moveSpeed * cos(rad2deg(moveVector.getAngle())) * bbox.Yconfidence);
+        float x_axis = sin(deg2rad(moveVector.getAngle())) * bbox.Xconfidence;
+        float y_axis = cos(deg2rad(moveVector.getAngle())) * bbox.Yconfidence;
+
+        moveAngle = atan2(y_axis, x_axis);
+        
+    } else {
+        moveAngle = moveVector.getAngle()
     }
+    
 
     setMove(moveSpeed, moveVector.getAngle(), 0);
 }
@@ -342,17 +360,6 @@ void updateRole() {
     }
 }
 
-void processCam() {
-    Point oppGoalVec(camera.oppAngle, camera.oppDist);
-    Point ownGoalVec(camera.ownAngle, camera.ownDist);
-
-    // vector pointing to the centre of the field
-    centreVector = oppGoalVec + ownGoalVec;
-    centreVector.distance /= 2;
-
-    // vector pointing to front of field
-    frontVector = oppGoalVec - centreVector;
-}
 
 void updateBluetooth() {
     btData = BluetoothData(ballData, botCoords, role, onField);
@@ -456,6 +463,7 @@ void loop() {
     // }
 
     // camera.read();
+    // camera.process();
 
     // heading = cmp.read();
     // readLayer4();

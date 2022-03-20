@@ -4,6 +4,7 @@
 #include <Arduino.h>
 #include <math.h>
 #include <Config.h>
+#include <Point.h>
 #include <Common.h>
 
 
@@ -14,8 +15,8 @@ enum Side {
 };
 
 typedef union camBuffer {
-  int16_t vals[6];
-  uint8_t b[12];
+  int16_t vals[(CAMERA_PACKET_SIZE - 1) / 2];
+  uint8_t b[CAMERA_PACKET_SIZE - 1];
 } camBuffer;
 
 // class to receive and process data from OpenMV 
@@ -47,7 +48,12 @@ class Camera {
     bool blueVisible = false;
     bool yellowVisible = false;
     bool ballVisible = false;
+    bool newData = false;
 
+    Point centreVector;
+    Point frontVector;
+    Point oppGoalVec;
+    Point ownGoalVec;
     Side side = facingYellow; // face yellow goal by default;
     camBuffer buffer;
 
