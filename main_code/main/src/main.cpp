@@ -200,7 +200,7 @@ void readLayer4() {
 void updatePosition() {
     // TODO: combine camera data with TOF data
     // TODO: use light sensors to confirm robot's position along x-axis
-
+    lineData.onLine = false;
     bbox.update(tof, lineData, moveData.rotation.val);
     botCoords.x = bbox.x;
     botCoords.y = bbox.y;
@@ -441,6 +441,7 @@ void setup() {
 
 void loop() {
     // TODO: Test TOF localisation
+    readLayer4();
 
     // // controlDribbler();
     // cmp.printCalib();
@@ -449,8 +450,7 @@ void loop() {
     // Serial.print("Quaternion: ");
     // Serial.println(cmp.readQuat());
 
-    // Serial.println(cmp.readRaw());
-    // cmp.printAllData();
+
 
     // readLayer1();
     // if (lineData.onLine) {

@@ -23,13 +23,12 @@ class IMU {
    public:
     IMU(TwoWire *theWire);
     void init();
-    void printAllData();
+    void printData();
     void calibrate();
     void displaySensorDetails();
     void displaySensorOffsets(const adafruit_bno055_offsets_t& calibData);
     void printCalib();
     void loadCalib();
-    void printEvent(sensors_event_t* event);
     double readQuat();
     float readEuler();
     float read();

@@ -31,21 +31,24 @@ void BBox::update(TOFBuffer tof, LineData lineData, float heading) {
     Xconfidence = 180 / width;
     Yconfidence = 180 / height;
 
-    float lineAngle = nonReflex(lineData.lineAngle.val + heading);
-    if (angleIsInside(85, 95, lineAngle)) {
-        // right edge of field
-        x = FIELD_WIDTH - 250;
-        Xconfidence = 1;
-    } else if (angleIsInside(-85, -95, lineAngle)) {
-        // left edge of field
-        Xconfidence = 1;
-        x = -FIELD_WIDTH + 250;
-    } else if (angleIsInside(-5, 5, lineAngle)) {
-        // at the top corners
-        Yconfidence = 1;
-        y = FIELD_HEIGHT / 2 - 250;
-    } else if (angleIsInside(-175, 175, lineAngle)) {
-        // at the top corners
-        Yconfidence = 1;
-        y = -FIELD_HEIGHT / 2 + 250;
+    if (lineData.onLine) {
+        float lineAngle = nonReflex(lineData.lineAngle.val + heading);
+        if (angleIsInside(85, 95, lineAngle)) {
+            // right edge of field
+            x = FIELD_WIDTH - 250;
+            Xconfidence = 1;
+        } else if (angleIsInside(-85, -95, lineAngle)) {
+            // left edge of field
+            Xconfidence = 1;
+            x = -FIELD_WIDTH + 250;
+        } else if (angleIsInside(-5, 5, lineAngle)) {
+            // at the top corners
+            Yconfidence = 1;
+            y = FIELD_HEIGHT / 2 - 250;
+        } else if (angleIsInside(-175, 175, lineAngle)) {
+            // at the top corners
+            Yconfidence = 1;
+            y = -FIELD_HEIGHT / 2 + 250;
+        }
     }
+}

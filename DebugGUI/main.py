@@ -96,10 +96,6 @@ def save():
         
  
 
-def shiftCoords(x, y):
-    x += OUTER_WIDTH // 2
-    y = OUTER_HEIGHT // 2 - y
-    return x, y
 
 
 def getCoords(angle, distance):
@@ -111,6 +107,9 @@ def getCoords(angle, distance):
     #print(f"Coordinates X: {int(x)} Y: {int(y)}")
     # convert from centre origin to top left origin
     
+    x += OUTER_WIDTH // 2
+    y = OUTER_HEIGHT // 2 - y
+    
     return x, y
 
 class SerialRecData:
@@ -121,6 +120,9 @@ class SerialRecData:
         # ball data
         self.ballAngle = 0
         self.ballDist = 0       
+        # bbox
+        self.width = 0
+        self.height = 0
     
 class Ball(object):
     def __init__(self, x, y):
@@ -154,6 +156,7 @@ class Bot(object):
 def getSerialData(data):
     while bluetooth.in_waiting >= BUFFER_SIZE + 1:
         buffer = bytearray(bluetooth.readline())    
+        
         data.botAngle = float.from_bytes(buffer[0:4], byteorder = 'little')       
         data.botDistance = float.from_bytes(buffer[4:8], byteorder = 'little')  
         data.ballAngle = float.from_bytes(buffer[8:12], byteorder = 'little')
@@ -169,10 +172,9 @@ def sendSerialData(data):
     sendData = []
     for i in range(len(vals)):
         # convert data to bytes
-        tmp = "f" is type(vals[i]) == float else "i"
+        tmp = "f" if type(vals[i]) == float else "i"
         sendData += list(struct.pack(f"<{tmp}", vals[i]))
     bluetooth.write(bytearray(sendData))
-    
     
        
 def main():   
@@ -199,8 +201,8 @@ def main():
         ballX = relBallX + botX
         ballY = relBallY + botY
         
-        bot.setPosition(shiftCoords(botX, botY))
-        ball.setPosition(shiftCoords(ballX, ballY))
+        bot.setPosition(botX, botY)
+        ball.setPosition(ballX, ballY)
         
         draw_bg(screen)
         ball.draw(screen)   
