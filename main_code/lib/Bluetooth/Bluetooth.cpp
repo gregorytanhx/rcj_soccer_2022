@@ -1,7 +1,23 @@
 #include "Bluetooth.h"
 
-void Bluetooth::init() { BTSerial.begin(BLUETOOTH_BAUD); }
+void Bluetooth::init() { 
+    BTSerial.begin(BLUETOOTH_BAUD);
+}
 
+void Bluetooth::initAT() { 
+    BTSerial.begin(BLUETOOTH_BAUD);
+    pinMode(BT_EN_PIN, OUTPUT);
+    digitalWrite(BT_EN_PIN, HIGH);
+}
+
+void Bluetooth::ATmode() {
+    while (Serial.available()) {
+        BTSerial.write(Serial.read());
+    }
+    while (BTSerial.available()) {
+        Serial.write(BTSerial.read());
+    }
+}
 void Bluetooth::send() {
     // fill buffer and send
 
@@ -62,3 +78,37 @@ void Bluetooth::update(BluetoothData data) {
     receive();
 }
 
+void Bluetooth::updateDebug(Point robotPos, BallData ballData) {
+    debugSendData.robotPos = robotPos;
+    debugSendData.ballData = ballData;
+    sendDebug();
+    receiveDebug();
+}
+
+void Bluetooth::sendDebug() {
+    debugSendBuffer.f[0] = debugSendData.ballData.angle;
+    debugSendBuffer.f[1] = debugSendData.ballData.dist;
+    debugSendBuffer.f[2] = debugSendData.robotPos.angle;
+    debugSendBuffer.f[3] = debugSendData.robotPos.dist;
+
+    BTSerial.write(DEBUG_SYNC_BYTE);
+    BTSerial.write(sendBuffer, sizeof(debugSendBuffer.b));
+}
+
+void Bluetooth::receiveDebug() {
+    while (BTSerial.available() >= DEBUG_PACKET_SIZE) {
+        uint8_t syncByte = BTSerial.read();
+        if (syncByte == DEBUG_SYNC_BYTE) {
+            for (int i = 0; i < DEBUG_PACKET_SIZE - 1; i++) {
+                recBuffer.b[i] = BTSerial.read();
+            }
+            mode = static_cast<DebugMode> recBuffer.b[28];
+            k = recBuffer.f[0];
+            a = recBuffer.f[1];
+            b = recBuffer.f[2];
+            c = recBuffer.f[3];
+            targetPos = Point(recBuffer.f[4], recBuffer.f[5]);
+            moveAngle = recBuffer.f[6];
+        }
+    }
+}

@@ -283,18 +283,17 @@ void goTo(Point target) {
 
     // if using coordinates, adjust angle based on confidence in position along
     // each axis eg. if x-axis is completely blocked, move along y-axis until robot is not blocked
+
     if (!(camera.oppVisible && camera.ownVisible)) {
         float x_axis = sin(deg2rad(moveVector.getAngle())) * bbox.Xconfidence;
         float y_axis = cos(deg2rad(moveVector.getAngle())) * bbox.Yconfidence;
-
         moveAngle = atan2(y_axis, x_axis);
-        
     } else {
         moveAngle = moveVector.getAngle()
     }
     
 
-    setMove(moveSpeed, moveVector.getAngle(), 0);
+    setMove(moveSpeed, moveAngle, 0);
 }
 
 void guardGoal() {
@@ -402,6 +401,7 @@ void moveInCircle() {
     }
 }
 
+
 void setup() {
 #ifdef SET_ID
     EEPROM.write(EEPROM_ID_ADDR, ID);
@@ -431,17 +431,10 @@ void setup() {
     digitalWrite(LED_BUILTIN, HIGH);
 }
 
-MyTimer circleTimer(5);
-int dir = 0;
+
 
 void loop() {
-    if (circleTimer.timeHasPassed()) {
-        dir++;
-        dir %= 360;
-    }
-    setMove(50, dir, 0);
-    angleCorrect();
-    sendLayer1();
+    // TODO: Test TOF localisation
 
     // // controlDribbler();
     // cmp.printCalib();

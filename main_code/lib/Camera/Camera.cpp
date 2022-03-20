@@ -44,12 +44,13 @@ void Camera::process() {
         yellowDist = cmDist(yellowPixelDist);
         blueDist = cmDist(bluePixelDist);
 
+        // set side only once
         if ((blueVisible && yellowVisible) && side == unset) {
             if (abs(blueAngle) <= 90 && abs(yellowAngle) >= 90) {
                 side = facingBlue;
             } else if (abs(yellowAngle) <= 90 && abs(blueAngle) >= 90) {
                 side = facingYellow;
-            }
+            }            
         }
 
         if (side == facingBlue) {
@@ -57,11 +58,15 @@ void Camera::process() {
             ownDist = yellowDist;
             oppAngle = blueAngle;
             oppDist = blueDist;
-        } else if (side == facingBlue) {
+            oppVisible = blueVisible;
+            ownVisible = yellowVisible;
+        } else {
             oppAngle = yellowAngle;
             oppDist = yellowDist;
             ownAngle = blueAngle;
             ownDist = blueDist;
+            oppVisible = yellowVisible;
+            ownVisible = blueVisible;
         }
 
         oppGoalVec = Point(oppAngle, oppDist);

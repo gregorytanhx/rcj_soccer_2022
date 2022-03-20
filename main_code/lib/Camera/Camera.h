@@ -43,8 +43,8 @@ class Camera {
     float ownAngle;
     float oppDist;
 
-    bool oppVisible = true;
-    bool ownVisible = true;
+    bool oppVisible = false;
+    bool ownVisible = false;
     bool blueVisible = false;
     bool yellowVisible = false;
     bool ballVisible = false;
@@ -56,7 +56,6 @@ class Camera {
     Point ownGoalVec;
     Side side = facingYellow; // face yellow goal by default;
     camBuffer buffer;
-
 };
 
 #endif

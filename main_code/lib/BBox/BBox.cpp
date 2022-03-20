@@ -4,6 +4,7 @@ void BBox::update(TOFBuffer tof, LineData lineData, float heading) {
     // TODO: use kalman filter to detect if TOF is temporarily blocked?
     // TODO: integrate camera coordinates as weighted sum?
     // TODO: integrate light sensors to confirm x-position
+
     int frontTOF = tof.vals[0];
     int rightTOF = tof.vals[1];
     int backTOF = tof.vals[2];
@@ -29,18 +30,22 @@ void BBox::update(TOFBuffer tof, LineData lineData, float heading) {
     // take area of robot over area of bbox as confidence score
     Xconfidence = 180 / width;
     Yconfidence = 180 / height;
+
     float lineAngle = nonReflex(lineData.lineAngle.val + heading);
     if (angleIsInside(85, 95, lineAngle)) {
         // right edge of field
-        x = 250;
+        x = FIELD_WIDTH - 250;
         Xconfidence = 1;
     } else if (angleIsInside(-85, -95, lineAngle)) {
         // left edge of field
         Xconfidence = 1;
-        x = FIELD_WIDTH - 250;
+        x = -FIELD_WIDTH + 250;
     } else if (angleIsInside(-5, 5, lineAngle)) {
         // at the top corners
         Yconfidence = 1;
         y = FIELD_HEIGHT / 2 - 250;
+    } else if (angleIsInside(-175, 175, lineAngle)) {
+        // at the top corners
+        Yconfidence = 1;
+        y = -FIELD_HEIGHT / 2 + 250;
     }
-}

@@ -49,5 +49,6 @@
 #define STM32_LED PB1
 #define BOARD_LED_1 8
 #define BOARD_LED_2 9
+#define BT_EN_PIN 6
 
 #endif 
