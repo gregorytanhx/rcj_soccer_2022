@@ -59,8 +59,8 @@ enum DebugMode {
 }
 
 typedef union DebugSendBuffer {
-    float f[4];
-    uint8_t b[16];
+    int16_t vals[6];
+    uint8_t b[12];
 } DebugSendBuffer;
 
 // struct to hold variables for debugging

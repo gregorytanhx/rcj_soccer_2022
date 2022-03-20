@@ -161,6 +161,8 @@ def getSerialData(data):
         data.botDistance = float.from_bytes(buffer[4:8], byteorder = 'little')  
         data.ballAngle = float.from_bytes(buffer[8:12], byteorder = 'little')
         data.ballDist = float.from_bytes(buffer[12:16], byteorder = 'little')
+        data.width = float.from_bytes(buffer[12:16], byteorder = 'little')
+        data.height = 
     
 def sendSerialData(data):
     OFFSET_K = k.get()
