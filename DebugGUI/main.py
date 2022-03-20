@@ -11,7 +11,7 @@ from background import draw_bg
 import tkinter as tk
 from tkinter import *
 
-bluetooth = serial.Serial(port="COM10", baudrate=9600, timeout=0)
+bluetooth = serial.Serial(port="COM10", baudrate=115200, timeout=0)
 
 # field dimensions
 OUTER_WIDTH = 182 
@@ -19,7 +19,7 @@ OUTER_HEIGHT = 243
 INNER_WIDTH = 132
 INNER_HEIGHT = 193
 SCALE = 4
-BUFFER_SIZE = 8
+BUFFER_SIZE = 12
 
 mode = {
     "NormalProgram" : 1, 
@@ -96,7 +96,11 @@ def save():
         
  
 
-
+def shiftCoords(x, y):
+     # convert from centre origin to top left origin
+    x += OUTER_WIDTH // 2
+    y = OUTER_HEIGHT // 2 - y
+    return x, y
 
 def getCoords(angle, distance):
     # convert mm dist to cm
@@ -105,11 +109,7 @@ def getCoords(angle, distance):
     x = distance * math.sin(math.radians(angle)) 
     y = distance * math.cos(math.radians(angle)) 
     #print(f"Coordinates X: {int(x)} Y: {int(y)}")
-    # convert from centre origin to top left origin
-    
-    x += OUTER_WIDTH // 2
-    y = OUTER_HEIGHT // 2 - y
-    
+   
     return x, y
 
 class SerialRecData:
@@ -153,16 +153,19 @@ class Bot(object):
         pygame.draw.circle(screen, (40, 40, 40), (self.x, self.y), self.radius)
         
         
+def getItem(buffer, i):
+    return int.from_bytes(buffer[2 * i : 2 * (i + 1)], byteorder = 'little')  
+
 def getSerialData(data):
     while bluetooth.in_waiting >= BUFFER_SIZE + 1:
         buffer = bytearray(bluetooth.readline())    
         
-        data.botAngle = float.from_bytes(buffer[0:4], byteorder = 'little')       
-        data.botDistance = float.from_bytes(buffer[4:8], byteorder = 'little')  
-        data.ballAngle = float.from_bytes(buffer[8:12], byteorder = 'little')
-        data.ballDist = float.from_bytes(buffer[12:16], byteorder = 'little')
-        data.width = float.from_bytes(buffer[12:16], byteorder = 'little')
-        data.height = 
+        data.botAngle = getItem(buffer, 0)  
+        data.botDistance = getItem(buffer, 1) 
+        data.ballAngle = getItem(buffer, 2) 
+        data.ballDist = getItem(buffer, 3) 
+        data.width = getItem(buffer, 4) 
+        data.height = getItem(buffer, 5) 
     
 def sendSerialData(data):
     OFFSET_K = k.get()
@@ -203,8 +206,8 @@ def main():
         ballX = relBallX + botX
         ballY = relBallY + botY
         
-        bot.setPosition(botX, botY)
-        ball.setPosition(ballX, ballY)
+        bot.setPosition(shiftCoords(botX, botY))
+        ball.setPosition(shiftCoords(ballX, ballY))
         
         draw_bg(screen)
         ball.draw(screen)   

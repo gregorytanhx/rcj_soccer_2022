@@ -78,9 +78,11 @@ void Bluetooth::update(BluetoothData data) {
     receive();
 }
 
-void Bluetooth::updateDebug(Point robotPos, BallData ballData) {
-    debugSendData.robotPos = robotPos;
+void Bluetooth::updateDebug(BBox box, BallData ballData) {
+    debugSendData.robotPos = Point(box.x, box.y);
     debugSendData.ballData = ballData;
+    debugSendData.width = box.width;
+    debugSendData.height = box.height;
     sendDebug();
     receiveDebug();
 }
@@ -90,7 +92,8 @@ void Bluetooth::sendDebug() {
     debugSendBuffer.vals[1] = debugSendData.ballData.dist;
     debugSendBuffer.vals[2] = debugSendData.robotPos.angle;
     debugSendBuffer.vals[3] = debugSendData.robotPos.dist;
-    
+    debugSendBuffer.vals[4] = debugSendData.width;
+    debugSendBuffer.vals[5] = debugSendData.height;
 
     BTSerial.write(DEBUG_SYNC_BYTE);
     BTSerial.write(sendBuffer, sizeof(debugSendBuffer.b));

@@ -9,6 +9,7 @@
 #include <MyTimer.h>
 #include <Point.h>
 #include <Role.h>
+#include <BBox.h>
 
 #define BLUETOOTH_BAUD 115200
 #define BLUETOOTH_SYNC_BYTE 71
@@ -67,6 +68,8 @@ typedef union DebugSendBuffer {
 typedef struct DebugSendData {
     BallData ballData;
     Point robotPos;
+    int width;
+    int height;
 } DebugSendData;
 
 typedef union DebugRecBuffer {
