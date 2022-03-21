@@ -63,7 +63,7 @@ PID goaliePID(GOALIE_KP, GOALIE_KI, GOALIE_KD);
 //     ...
 // };
 
-// enum for neutral points
+// enum for neutral points=
 enum {
     TopLeftDot, 
     TopRightDot, 
@@ -359,7 +359,6 @@ void updateRole() {
     }
 }
 
-
 void updateBluetooth() {
     btData = BluetoothData(ballData, botCoords, role, onField);
     bt.update(btData);
@@ -375,16 +374,6 @@ void angleCorrect() { moveData.rotation.val = cmp.readQuat() * 0.1; }
 // TODO: triangulate position based on coords of both goals
 // TODO: if only one goal visible, use that goal
 // TODO: if goalie, use own goal only
-
-void getCameraCoords() {
-    Point oppGoalVec = Point(camera.oppAngle, camera.oppDist);
-    Point ownGoalVec = Point(camera.ownAngle, camera.ownDist);
-
-    int vecX = (oppGoalVec.x + ownGoalVec.x) / 2;
-    int vecY = (oppGoalVec.y + oppGoalVec.y) / 2;
-
-    Point centre(vecX, vecY);
-}
 
 void moveInCircle() {
     MyTimer circleTimer(5);
@@ -437,8 +426,6 @@ void setup() {
     digitalWrite(LED_BUILTIN, HIGH);
 }
 
-
-
 void loop() {
     // TODO: Test TOF localisation
     readLayer4();
@@ -449,8 +436,6 @@ void loop() {
     // Serial.println(cmp.readEuler());
     // Serial.print("Quaternion: ");
     // Serial.println(cmp.readQuat());
-
-
 
     // readLayer1();
     // if (lineData.onLine) {
