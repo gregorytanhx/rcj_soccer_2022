@@ -56,7 +56,6 @@
 #define CAMERA_BAUD 1000000
 
 #define STM32_BAUD 250000
-#define BLUETOOTH_BAUD 2000000
 
 #define OFFSET_MULT 0.95
 #define BALL_MULT_A 1
@@ -72,7 +71,7 @@
 #define LIGHT_PACKET_SIZE 65
 
 // tof settings
-#define TIME_BUDGET 33
+#define TIME_BUDGET 75
 #define IMP 33
 #define LAYER4_SYNC_BYTE 1
 
@@ -80,7 +79,7 @@
 #define LIGHT_GATE_THRESH 20
 
 #define L1Serial Serial1
-#define L4Serial Serial2
+#define L4Serial Serial5
 #define CamSerial Serial3
 #define BTSerial Serial4
 

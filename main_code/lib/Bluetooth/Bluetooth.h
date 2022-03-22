@@ -57,7 +57,7 @@ enum DebugMode {
     TestLocalisation,
     TuneBallTrack,
     RemoteControl
-}
+};
 
 typedef union DebugSendBuffer {
     int16_t vals[6];
@@ -110,7 +110,7 @@ class Bluetooth {
     void send();
     void receive();
     void sendDebug();
-    void updateDebug(Point robotPos, BallData ballData);
+    void updateDebug(BBox box, BallData ballData);
     void receiveDebug();
 };
 

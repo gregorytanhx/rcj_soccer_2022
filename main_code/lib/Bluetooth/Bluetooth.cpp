@@ -91,12 +91,12 @@ void Bluetooth::sendDebug() {
     debugSendBuffer.vals[0] = debugSendData.ballData.angle;
     debugSendBuffer.vals[1] = debugSendData.ballData.dist;
     debugSendBuffer.vals[2] = debugSendData.robotPos.angle;
-    debugSendBuffer.vals[3] = debugSendData.robotPos.dist;
+    debugSendBuffer.vals[3] = debugSendData.robotPos.distance;
     debugSendBuffer.vals[4] = debugSendData.width;
     debugSendBuffer.vals[5] = debugSendData.height;
 
     BTSerial.write(DEBUG_SYNC_BYTE);
-    BTSerial.write(sendBuffer, sizeof(debugSendBuffer.b));
+    BTSerial.write(debugSendBuffer.b, sizeof(debugSendBuffer.b));
 }
 
 void Bluetooth::receiveDebug() {
@@ -104,15 +104,16 @@ void Bluetooth::receiveDebug() {
         uint8_t syncByte = BTSerial.read();
         if (syncByte == DEBUG_SYNC_BYTE) {
             for (int i = 0; i < DEBUG_PACKET_SIZE - 1; i++) {
-                recBuffer.b[i] = BTSerial.read();
+                debugRecBuffer.b[i] = BTSerial.read();
             }
-            mode = static_cast<DebugMode> recBuffer.b[28];
-            k = recBuffer.f[0];
-            a = recBuffer.f[1];
-            b = recBuffer.f[2];
-            c = recBuffer.f[3];
-            targetPos = Point(recBuffer.f[4], recBuffer.f[5]);
-            moveAngle = recBuffer.f[6];
+            mode = static_cast<DebugMode>(debugRecBuffer.b[28]);
+            debugRecData.k = debugRecBuffer.f[0];
+            debugRecData.a = debugRecBuffer.f[1];
+            debugRecData.b = debugRecBuffer.f[2];
+            debugRecData.c = debugRecBuffer.f[3];
+            debugRecData.targetPos =
+                Point(debugRecBuffer.f[4], debugRecBuffer.f[5]);
+            debugRecData.moveAngle = debugRecBuffer.f[6];
         }
     }
 }

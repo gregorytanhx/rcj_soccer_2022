@@ -20,6 +20,7 @@ class BBox {
     float Xconfidence;
     float Yconfidence;
     void update(TOFBuffer tof, LineData lineData, float heading);
+    void print();
 };
 
 #endif

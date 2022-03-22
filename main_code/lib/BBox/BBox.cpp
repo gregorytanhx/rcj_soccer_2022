@@ -52,3 +52,14 @@ void BBox::update(TOFBuffer tof, LineData lineData, float heading) {
         }
     }
 }
+
+void BBox::print() {
+    Serial.print("X: ");
+    Serial.print(x);
+    Serial.print(" Y: ");
+    Serial.print(y);
+    Serial.print(" Width: ");
+    Serial.print(width);
+    Serial.print(" Height: ");
+    Serial.println(height);
+}

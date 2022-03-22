@@ -34,6 +34,7 @@ void init_sensors() {
         sensors[i].init();
         sensors[i].setI2CAddress(0x30 + i * 2);
         sensors[i].setDistanceModeLong();
+        sensors[i].setROI(4, 4, 63);
         sensors[i].setTimingBudgetInMs(TIME_BUDGET);
         sensors[i].setIntermeasurementPeriod(IMP);
         delay(10);
@@ -108,12 +109,12 @@ void setup() {
 
 void loop() {
     read_sensors();
-#ifdef DEBUG
-    for (int i = 0; i < 4; i++) {
-        L4DebugSerial.print(buffer.vals[i]);
-        L4DebugSerial.print(" ");
-    }
-    L4DebugSerial.println();
-#endif
+
+    // for (int i = 0; i < 4; i++) {
+    //     L4DebugSerial.print(buffer.vals[i]);
+    //     L4DebugSerial.print(" ");
+    // }
+    // L4DebugSerial.println();
+
     sendVals();
 }

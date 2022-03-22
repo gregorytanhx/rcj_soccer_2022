@@ -31,6 +31,7 @@ bool lineAvoid = true;
 bool hasBall = false;
 bool calibrate = false;
 bool doneCalibrating = false;
+bool newTOF;
 
 TOFBuffer tof;
 IMU cmp(&Wire1);
@@ -74,9 +75,9 @@ enum {
     RightSide,
     TopLeftCorner, 
     TopRightCorner, 
-    BottomLeftCorner
+    BottomLeftCorner,
     BottomRightCorner
-}
+};
 
 Role currentRole() {
     // will tell the robot if its supposed to attack or defend
@@ -187,7 +188,9 @@ void calibrateLight() {
 }
 
 void readLayer4() {
+    newTOF = false;
     while (L4Serial.available() >= LAYER4_PACKET_SIZE) {
+        newTOF = true;
         uint8_t syncByte = L4Serial.read();
         if (syncByte == LAYER4_SYNC_BYTE) {
             for (int i = 0; i < LAYER4_PACKET_SIZE - 1; i++) {
@@ -195,6 +198,7 @@ void readLayer4() {
             }
         }
     }
+
 }
 
 void updatePosition() {
@@ -289,7 +293,7 @@ void goTo(Point target) {
         float y_axis = cos(deg2rad(moveVector.getAngle())) * bbox.Yconfidence;
         moveAngle = atan2(y_axis, x_axis);
     } else {
-        moveAngle = moveVector.getAngle()
+        moveAngle = moveVector.getAngle();
     }
     
 
@@ -429,6 +433,28 @@ void setup() {
 void loop() {
     // TODO: Test TOF localisation
     readLayer4();
+
+    // front, left, back, right
+    if (newTOF) {
+        // RIGHT TOF NEEDS TO BE PUSHED UP
+        String dir[4] = {"Front", "Left", "Back", "Right"};
+        for (int i = 0; i < 4; i++) {
+            Serial.print(dir[i] + ":");
+            Serial.print(tof.vals[i]);
+            Serial.print(" ");
+        }
+        Serial.println();
+        // for (int i = 0; i < 2; i++) {
+        //     Serial.print(tof.vals[i] + tof.vals[i+2]);
+        //     Serial.print(" ");
+        // }
+        // Serial.println();
+
+        updatePosition();
+        bbox.print();
+    }
+    
+    //bbox.print();
 
     // // controlDribbler();
     // cmp.printCalib();
