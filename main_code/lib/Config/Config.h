@@ -71,7 +71,7 @@
 #define LIGHT_PACKET_SIZE 65
 
 // tof settings
-#define TIME_BUDGET 75
+#define TIME_BUDGET 100
 #define IMP 33
 #define LAYER4_SYNC_BYTE 1
 
