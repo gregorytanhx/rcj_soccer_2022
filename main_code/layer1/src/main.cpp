@@ -111,38 +111,47 @@ void loop() {
 
         if (lineData.onLine) {
             if (lineTrack) {
+                // follow line
                 lineTimer.update();
                 float moveAngle =
                     nonReflex(light.getClosestAngle(moveData.angle.val));
                 // use PID to control speed of correction
                 float correction = 0;
-                    //lineTrackPID.update(angle - moveData.angle.val);
+                // lineTrackPID.update(angle - moveData.angle.val);
 
                 motors.setMove(LINE_TRACK_SPEED + correction, moveAngle, 0);
 
             } else if (lineAvoid) {
-                if (abs(lastLineAngle - lineData.lineAngle.val) >= 90) {
+                // avoid line
+                if (lastLineAngle >= 0 &&
+                    abs(lastLineAngle - lineData.lineAngle.val) >= 90) {
                     // allow chord length to keep increasing as robot
                     // goes over centre of line
                     lineData.chordLength.val = 2 - lineData.chordLength.val;
                 }
 
-                // move in opposite direction to line 
+                // move in opposite direction to line
                 float moveAngle = fmod(lineData.lineAngle.val + 180, 360);
-                // line avoidance
+
                 motors.setMove(60 * lineData.chordLength.val, moveAngle, 0);
             } else {
+                // ignore line
                 motors.setMove(speed, angle, rotation);
             }
+
+            lastLineAngle = lineData.lineAngle.val;
+
         } else {
-            // motors.setMove(speed, angle, rotation);
-            motors.setMove(0, 0, 0);
+            // no line detected, move according to teensy instructions
+            motors.setMove(speed, angle, rotation);
+            // motors.setMove(0, 0, 0);
+            // reset last line angle
+            lastLineAngle = -1;
         }
         if (lineTimer.timeHasPassed()) {
             lineTrackPID.resetIntegral();
         }
 
-        lastLineAngle = lineData.lineAngle.val;
         motors.moveOut();
     }
 }

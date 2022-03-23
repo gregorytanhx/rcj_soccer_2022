@@ -76,7 +76,6 @@ class Light {
     int readMux(int channel, int controlPin[4], int sig);
     int maxVals[32];
     int minVals[32];
-    MyTimer lightTimer = MyTimer(10000);
     long readTimer = 0;
     int lightCnt = 0;
 };

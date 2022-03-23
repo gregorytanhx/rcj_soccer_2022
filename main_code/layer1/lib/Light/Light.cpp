@@ -44,7 +44,6 @@ void Light::init() {
         lightThresh.vals[i] = fixedThresh[i];
     }
 #endif
-
 }
 void Light::printThresh() {
     L1DebugSerial.print("Thresh: ");
@@ -70,7 +69,6 @@ int Light::readMux(int channel, int controlPin[4], int sig) {
         digitalWrite(controlPin[i], muxChannel[channel][i]);
     }
     // read the value at the signal pin
-
     int val = analogRead(sig);
     // return the value
     return val;
