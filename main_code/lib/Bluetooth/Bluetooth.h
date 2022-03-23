@@ -22,6 +22,8 @@
 // size of received data
 #define DEBUG_PACKET_SIZE 29
 
+// BOT 1 ADDRESS: 98d3:51:fe65d9
+
 // union to serialise and deserialise bluetooth data
 typedef union BTBuffer {
     float f[2];

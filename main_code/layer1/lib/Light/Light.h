@@ -8,8 +8,11 @@
 #include <MyTimer.h>
 #include <Pins.h>
 
+// whether or not to use saved calibration values
 #define USE_EEPROM
 
+// microseconds between each channel switch
+#define MUX_DELAY 100   
 
 // class to control light sensors
 class Light {
@@ -18,13 +21,13 @@ class Light {
     void calibrate();
     void init();
     void read();
-    void readRaw();
     void printLight();
     void printThresh();
     void sendVals();
     void getLineData(LineData& data);
     float lineTrack(float target);
     float getClosestAngle(float angle);
+    bool doneReading();
 
     float lineAngle = 0;
     float lastLineAngle = 0;
@@ -33,13 +36,17 @@ class Light {
     int lineDetected[32];
     int outSensors = 0;
 
-
     // int lightMap[32] = {7,  6,  5,  4,  3,  2,  31, 0,  1,  30, 29,
     //                     28, 27, 26, 25, 24, 23, 22, 21, 20, 19, 18,
     //                     17, 16, 15, 14, 13, 12, 11, 10, 9,  8};
     int lightMap[32] = {25, 26, 27, 28, 29, 30, 1,  0,  31, 2,  3,
                         4,  5,  6,  7,  8,  9,  10, 11, 12, 13, 14,
                         15, 16, 17, 18, 19, 20, 21, 22, 23, 24};
+
+    int fixedThresh[32] = {751, 714, 745, 738, 724, 736, 742, 738,
+                           744, 700, 697, 630, 608, 741, 690, 649,
+                           593, 724, 735, 632, 670, 771, 706, 699,
+                           633, 577, 775, 772, 743, 740, 768, 686};
 
     int muxChannel[16][4] = {
         {0, 0, 0, 0},  // channel 0
@@ -71,6 +78,8 @@ class Light {
     int maxVals[32];
     int minVals[32];
     MyTimer lightTimer = MyTimer(10000);
+    long readTimer = 0;
+    int lightCnt = 0;
 };
 
 #endif

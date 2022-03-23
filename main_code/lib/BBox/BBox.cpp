@@ -26,8 +26,8 @@ void BBox::update(TOFBuffer tof, LineData lineData, float heading) {
     y = (Ystart + Yend) / 2;
 
     // take area of robot over area of bbox as confidence score
-    Xconfidence = 180 / width;
-    Yconfidence = 180 / height;
+    Xconfidence = min(1, 180 / width);
+    Yconfidence = min(1, 180 / height);
 
     if (lineData.onLine) {
         float lineAngle = nonReflex(lineData.lineAngle.val + heading);

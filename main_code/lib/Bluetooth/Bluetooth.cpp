@@ -2,6 +2,8 @@
 
 void Bluetooth::init() { 
     BTSerial.begin(BLUETOOTH_BAUD);
+    pinMode(BT_EN_PIN, OUTPUT);
+    digitalWrite(BT_EN_PIN, LOW);
 }
 
 void Bluetooth::initAT() { 
@@ -84,19 +86,18 @@ void Bluetooth::updateDebug(BBox box, BallData ballData) {
     debugSendData.width = box.width;
     debugSendData.height = box.height;
     sendDebug();
-    receiveDebug();
+    // receiveDebug();
 }
 
 void Bluetooth::sendDebug() {
     debugSendBuffer.vals[0] = debugSendData.ballData.angle;
     debugSendBuffer.vals[1] = debugSendData.ballData.dist;
-    debugSendBuffer.vals[2] = debugSendData.robotPos.angle;
-    debugSendBuffer.vals[3] = debugSendData.robotPos.distance;
+    debugSendBuffer.vals[2] = debugSendData.robotPos.getAngle();
+    debugSendBuffer.vals[3] = debugSendData.robotPos.getDistance();
     debugSendBuffer.vals[4] = debugSendData.width;
     debugSendBuffer.vals[5] = debugSendData.height;
-
-    BTSerial.write(DEBUG_SYNC_BYTE);
     BTSerial.write(debugSendBuffer.b, sizeof(debugSendBuffer.b));
+    BTSerial.write('\n');
 }
 
 void Bluetooth::receiveDebug() {

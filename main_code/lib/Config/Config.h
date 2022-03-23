@@ -61,7 +61,6 @@
 #define BALL_MULT_A 1
 #define BALL_MULT_B 1
 
-
 // send: sent by layer 1, rec: received by layer 1
 #define LAYER1_REC_PACKET_SIZE 16
 #define LAYER1_SEND_PACKET_SIZE 9
@@ -78,10 +77,11 @@
 #define DRIBBLER_WAIT 3000
 #define LIGHT_GATE_THRESH 20
 
+
 #define L1Serial Serial1
 #define L4Serial Serial5
 #define CamSerial Serial3
-#define BTSerial Serial4
+#define BTSerial Serial2
 
 #define L1CommSerial Serial3
 #define L1DebugSerial Serial1

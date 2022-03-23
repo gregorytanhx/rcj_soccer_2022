@@ -415,8 +415,7 @@ void setup() {
     L1Serial.begin(STM32_BAUD);
     L4Serial.begin(STM32_BAUD);
     // camera.init();
-    BTSerial.begin(BLUETOOTH_BAUD);
-
+    bt.init();
     cmp.init();
 
     pinMode(KICKER_PIN, OUTPUT);
@@ -452,6 +451,7 @@ void loop() {
 
         updatePosition();
         bbox.print();
+        updateDebug();
     }
     
     //bbox.print();

@@ -9,12 +9,20 @@ import struct
 from background import draw_bg
 import tkinter as tk
 from tkinter import *
+import serial.tools.list_ports
+
 
 
 bt_working = False
+
+ports = serial.tools.list_ports.comports()
+
+for port, desc, hwid in sorted(ports):
+        print("{}: {} [{}]".format(port, desc, hwid))
 try:
-    bluetooth = serial.Serial(port="COM10", baudrate=115200, timeout=0)
+    bluetooth = serial.Serial(port="COM30", baudrate=115200, timeout=1)
     bt_working = True
+    print("BLUETOOTH ENABLED")
 except:
     print("BLUETOOTH NOT ENABLED")
 # field dimensions
@@ -177,6 +185,7 @@ def getItem(buffer, i):
 
 
 def getSerialData(data):
+    print(bluetooth.in_waiting)
     while bluetooth.in_waiting >= BUFFER_SIZE + 1:
         buffer = bytearray(bluetooth.readline())
 
@@ -219,12 +228,9 @@ def main():
                 bluetooth.close()
                 pygame.quit()
 
-        # getSerialData(data)
+        getSerialData(data)
         # dummy test data
-        data.botAngle = 30
-        data.botDistance = 400
-        data.width = 1000
-        data.height = 300
+
 
         # display position of robot and ball on field
 
@@ -237,8 +243,8 @@ def main():
         bot.setBox(data.width, data.height)
         ball.setPosition(shiftCoords(ballX, ballY))
 
-        print(f"X confidence: {180 / data.width }")
-        print(f"Y confidence: {180 / data.height }")
+        print(f"X confidence: {180 / max(data.width, 1) }")
+        print(f"Y confidence: {180 / max(data.height, 1) }")
 
         draw_bg(screen)
         ball.draw(screen)
@@ -248,8 +254,5 @@ def main():
         # root.update()
 
 
-try:
-    main()
-except:
-    if bt_working:
-        bluetooth.close()
+main()
+
