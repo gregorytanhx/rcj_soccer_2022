@@ -45,7 +45,6 @@ void Light::init() {
     }
 #endif
 
-    readTimer = micros();
 }
 void Light::printThresh() {
     L1DebugSerial.print("Thresh: ");
@@ -66,10 +65,11 @@ void Light::printLight() {
 }
 
 int Light::readMux(int channel, int controlPin[4], int sig) {
+    // select channel by setting a combination of pins to high
     for (int i = 0; i < 4; i++) {
         digitalWrite(controlPin[i], muxChannel[channel][i]);
     }
-    // read the value at the SIG pin
+    // read the value at the signal pin
 
     int val = analogRead(sig);
     // return the value
@@ -80,14 +80,14 @@ void Light::read() {
     // non blocking light read
     if (micros() - readTimer >= MUX_DELAY) {
         bool out = false;
-
+        // read from first MUX
         int idx = lightMap[lightCnt];
         lightVals[idx] = readMux(lightCnt, pinsA, sigA);
         if (lightVals[idx] > lightThresh.vals[idx]) {
             lineDetected[outSensors] = idx;
             outSensors++;
         }
-
+        // read from second MUX
         idx = lightMap[lightCnt + 16];
         lightVals[idx] = readMux(lightCnt, pinsB, sigB);
         if (lightVals[idx] > lightThresh.vals[idx]) {
@@ -102,7 +102,10 @@ void Light::read() {
     }
 }
 
-bool Light::doneReading() { return lightCnt == 0; }
+bool Light::doneReading() {
+    // all sensors have been read once lightCnt goes back to 0
+    return lightCnt == 0;
+}
 
 void Light::sendVals() {
     L1CommSerial.write(LAYER1_SEND_SYNC_BYTE);
@@ -226,7 +229,6 @@ void Light::getLineData(LineData& data) {
         chordLength = norm(abs(chordStart - chordEnd), 16, 1);
         lineAngle = rad2deg(atan2(vecX, vecY));
         if (lineAngle < 0) lineAngle += 360;
-        // lineAngle = fmod(lineAngle + 180, 360);
     }
     outSensors = 0;
 
@@ -239,7 +241,7 @@ void Light::getLineData(LineData& data) {
 float Light::getClosestAngle(float target) {
     float closestAngle = 0;
     float minDiff = 360;
-    for (int i = 0; i < outSensors;) {
+    for (int i = 0; i < outSensors; i++) {
         float tmpAngle = lineDetected[i] * 360 / 32;
         float diff = angleDiff(tmpAngle, target);
         if (diff < minDiff) {
