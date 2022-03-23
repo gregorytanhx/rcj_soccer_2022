@@ -239,14 +239,12 @@ void Light::getLineData(LineData& data) {
 float Light::getClosestAngle(float target) {
     float closestAngle = 0;
     float minDiff = 360;
-    for (int i = 0; i < 32; i++) {
-        if (lightVals[i]) {
-            float tmpAngle = deg2rad(i * 360 / 32);
-            float diff = angleDiff(tmpAngle, target);
-            if (diff < minDiff) {
-                minDiff = diff;
-                closestAngle = tmpAngle;
-            }
+    for (int i = 0; i < outSensors;) {
+        float tmpAngle = lineDetected[i] * 360 / 32;
+        float diff = angleDiff(tmpAngle, target);
+        if (diff < minDiff) {
+            minDiff = diff;
+            closestAngle = tmpAngle;
         }
     }
     return closestAngle;
