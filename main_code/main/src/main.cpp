@@ -59,6 +59,7 @@ PID coordPID(COORD_KP, COORD_KI, COORD_KD);
 PID goaliePID(GOALIE_KP, GOALIE_KI, GOALIE_KD);
 
 // initialise neutral point coordinates
+// each point is an x and y coordinate with respect to field centre 
 Point neutralPoints[] = {
     Point(-350, 515), 
     Point(350, 515), 
@@ -73,7 +74,7 @@ Point neutralPoints[] = {
     Point(-965, 660)
 };
 
-// enum for neutral points=
+// enum for neutral points
 enum {
     TopLeftDot, 
     TopRightDot, 

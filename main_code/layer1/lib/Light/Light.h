@@ -21,6 +21,7 @@ class Light {
     void calibrate();
     void init();
     void read();
+    void readRaw();
     void printLight();
     void printThresh();
     void sendVals();
@@ -69,11 +70,9 @@ class Light {
     LightBuffer lightBuffer;
     LineData lineData;
     int lightVals[32];
-    int pinsA[4];
-    int pinsB[4];
     int sigA;
     int sigB;
-    int readMux(int channel, int controlPin[4], int sig);
+    int readMux(int channel, int mux, int sig);
     int maxVals[32];
     int minVals[32];
     long readTimer = 0;

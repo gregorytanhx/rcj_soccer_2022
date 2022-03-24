@@ -4,15 +4,6 @@ Light::Light() {
     sigA = SIG_A;
     sigB = SIG_B;
 
-    pinsA[0] = mux_A1;
-    pinsA[1] = mux_A2;
-    pinsA[2] = mux_A3;
-    pinsA[3] = mux_A4;
-
-    pinsB[0] = mux_B1;
-    pinsB[1] = mux_B2;
-    pinsB[2] = mux_B3;
-    pinsB[3] = mux_B4;
 }
 
 void Light::init() {
@@ -26,10 +17,15 @@ void Light::init() {
     pinMode(mux_B3, OUTPUT);
     pinMode(mux_B4, OUTPUT);
 
-    for (int i = 0; i < 4; i++) {
-        digitalWrite(pinsA[i], LOW);
-        digitalWrite(pinsB[i], LOW);
-    }
+    digitalWriteFast(mux_A1, LOW);
+    digitalWriteFast(mux_A2, LOW);
+    digitalWriteFast(mux_A3, LOW);
+    digitalWriteFast(mux_A4, LOW);
+
+    digitalWriteFast(mux_B1, LOW);
+    digitalWriteFast(mux_B2, LOW);
+    digitalWriteFast(mux_B3, LOW);
+    digitalWriteFast(mux_B4, LOW);
 
     // retrieve threshold from eeprom memory
 #ifdef USE_EEPROM
@@ -63,31 +59,68 @@ void Light::printLight() {
     L1DebugSerial.println();
 }
 
-int Light::readMux(int channel, int controlPin[4], int sig) {
+int Light::readMux(int channel, int mux, int sig) {
+
     // select channel by setting a combination of pins to high
-    for (int i = 0; i < 4; i++) {
-        digitalWrite(controlPin[i], muxChannel[channel][i]);
+
+    if (mux == 1) {
+        digitalWriteFast(mux_A1, muxChannel[channel][0]);
+        digitalWriteFast(mux_A2, muxChannel[channel][1]);
+        digitalWriteFast(mux_A3, muxChannel[channel][2]);
+        digitalWriteFast(mux_A4, muxChannel[channel][3]);
+    } else {
+        digitalWriteFast(mux_B1, muxChannel[channel][0]);
+        digitalWriteFast(mux_B2, muxChannel[channel][1]);
+        digitalWriteFast(mux_B3, muxChannel[channel][2]);
+        digitalWriteFast(mux_B4, muxChannel[channel][3]);
     }
+    
+
     // read the value at the signal pin
     int val = analogRead(sig);
     // return the value
     return val;
 }
 
-void Light::read() {
-    // non blocking light read
+void Light::readRaw() {
+    // no mapping
     if (micros() - readTimer >= MUX_DELAY) {
         bool out = false;
         // read from first MUX
+        int idx = lightCnt;
+        lightVals[idx] = readMux(lightCnt, 1, sigA);
+        if (lightVals[idx] > lightThresh.vals[idx]) {
+            lineDetected[outSensors] = idx;
+            outSensors++;
+        }
+        // read from second MUX
+        idx = lightCnt + 16;
+        lightVals[idx] = readMux(lightCnt, 2, sigB);
+        if (lightVals[idx] > lightThresh.vals[idx]) {
+            lineDetected[outSensors] = idx;
+            outSensors++;
+        }
+
+        lightCnt++;
+        lightCnt %= 16;
+        readTimer = micros();
+        // delayMicroseconds(100);
+    }
+}
+void Light::read() {
+    // non blocking light read
+    if (micros() - readTimer >= 100) {
+        bool out = false;
+        // read from first MUX
         int idx = lightMap[lightCnt];
-        lightVals[idx] = readMux(lightCnt, pinsA, sigA);
+        lightVals[idx] = readMux(lightCnt, 1, sigA);
         if (lightVals[idx] > lightThresh.vals[idx]) {
             lineDetected[outSensors] = idx;
             outSensors++;
         }
         // read from second MUX
         idx = lightMap[lightCnt + 16];
-        lightVals[idx] = readMux(lightCnt, pinsB, sigB);
+        lightVals[idx] = readMux(lightCnt, 2, sigB);
         if (lightVals[idx] > lightThresh.vals[idx]) {
             lineDetected[outSensors] = idx;
             outSensors++;

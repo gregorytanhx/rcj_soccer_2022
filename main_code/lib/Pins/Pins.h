@@ -15,15 +15,15 @@
 #define BR_DIG PB5
 
 // mux pins
-#define mux_A1 PA8
-#define mux_A2 PA11
-#define mux_A3 PA12
-#define mux_A4 PB15
+#define mux_A1 PA_8
+#define mux_A2 PA_11
+#define mux_A3 PA_12
+#define mux_A4 PB_15
 
-#define mux_B1 PA5
-#define mux_B2 PA6
-#define mux_B3 PA7
-#define mux_B4 PB14
+#define mux_B1 PA_5
+#define mux_B2 PA_6
+#define mux_B3 PA_7
+#define mux_B4 PB_14
 
 #define SIG_A PA4
 #define SIG_B PB0
