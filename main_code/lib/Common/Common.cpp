@@ -31,3 +31,8 @@ float nonReflex(float angle) {
 float distance(float x, float y) { return sqrt(x * x + y * y); }
 
 int sign(int x) { return (x >= 0) ? 1 : -1; }
+
+float polarAngle(float y, float x) { 
+    // return angle as bearing from north
+    return fmod(90 - rad2deg(atan2(y, x)), 360);
+}

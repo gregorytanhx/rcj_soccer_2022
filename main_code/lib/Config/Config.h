@@ -35,11 +35,12 @@
 
 #define CMP_KP 0.8
 
-#define COORD_KP 0.1
+#define COORD_KP 0.15
 #define COORD_KI 0
 #define COORD_KD 0
 // 10cm within target
 #define COORD_LEEWAY_DIST 100
+#define TOF_CONFIDENCE_THRESH 0.4
 
 #define LINE_TRACK_KP 2
 #define LINE_TRACK_KI 0

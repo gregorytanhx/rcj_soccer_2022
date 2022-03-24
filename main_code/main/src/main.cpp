@@ -59,32 +59,23 @@ PID coordPID(COORD_KP, COORD_KI, COORD_KD);
 PID goaliePID(GOALIE_KP, GOALIE_KI, GOALIE_KD);
 
 // initialise neutral point coordinates
-// each point is an x and y coordinate with respect to field centre 
-Point neutralPoints[] = {
-    Point(-350, 515), 
-    Point(350, 515), 
-    Point(0, 0), 
-    Point(-350, -515),
-    Point(350, -515), 
-    Point(0, -660), 
-    Point(0, 660), 
-    Point(965, -660), 
-    Point(965, 660), 
-    Point(-965, -660), 
-    Point(-965, 660)
-};
+// each point is an x and y coordinate with respect to field centre
+Point neutralPoints[] = {Point(-350, 515),  Point(350, 515),  Point(0, 0),
+                         Point(-350, -515), Point(350, -515), Point(0, -660),
+                         Point(0, 660),     Point(965, -660), Point(965, 660),
+                         Point(-965, -660), Point(-965, 660)};
 
 // enum for neutral points
 enum {
-    TopLeftDot, 
-    TopRightDot, 
-    CentreDot, 
-    BottomLeftDot, 
-    BottomRightDot, 
-    LeftSide, 
+    TopLeftDot,
+    TopRightDot,
+    CentreDot,
+    BottomLeftDot,
+    BottomRightDot,
+    LeftSide,
     RightSide,
-    TopLeftCorner, 
-    TopRightCorner, 
+    TopLeftCorner,
+    TopRightCorner,
     BottomLeftCorner,
     BottomRightCorner
 };
@@ -208,7 +199,6 @@ void readLayer4() {
             }
         }
     }
-
 }
 
 void updatePosition() {
@@ -288,20 +278,43 @@ void goTo(Point target) {
         moveVector = target - botCoords;
     }
 
-    if (moveVector.getDistance() < COORD_LEEWAY_DIST) {
-        // stop once robot is close to target position
-        moveSpeed = 0;
-    } else {
-        moveSpeed = fmax(coordPID.update(moveVector.getDistance()), 20);
-    }
+    // get initial gauge for speed
+    moveSpeed = fmax(coordPID.update(moveVector.getDistance()), 20);
 
     // if using coordinates, adjust angle based on confidence in position along
-    // each axis eg. if x-axis is completely blocked, move along y-axis until robot is not blocked
+    // each axis eg. if x-axis is completely blocked, move along y-axis until
+    // robot is not blocked
 
     if (!(camera.oppVisible && camera.ownVisible)) {
-        float x_axis = cos(deg2rad(moveVector.getAngle())) * bbox.Xconfidence;
-        float y_axis = sin(deg2rad(moveVector.getAngle())) * bbox.Yconfidence;
-        moveAngle = rad2deg(atan2(y_axis, x_axis));
+        if (bbox.Xconfidence < TOF_CONFIDENCE_THRESH) bbox.Xconfidence = 0;
+        if (bbox.Yconfidence < TOF_CONFIDENCE_THRESH) bbox.Yconfidence = 0;
+
+        float x_axis = sin(deg2rad(moveVector.getAngle())) * bbox.Xconfidence;
+        float y_axis = cos(deg2rad(moveVector.getAngle())) * bbox.Yconfidence;
+        moveAngle = polarAngle(y_axis, x_axis);
+
+        float Xspeed = abs(moveSpeed * sin(deg2rad(moveAngle)));
+        float Yspeed = abs(moveSpeed * cos(deg2rad(moveAngle)));
+
+
+        if (abs(moveVector.getDistance() * sin(deg2rad(moveAngle))) <
+            100) {
+            Xspeed = 0;
+        } 
+        if (abs(moveVector.getDistance() * cos(deg2rad(moveAngle))) <
+            100) {
+            Yspeed = 0;
+        }
+        Serial.print("X Dist");
+        Serial.print(moveVector.getDistance() * sin(deg2rad(moveAngle)));
+        Serial.print(" Y Dist");
+        Serial.println(moveVector.getDistance() * cos(deg2rad(moveAngle)));
+        Serial.print("X Speed");
+        Serial.print(Xspeed);
+        Serial.print(" Y Speed");
+        Serial.println(Yspeed);
+        moveSpeed = sqrt(Xspeed * Xspeed + Yspeed * Yspeed);
+
     } else {
         moveAngle = moveVector.getAngle();
     }
@@ -313,7 +326,9 @@ void goTo(Point target) {
     Serial.print(" Distance: ");
     Serial.print(moveVector.getDistance());
     Serial.print(" Speed: ");
-    Serial.println(coordPID.update(moveVector.getDistance()));
+    Serial.println(moveSpeed);
+   
+
 
     setMove(moveSpeed, moveAngle, 0);
 }
@@ -391,7 +406,7 @@ void updateBluetooth() {
     }
 }
 
-void angleCorrect() { moveData.rotation.val = cmp.readQuat() * 0.1; }
+void angleCorrect() { moveData.rotation.val = cmp.readQuat() * 0.2; }
 
 // TODO: triangulate position based on coords of both goals
 // TODO: if only one goal visible, use that goal
@@ -417,7 +432,6 @@ void updateDebug() {
     ballData.dist = 0;
     bt.updateDebug(bbox, ballData);
 }
-
 
 void setup() {
 #ifdef SET_ID
@@ -468,14 +482,14 @@ void loop() {
         // Serial.println();
 
         updatePosition();
-        
+
         updateDebug();
     }
     bbox.print();
     goTo(neutralPoints[CentreDot]);
     angleCorrect();
     sendLayer1();
-    //bbox.print();
+    // bbox.print();
 
     // // controlDribbler();
     // cmp.printCalib();

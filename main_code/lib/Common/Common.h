@@ -17,6 +17,7 @@ float nonReflex(float angle);
 bool angleIsInside(float angleBoundCounterClockwise,
                    float angleBoundClockwise,
                    float angleCheck);
+float polarAngle(float y, float x);
 
 typedef union floatData {
     float val;

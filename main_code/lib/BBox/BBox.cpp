@@ -28,6 +28,7 @@ void BBox::update(TOFBuffer tof, LineData lineData, float heading) {
     Xconfidence = min(1, (float)180 / (float)width);
     Yconfidence = min(1, (float)180 / (float)height);
 
+
     if (lineData.onLine) {
         float lineAngle = nonReflex(lineData.lineAngle.val + heading);
         if (angleIsInside(85, 95, lineAngle)) {
