@@ -74,100 +74,100 @@ void setup() {
 }
 
 void loop() {
-    // receiveData();
-    // motors.setMove(speed, angle, rotation);
-    // motors.moveOut();
+    receiveData();
+    motors.setMove(speed, angle, rotation);
+    motors.moveOut();
 
     // motors.setMove(50, 180, 0);
     // motors.moveOut();
     // delay(1000);
 
-    if (calibrate) {
-        if (doneCalibrating) {
-            light.read();
-            light.sendVals();
-        } else {
-            light.calibrate();
-            doneCalibrating = true;
-        }
+    // if (calibrate) {
+    //     if (doneCalibrating) {
+    //         light.read();
+    //         light.sendVals();
+    //     } else {
+    //         light.calibrate();
+    //         doneCalibrating = true;
+    //     }
 
-    } else {
-        sendData();
-        // L1DebugSerial.println(light.readMux(12, light.pinsA, light.sigA));
-        // delayMicroseconds((100));
-        // L1DebugSerial.println(light.readMux(11, light.pinsA, light.sigA));
-        light.readRaw();
+    // } else {
+    //     sendData();
+    //     // L1DebugSerial.println(light.readMux(12, light.pinsA, light.sigA));
+    //     // delayMicroseconds((100));
+    //     // L1DebugSerial.println(light.readMux(11, light.pinsA, light.sigA));
+    //     light.readRaw();
 
-        if (light.doneReading()) {
+    //     if (light.doneReading()) {
             
-            // for (int i = 0; i < 16; i++) {
-            //     L1DebugSerial.print(light.lightVals[i]);
-            //     L1DebugSerial.print(" ");
-            // }
+    //         // for (int i = 0; i < 16; i++) {
+    //         //     L1DebugSerial.print(light.lightVals[i]);
+    //         //     L1DebugSerial.print(" ");
+    //         // }
            
-            for (int i = 16; i < 32; i++) {
-                L1DebugSerial.print(light.lightVals[i]);
-                L1DebugSerial.print(" ");
-            }
+    //         for (int i = 16; i < 32; i++) {
+    //             L1DebugSerial.print(light.lightVals[i]);
+    //             L1DebugSerial.print(" ");
+    //         }
 
-            L1DebugSerial.println();
+    //         L1DebugSerial.println();
 
-            //light.printLight();
-            //light.printThresh();
-            //light.getLineData(lineData);
-            // if (lineData.onLine) {
-            //     L1DebugSerial.print("Line Angle: ");
-            //     L1DebugSerial.print(lineData.lineAngle.val);
-            //     L1DebugSerial.print("\tChord Length: ");
-            //     L1DebugSerial.println(lineData.chordLength.val);
-            // }
-        }
+    //         //light.printLight();
+    //         //light.printThresh();
+    //         //light.getLineData(lineData);
+    //         // if (lineData.onLine) {
+    //         //     L1DebugSerial.print("Line Angle: ");
+    //         //     L1DebugSerial.print(lineData.lineAngle.val);
+    //         //     L1DebugSerial.print("\tChord Length: ");
+    //         //     L1DebugSerial.println(lineData.chordLength.val);
+    //         // }
+    //     }
 
-        if (lineData.onLine) {
-            if (lineTrack) {
-                // follow line
-                lineTimer.update();
-                float moveAngle =
-                    nonReflex(light.getClosestAngle(moveData.angle.val));
-                // use PID to control speed of correction
-                float correction = 0;
-                // lineTrackPID.update(angle - moveData.angle.val);
+    //     if (lineData.onLine) {
+    //         if (lineTrack) {
+    //             // follow line
+    //             lineTimer.update();
+    //             float moveAngle =
+    //                 nonReflex(light.getClosestAngle(moveData.angle.val));
+    //             // use PID to control speed of correction
+    //             float correction = 0;
+    //             // lineTrackPID.update(angle - moveData.angle.val);
 
-                motors.setMove(LINE_TRACK_SPEED + correction, moveAngle, 0);
+    //             motors.setMove(LINE_TRACK_SPEED + correction, moveAngle, 0);
 
-            } else if (lineAvoid) {
-                // avoid line
-                if (lastLineAngle >= 0 &&
-                    abs(lastLineAngle - lineData.lineAngle.val) >= 90) {
-                    // prevent line angle from changing too much
-                    lineData.lineAngle.val = lastLineAngle;
-                    // allow chord length to keep increasing as robot
-                    // goes over centre of line
-                    lineData.chordLength.val = 2 - lineData.chordLength.val;
-                }
+    //         } else if (lineAvoid) {
+    //             // avoid line
+    //             if (lastLineAngle >= 0 &&
+    //                 abs(lastLineAngle - lineData.lineAngle.val) >= 90) {
+    //                 // prevent line angle from changing too much
+    //                 lineData.lineAngle.val = lastLineAngle;
+    //                 // allow chord length to keep increasing as robot
+    //                 // goes over centre of line
+    //                 lineData.chordLength.val = 2 - lineData.chordLength.val;
+    //             }
 
-                // move in opposite direction to line
-                float moveAngle = fmod(lineData.lineAngle.val + 180, 360);
+    //             // move in opposite direction to line
+    //             float moveAngle = fmod(lineData.lineAngle.val + 180, 360);
 
-                motors.setMove(fmin(60 * lineData.chordLength.val, 20), moveAngle, 0);
-            } else {
-                // ignore line
-                motors.setMove(speed, angle, rotation);
-            }
+    //             motors.setMove(fmin(60 * lineData.chordLength.val, 20), moveAngle, 0);
+    //         } else {
+    //             // ignore line
+    //             motors.setMove(speed, angle, rotation);
+    //         }
 
-            lastLineAngle = lineData.lineAngle.val;
+    //         lastLineAngle = lineData.lineAngle.val;
 
-        } else {
-            // no line detected, move according to teensy instructions
-            motors.setMove(speed, angle, rotation);
-            // motors.setMove(0, 0, 0);
-            // reset last line angle
-            lastLineAngle = -1;
-        }
-        if (lineTimer.timeHasPassed()) {
-            lineTrackPID.resetIntegral();
-        }
+    //     } else {
+    //         // no line detected, move according to teensy instructions
+    //         motors.setMove(speed, angle, rotation);
+    //         // motors.setMove(0, 0, 0);
+    //         // reset last line angle
+    //         lastLineAngle = -1;
+    //     }
+    //     if (lineTimer.timeHasPassed()) {
+    //         lineTrackPID.resetIntegral();
+    //     }
 
-        motors.moveOut();
-    }
+    //     motors.moveOut();
+    // }
 }

@@ -18,16 +18,15 @@ void BBox::update(TOFBuffer tof, LineData lineData, float heading) {
     Ystart = FIELD_HEIGHT / 2 - frontTOF;
     Yend = backTOF - FIELD_HEIGHT / 2;
 
-    width = Xend - Xstart;
-    height = Yend - Ystart;
+    width = abs(Xend - Xstart);
+    height = abs(Yend - Ystart);
 
-   
     x = (Xstart + Xend) / 2;
     y = (Ystart + Yend) / 2;
 
     // take area of robot over area of bbox as confidence score
-    Xconfidence = min(1, 180 / width);
-    Yconfidence = min(1, 180 / height);
+    Xconfidence = min(1, (float)180 / (float)width);
+    Yconfidence = min(1, (float)180 / (float)height);
 
     if (lineData.onLine) {
         float lineAngle = nonReflex(lineData.lineAngle.val + heading);
@@ -56,9 +55,8 @@ void BBox::print() {
     Serial.print(x);
     Serial.print(" Y: ");
     Serial.print(y);
-    Serial.print(" Width: ");
-    Serial.print(width);
-    Serial.print(" Height: ");
-    Serial.println(height);
-
+    Serial.print(" X Confidence: ");
+    Serial.print(Xconfidence);
+    Serial.print(" Y Confidence: ");
+    Serial.println(Yconfidence);
 }

@@ -38,7 +38,8 @@
 #define COORD_KP 2
 #define COORD_KI 0
 #define COORD_KD 1
-#define COORD_LEEWAY_DIST 5 
+// 10cm within target
+#define COORD_LEEWAY_DIST 100
 
 #define LINE_TRACK_KP 2
 #define LINE_TRACK_KI 0

@@ -299,14 +299,19 @@ void goTo(Point target) {
     // each axis eg. if x-axis is completely blocked, move along y-axis until robot is not blocked
 
     if (!(camera.oppVisible && camera.ownVisible)) {
-        float x_axis = sin(deg2rad(moveVector.getAngle())) * bbox.Xconfidence;
-        float y_axis = cos(deg2rad(moveVector.getAngle())) * bbox.Yconfidence;
-        moveAngle = atan2(y_axis, x_axis);
+        float x_axis = cos(deg2rad(moveVector.getAngle())) * bbox.Xconfidence;
+        float y_axis = sin(deg2rad(moveVector.getAngle())) * bbox.Yconfidence;
+        moveAngle = rad2deg(atan2(y_axis, x_axis));
     } else {
         moveAngle = moveVector.getAngle();
     }
-    
 
+    Serial.print("Weighted Angle: ");
+    Serial.println(moveAngle);
+    Serial.print("Angle: ");
+    Serial.println(moveVector.getAngle());
+    Serial.print("Distance: ");
+    Serial.println(moveVector.getDistance());
     setMove(moveSpeed, moveAngle, 0);
 }
 
@@ -460,10 +465,13 @@ void loop() {
         // Serial.println();
 
         updatePosition();
-        bbox.print();
+        
         updateDebug();
     }
-    
+    bbox.print();
+    goTo(neutralPoints[CentreDot]);
+    angleCorrect();
+    sendLayer1();
     //bbox.print();
 
     // // controlDribbler();
