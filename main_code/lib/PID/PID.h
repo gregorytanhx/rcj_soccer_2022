@@ -4,23 +4,25 @@
 #include <Arduino.h>
 #include <Common.h>
 
-class PID{
-  public:
-    PID() {};
-    PID(float kp, float ki, float kd, float limit = 0);
-    float update(float error);
+class PID {
+   public:
+    PID(){};
+    PID(double kp, double ki, double kd, double limit = 0);
+    double update(double error);
     void resetIntegral();
 
-    float kp;
-    float ki;
-    float kd;
+    double kp;
+    double ki;
+    double kd;
 
-  private:
+   private:
     int lastTime;
-    int elapsedTime;
-    float lastError = 0;
-    float integral;
-    float integralLimit;
+    double elapsedTime;
+    double lastError = 0;
+    double proportional;
+    double integral;
+    double derivative;
+    double integralLimit;
 };
 
 #endif

@@ -292,7 +292,7 @@ void goTo(Point target) {
         // stop once robot is close to target position
         moveSpeed = 0;
     } else {
-        moveSpeed = max(coordPID.update(moveVector.getDistance()), MIN_SPEED);
+        moveSpeed = fmax(coordPID.update(moveVector.getDistance()), 20);
     }
 
     // if using coordinates, adjust angle based on confidence in position along
@@ -308,10 +308,13 @@ void goTo(Point target) {
 
     Serial.print("Weighted Angle: ");
     Serial.println(moveAngle);
-    Serial.print("Angle: ");
-    Serial.println(moveVector.getAngle());
-    Serial.print("Distance: ");
-    Serial.println(moveVector.getDistance());
+    Serial.print(" Angle: ");
+    Serial.print(moveVector.getAngle());
+    Serial.print(" Distance: ");
+    Serial.print(moveVector.getDistance());
+    Serial.print(" Speed: ");
+    Serial.println(coordPID.update(moveVector.getDistance()));
+
     setMove(moveSpeed, moveAngle, 0);
 }
 

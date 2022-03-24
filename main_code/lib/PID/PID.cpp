@@ -1,6 +1,6 @@
 #include "PID.h"
 
-PID::PID(float p, float i, float d, float limit) {
+PID::PID(double p, double i, double d, double limit) {
   kp = p;
   ki = i;
   kd = d;
@@ -9,20 +9,22 @@ PID::PID(float p, float i, float d, float limit) {
   lastTime = millis();
 }
 
-float PID::update(float error) {
-  elapsedTime = (millis() - lastTime) / 1000;
+double PID::update(double error) {
+    elapsedTime = (double)(millis() - lastTime) / (double)1000;
 
-  float proportional = error;
-  integral += error * elapsedTime;
-  if (abs(integral) > abs(integralLimit)) {
-      integral = integralLimit;
-  }
-  float derivative = (error - lastError) / elapsedTime;
-  lastTime = millis();
-  lastError = error;
-
-  return kp * proportional + ki * integral + kd * derivative;
-
+    proportional = error;
+    integral += error * elapsedTime;
+    if (abs(integral) > abs(integralLimit)) {
+        integral = integralLimit;
+    }
+    if ((error - lastError) != 0){
+        derivative = (error - lastError) / elapsedTime;
+    } else {
+        derivative = 0;
+    }
+    lastTime = millis();
+    lastError = error;
+    return kp * proportional + ki * integral + 0 * derivative;
 }
 
 void PID::resetIntegral() {
