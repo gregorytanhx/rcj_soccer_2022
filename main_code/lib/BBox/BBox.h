@@ -5,7 +5,10 @@
 #include <Common.h>
 #include <Arduino.h>
 #include <Point.h>
+#include <movingAvg.h>
 
+
+#define DATAPOINTS 5
 // class for bounding box for robot's position
 class BBox {
    public:
@@ -21,6 +24,13 @@ class BBox {
     float Yconfidence;
     void update(TOFBuffer tof, LineData lineData, float heading);
     void print();
+    void begin();
+    movingAvg tofAvg[4] = {
+        movingAvg(DATAPOINTS),
+        movingAvg(DATAPOINTS),
+        movingAvg(DATAPOINTS),
+        movingAvg(DATAPOINTS)
+    }
 };
 
 #endif

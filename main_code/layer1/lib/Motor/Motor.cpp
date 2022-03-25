@@ -30,6 +30,7 @@ void Motors::setMove(float speed, float angle, float rotation) {
     bl = (-x_co + y_co + 0.1 * rotation);
     fr = -(x_co - y_co + 0.1 * rotation);
     br = -(-x_co - y_co + 0.1 * rotation);
+    
     FL_OUT = round(fl * speed);
     FR_OUT = round(fr * speed);
     BL_OUT = round(bl * speed);

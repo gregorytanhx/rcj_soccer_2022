@@ -1,14 +1,26 @@
 #include "BBox.h"
 
+void BBox::begin() {
+    for (int i = 0; i < 4; i++) {
+        tofAvg[i].begin();
+    }
+}
+
 void BBox::update(TOFBuffer tof, LineData lineData, float heading) {
     // TODO: use kalman filter to detect if TOF is temporarily blocked?
     // TODO: integrate camera coordinates as weighted sum?
     // TODO: integrate light sensors to confirm x-position
 
-    int frontTOF = tof.vals[0];
-    int leftTOF = tof.vals[1];
-    int backTOF = tof.vals[2];
-    int rightTOF = tof.vals[3];
+    for (int i = 0; i < 4; i++) {
+        // update moving average for each TOF
+        tofAvg[i].reading(tof.vals[i]);
+    }
+    
+
+    int frontTOF = tofAvg[0].getAvg();
+    int leftTOF = tofAvg[1].getAvg();
+    int backTOF = tofAvg[2].getAvg();
+    int rightTOF = tofAvg[3].getAvg();
 
     // measured from left
     Xstart = FIELD_WIDTH / 2 - rightTOF;
@@ -60,4 +72,8 @@ void BBox::print() {
     Serial.print(Xconfidence);
     Serial.print(" Y Confidence: ");
     Serial.println(Yconfidence);
+}
+
+void BBox::printTOF() {
+    
 }
