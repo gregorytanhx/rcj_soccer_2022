@@ -12,6 +12,8 @@ TwoWire Wire1(PB11, PB10);
 
 int shutPins[4] = {SHUT_1, SHUT_2, SHUT_3, SHUT_4};
 int intPins[4] = {INT_1, INT_2, INT_3, INT_4};
+bool doneMeasuring[4];
+int tofCnt = 4;
 
 TOFBuffer buffer;
 
@@ -42,17 +44,26 @@ void init_sensors() {
 }
 
 void read_sensors() {
-    for (int i = 0; i < 4; i++) {
-        sensors[i].startRanging();  // Write configuration bytes to initiate
-                                    // measurement
-        while (!sensors[i].checkForDataReady()) {
-            delay(1);
+    // measure again once all sensors have been read
+    if (tofCnt < 4) {
+        for (int i = 0; i < 4; i++) {
+            // Write configuration bytes to initiate
+            // measurement
+            sensors[i].startRanging();
+            tofCnt = 0;
+            doneMeasuring[i] = false;
         }
-        buffer.vals[i] =
-            sensors[i].getDistance();  // Get the result of the
-                                       // measurement from the sensor
-        sensors[i].clearInterrupt();
-        sensors[i].stopRanging();
+    } else {
+        for (int i = 0; i < 4; i++) {
+            // get measurement once ranging is doen
+            if (!doneMeasuring && sensors[i].checkForDataReady()) {
+                buffer.vals[i] = sensors[i].getDistance();
+                sensors[i].clearInterrupt();
+                sensors[i].stopRanging();
+                doneMeasuring[i] = true;
+                tofCnt++;
+            }
+        }
     }
 }
 

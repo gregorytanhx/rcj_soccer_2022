@@ -22,9 +22,10 @@ typedef union camBuffer {
 // class to receive and process data from OpenMV 
 class Camera {
   public:
-    void init();
+    void begin();
     void read();
     void process();
+    void update();
     float cmDist(float pixelDist);
 
     float ballDist;

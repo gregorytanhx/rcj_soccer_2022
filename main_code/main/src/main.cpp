@@ -13,7 +13,6 @@
 #include <Point.h>
 #include <Role.h>
 #include <Wire.h>
-#include <utility/imumaths.h>
 
 LineData lineData;
 
@@ -230,7 +229,7 @@ void trackBall() {
 bool readLightGate() { return analogRead(LIGHT_GATE_PIN) >= LIGHT_GATE_THRESH; }
 
 void updateLineControl() {
-    // determine how to handle line 
+    // determine how to handle line
     if (moveData.speed < 80) {
         lineTrack = true;
         lineAvoid = false
@@ -239,10 +238,11 @@ void updateLineControl() {
         lineAvoid = true;
     }
     if (lineData.onLine && abs(moveData.angle - lineData.initialLineAngle.val > 90) {
-        // stop line tracking if desired angle of movement is opposite of the line 
+        // stop line tracking if desired angle of movement is opposite of the
+        // line
         lineTrack = false;
         lineAvoid = true;
-    } 
+    }
 }
 void updateBallData() {
     ballData.visible = camera.ballVisible;
@@ -314,13 +314,10 @@ void goTo(Point target) {
         float Xspeed = abs(moveSpeed * sin(deg2rad(moveAngle)));
         float Yspeed = abs(moveSpeed * cos(deg2rad(moveAngle)));
 
-
-        if (abs(moveVector.getDistance() * sin(deg2rad(moveAngle))) <
-            100) {
+        if (abs(moveVector.getDistance() * sin(deg2rad(moveAngle))) < 100) {
             Xspeed = 0;
-        } 
-        if (abs(moveVector.getDistance() * cos(deg2rad(moveAngle))) <
-            100) {
+        }
+        if (abs(moveVector.getDistance() * cos(deg2rad(moveAngle))) < 100) {
             Yspeed = 0;
         }
         // Serial.print("X Dist");
@@ -488,7 +485,7 @@ void loop() {
         bbox.print();
         bbox.printTOF();
     }
-    
+
     goTo(neutralPoints[CentreDot]);
     angleCorrect();
     sendLayer1();
@@ -510,8 +507,7 @@ void loop() {
     //     Serial.println(lineData.chordLength.val);
     // }
 
-    // camera.read();
-    // camera.process();
+    // camera.update():
 
     // heading = cmp.read();
     // readLayer4();
