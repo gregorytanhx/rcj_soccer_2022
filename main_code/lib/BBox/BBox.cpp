@@ -75,9 +75,21 @@ void BBox::print() {
 }
 
 void BBox::printTOF() {
+    String dir[4] = {"Front", "Left", "Back", "Right"};
     for (int i = 0; i < 4; i++) {
+        Serial.print(dir[i] + ": ");
         Serial.print(tofAvg[i].getAvg());
-        Serial.print(" ");
+        Serial.print("  ");
+    }
+    Serial.println();
+}
+
+void BBox::checkFieldDims() {
+    String axis[2] = {"X-axis", "Y-axis"};
+    for (int i = 0; i < 2; i++) {
+        Serial.print(axis[i] + ": ");
+        Serial.print(tofAvg[i].getAvg() + tofAvg[i * 2].getAvg());
+        Serial.print("  ");
     }
     Serial.println();
 }

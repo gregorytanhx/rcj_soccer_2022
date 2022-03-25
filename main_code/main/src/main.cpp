@@ -31,7 +31,6 @@ bool lineAvoid = true;
 bool hasBall = false;
 bool calibrate = false;
 bool doneCalibrating = false;
-bool newTOF;
 
 TOFBuffer tof;
 IMU cmp(&Wire1);
@@ -191,10 +190,10 @@ void calibrateLight() {
     }
 }
 
-void readLayer4() {
-    newTOF = false;
+bool readTOF() {
+    bool newData = false;
     while (L4Serial.available() >= LAYER4_PACKET_SIZE) {
-        newTOF = true;
+        newData = true;
         uint8_t syncByte = L4Serial.read();
         if (syncByte == LAYER4_SYNC_BYTE) {
             for (int i = 0; i < LAYER4_PACKET_SIZE - 1; i++) {
@@ -202,6 +201,7 @@ void readLayer4() {
             }
         }
     }
+    return newData
 }
 
 void updatePosition() {
@@ -462,7 +462,7 @@ void setup() {
 #endif
     L1Serial.begin(STM32_BAUD);
     L4Serial.begin(STM32_BAUD);
-    // camera.init();
+    camera.init();
     bt.init();
     cmp.init();
     bbox.begin();
@@ -480,29 +480,15 @@ void setup() {
 
 void loop() {
     // TODO: Test TOF localisation
-    readLayer4();
 
     // front, left, back, right
-    if (newTOF) {
-        // RIGHT TOF NEEDS TO BE PUSHED UP
-        String dir[4] = {"Front", "Left", "Back", "Right"};
-        for (int i = 0; i < 4; i++) {
-            Serial.print(dir[i] + ":");
-            Serial.print(tof.vals[i]);
-            Serial.print(" ");
-        }
-        Serial.println();
-        // for (int i = 0; i < 2; i++) {
-        //     Serial.print(tof.vals[i] + tof.vals[i+2]);
-        //     Serial.print(" ");
-        // }
-        // Serial.println();
-
+    if (readTOF()) {
         updatePosition();
-
         updateDebug();
+        bbox.print();
+        bbox.printTOF();
     }
-    bbox.print();
+    
     goTo(neutralPoints[CentreDot]);
     angleCorrect();
     sendLayer1();

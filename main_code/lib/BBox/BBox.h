@@ -25,6 +25,7 @@ class BBox {
     void update(TOFBuffer tof, LineData lineData, float heading);
     void print();
     void printTOF();
+    void checkFieldDims();
     movingAvg tofAvg[4] = {movingAvg(DATAPOINTS), movingAvg(DATAPOINTS),
                            movingAvg(DATAPOINTS), movingAvg(DATAPOINTS)}
 };

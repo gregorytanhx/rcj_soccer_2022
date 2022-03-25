@@ -1,6 +1,6 @@
 #include "Camera.h"
 
-void Camera::init() { 
+void Camera::begin() { 
     CamSerial.begin(CAMERA_BAUD); 
 }
 
