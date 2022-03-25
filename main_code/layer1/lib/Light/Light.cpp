@@ -59,43 +59,23 @@ void Light::printLight() {
     L1DebugSerial.println();
 }
 
-int Light::readMux(int channel, int mux, int sig) {
-
-    // select channel by setting a combination of pins to high
-
-    if (mux == 1) {
-        digitalWriteFast(mux_A1, muxChannel[channel][0]);
-        digitalWriteFast(mux_A2, muxChannel[channel][1]);
-        digitalWriteFast(mux_A3, muxChannel[channel][2]);
-        digitalWriteFast(mux_A4, muxChannel[channel][3]);
-    } else {
-        digitalWriteFast(mux_B1, muxChannel[channel][0]);
-        digitalWriteFast(mux_B2, muxChannel[channel][1]);
-        digitalWriteFast(mux_B3, muxChannel[channel][2]);
-        digitalWriteFast(mux_B4, muxChannel[channel][3]);
-    }
-    
-
-    // read the value at the signal pin
-    int val = analogRead(sig);
-    // return the value
-    return val;
-}
 
 void Light::readRaw() {
-    // no mapping
-    if (micros() - readTimer >= MUX_DELAY) {
+    // no mapping 
+    if (micros() - readTimer >= 70) {
         bool out = false;
         // read from first MUX
         int idx = lightCnt;
-        lightVals[idx] = readMux(lightCnt, 1, sigA);
+
+        lightVals[idx] = analogRead(sigA);
         if (lightVals[idx] > lightThresh.vals[idx]) {
             lineDetected[outSensors] = idx;
             outSensors++;
         }
         // read from second MUX
         idx = lightCnt + 16;
-        lightVals[idx] = readMux(lightCnt, 2, sigB);
+
+        lightVals[idx] = analogRead(sigB);
         if (lightVals[idx] > lightThresh.vals[idx]) {
             lineDetected[outSensors] = idx;
             outSensors++;
@@ -103,24 +83,36 @@ void Light::readRaw() {
 
         lightCnt++;
         lightCnt %= 16;
-        readTimer = micros();
         // delayMicroseconds(100);
+        digitalWriteFast(mux_A1, muxChannel[lightCnt][0]);
+        digitalWriteFast(mux_A2, muxChannel[lightCnt][1]);
+        digitalWriteFast(mux_A3, muxChannel[lightCnt][2]);
+        digitalWriteFast(mux_A4, muxChannel[lightCnt][3]);
+
+        digitalWriteFast(mux_B1, muxChannel[lightCnt][0]);
+        digitalWriteFast(mux_B2, muxChannel[lightCnt][1]);
+        digitalWriteFast(mux_B3, muxChannel[lightCnt][2]);
+        digitalWriteFast(mux_B4, muxChannel[lightCnt][3]);
+
+        readTimer = micros();
     }
 }
 void Light::read() {
     // non blocking light read
-    if (micros() - readTimer >= 100) {
+    if (micros() - readTimer >= 70) {
         bool out = false;
         // read from first MUX
         int idx = lightMap[lightCnt];
-        lightVals[idx] = readMux(lightCnt, 1, sigA);
+
+        lightVals[idx] = analogRead(sigA);
         if (lightVals[idx] > lightThresh.vals[idx]) {
             lineDetected[outSensors] = idx;
             outSensors++;
         }
         // read from second MUX
         idx = lightMap[lightCnt + 16];
-        lightVals[idx] = readMux(lightCnt, 2, sigB);
+
+        lightVals[idx] = analogRead(sigB);
         if (lightVals[idx] > lightThresh.vals[idx]) {
             lineDetected[outSensors] = idx;
             outSensors++;
@@ -128,8 +120,18 @@ void Light::read() {
 
         lightCnt++;
         lightCnt %= 16;
-        readTimer = micros();
         // delayMicroseconds(100);
+        digitalWriteFast(mux_A1, muxChannel[lightCnt][0]);
+        digitalWriteFast(mux_A2, muxChannel[lightCnt][1]);
+        digitalWriteFast(mux_A3, muxChannel[lightCnt][2]);
+        digitalWriteFast(mux_A4, muxChannel[lightCnt][3]);
+
+        digitalWriteFast(mux_B1, muxChannel[lightCnt][0]);
+        digitalWriteFast(mux_B2, muxChannel[lightCnt][1]);
+        digitalWriteFast(mux_B3, muxChannel[lightCnt][2]);
+        digitalWriteFast(mux_B4, muxChannel[lightCnt][3]);
+
+        readTimer = micros();
     }
 }
 
@@ -227,6 +229,7 @@ void Light::getLineData(LineData& data) {
     int chordStart = 0;
     int chordEnd = 0;
     float largestDiff = 0;
+    bool previouslyOnLine = onLine;
     onLine = outSensors > 0;
     if (onLine) {
         // get line angle and chord length
@@ -267,6 +270,11 @@ void Light::getLineData(LineData& data) {
     data.onLine = onLine;
     data.lineAngle.val = lineAngle;
     data.chordLength.val = chordLength;
+
+    // save initial line angle
+    if (onLine && !previouslyOnLine) {
+        data.initialLineAngle.val = lineAngle;
+    } 
 }
 
 float Light::getClosestAngle(float target) {

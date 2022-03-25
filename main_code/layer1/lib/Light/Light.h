@@ -32,6 +32,7 @@ class Light {
 
     float lineAngle = 0;
     float lastLineAngle = 0;
+    float initialLineAngle = 0;
     float chordLength = 0;
     bool onLine = false;
     int lineDetected[32];
@@ -72,7 +73,6 @@ class Light {
     int lightVals[32];
     int sigA;
     int sigB;
-    int readMux(int channel, int mux, int sig);
     int maxVals[32];
     int minVals[32];
     long readTimer = 0;

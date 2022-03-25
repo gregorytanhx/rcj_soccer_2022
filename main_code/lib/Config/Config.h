@@ -37,7 +37,7 @@
 
 #define COORD_KP 0.15
 #define COORD_KI 0
-#define COORD_KD 0
+#define COORD_KD 0.1
 // 10cm within target
 #define COORD_LEEWAY_DIST 100
 #define TOF_CONFIDENCE_THRESH 0.4
@@ -65,7 +65,7 @@
 
 // send: sent by layer 1, rec: received by layer 1
 #define LAYER1_REC_PACKET_SIZE 16
-#define LAYER1_SEND_PACKET_SIZE 9
+#define LAYER1_SEND_PACKET_SIZE 13
 #define LAYER1_REC_SYNC_BYTE 2
 #define LAYER1_SEND_SYNC_BYTE 2
 #define LAYER4_PACKET_SIZE 9

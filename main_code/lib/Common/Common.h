@@ -38,6 +38,7 @@ typedef union motorBuffer {
 // struct for line data to be sent over serial
 typedef struct LineData {
     floatData lineAngle;
+    floatData initialLineAngle;
     floatData chordLength;
     bool onLine;
 } LineData;

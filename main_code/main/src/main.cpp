@@ -135,6 +135,9 @@ void readLayer1() {
                 lineData.lineAngle.b[i] = L1Serial.read();
             }
             for (int i = 0; i < 4; i++) {
+                lineData.initialLineAngle.b[i] = L1Serial.read();
+            }
+            for (int i = 0; i < 4; i++) {
                 lineData.chordLength.b[i] = L1Serial.read();
             }
             lineData.onLine = L1Serial.read();
@@ -226,6 +229,21 @@ void trackBall() {
 
 bool readLightGate() { return analogRead(LIGHT_GATE_PIN) >= LIGHT_GATE_THRESH; }
 
+void updateLineControl() {
+    // determine how to handle line 
+    if (moveData.speed < 80) {
+        lineTrack = true;
+        lineAvoid = false
+    } else {
+        lineTrack = false;
+        lineAvoid = true;
+    }
+    if (lineData.onLine && abs(moveData.angle - lineData.initialLineAngle.val > 90) {
+        // stop line tracking if desired angle of movement is opposite of the line 
+        lineTrack = false;
+        lineAvoid = true;
+    } 
+}
 void updateBallData() {
     ballData.visible = camera.ballVisible;
     ballData.captured = readLightGate();
@@ -305,30 +323,28 @@ void goTo(Point target) {
             100) {
             Yspeed = 0;
         }
-        Serial.print("X Dist");
-        Serial.print(moveVector.getDistance() * sin(deg2rad(moveAngle)));
-        Serial.print(" Y Dist");
-        Serial.println(moveVector.getDistance() * cos(deg2rad(moveAngle)));
-        Serial.print("X Speed");
-        Serial.print(Xspeed);
-        Serial.print(" Y Speed");
-        Serial.println(Yspeed);
+        // Serial.print("X Dist");
+        // Serial.print(moveVector.getDistance() * sin(deg2rad(moveAngle)));
+        // Serial.print(" Y Dist");
+        // Serial.println(moveVector.getDistance() * cos(deg2rad(moveAngle)));
+        // Serial.print("X Speed");
+        // Serial.print(Xspeed);
+        // Serial.print(" Y Speed");
+        // Serial.println(Yspeed);
         moveSpeed = sqrt(Xspeed * Xspeed + Yspeed * Yspeed);
 
     } else {
         moveAngle = moveVector.getAngle();
     }
 
-    Serial.print("Weighted Angle: ");
-    Serial.println(moveAngle);
-    Serial.print(" Angle: ");
-    Serial.print(moveVector.getAngle());
-    Serial.print(" Distance: ");
-    Serial.print(moveVector.getDistance());
-    Serial.print(" Speed: ");
-    Serial.println(moveSpeed);
-   
-
+    // Serial.print("Weighted Angle: ");
+    // Serial.println(moveAngle);
+    // Serial.print(" Angle: ");
+    // Serial.print(moveVector.getAngle());
+    // Serial.print(" Distance: ");
+    // Serial.print(moveVector.getDistance());
+    // Serial.print(" Speed: ");
+    // Serial.println(moveSpeed);
 
     setMove(moveSpeed, moveAngle, 0);
 }
