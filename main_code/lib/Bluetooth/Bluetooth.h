@@ -105,7 +105,7 @@ class Bluetooth {
     bool isConnected = false;
     bool previouslyConnected = false;
     MyTimer timer = MyTimer(BLUETOOTH_LOST_COMMUNICATION_TIME);
-    void init();
+    void begin();
     void initAT();
     void ATmode();
     void update(BluetoothData data);    

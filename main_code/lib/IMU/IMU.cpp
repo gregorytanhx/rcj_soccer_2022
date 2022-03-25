@@ -20,7 +20,7 @@ float IMU::read() {
     return heading;
 }
 
-void IMU::init() {
+void IMU::begin() {
     if (!bno.begin(Adafruit_BNO055::OPERATION_MODE_IMUPLUS)) {
 #ifdef DEBUG
         Serial.println("No BNO055 detected");

@@ -22,7 +22,7 @@
 class IMU {
    public:
     IMU(TwoWire *theWire);
-    void init();
+    void begin();
     void printData();
     void calibrate();
     void displaySensorDetails();

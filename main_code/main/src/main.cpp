@@ -465,6 +465,7 @@ void setup() {
     // camera.init();
     bt.init();
     cmp.init();
+    bbox.begin();
 
     pinMode(KICKER_PIN, OUTPUT);
     digitalWrite(KICKER_PIN, HIGH);

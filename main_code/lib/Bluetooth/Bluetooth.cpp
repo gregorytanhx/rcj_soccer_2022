@@ -1,6 +1,6 @@
 #include "Bluetooth.h"
 
-void Bluetooth::init() { 
+void Bluetooth::begin() { 
     BTSerial.begin(BLUETOOTH_BAUD);
     pinMode(BT_EN_PIN, OUTPUT);
     digitalWrite(BT_EN_PIN, LOW);
