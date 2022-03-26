@@ -45,7 +45,7 @@ void init_sensors() {
 
 void read_sensors() {
     // measure again once all sensors have been read
-    if (tofCnt < 4) {
+    if (tofCnt == 4) {
         for (int i = 0; i < 4; i++) {
             // Write configuration bytes to initiate
             // measurement
@@ -55,8 +55,8 @@ void read_sensors() {
         }
     } else {
         for (int i = 0; i < 4; i++) {
-            // get measurement once ranging is doen
-            if (!doneMeasuring && sensors[i].checkForDataReady()) {
+            // get measurement once ranging is done
+            if (!doneMeasuring[i] && sensors[i].checkForDataReady()) {
                 buffer.vals[i] = sensors[i].getDistance();
                 sensors[i].clearInterrupt();
                 sensors[i].stopRanging();
@@ -126,6 +126,5 @@ void loop() {
     //     L4DebugSerial.print(" ");
     // }
     // L4DebugSerial.println();
-
-    sendVals();
+    if (tofCnt == 4) sendVals();
 }
