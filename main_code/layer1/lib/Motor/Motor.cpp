@@ -23,8 +23,8 @@ void Motors::setMove(float speed, float angle, float rotation) {
     // bl = b - rotation * 0.1;
     // br = a + rotation * 0.1;
 
-    x_co = sinf(angle) * 0.7778619134302;
-    y_co = cosf(angle) * 0.6527036446661;
+    x_co = sinf(angle) * 0.6527036446661;
+    y_co = cosf(angle) * 0.7778619134302;
 
     fl = (x_co + y_co + 0.1 * rotation);
     bl = (-x_co + y_co + 0.1 * rotation);
