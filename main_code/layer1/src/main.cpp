@@ -115,7 +115,7 @@ void loop() {
                 float correction = lineTrackPID.update(closestAngle - angle);
                 float moveAngle = angle + correction;
 
-                motors.setMove(50, moveAngle, 0);
+                motors.setMove(speed, moveAngle, 0);
 
             } else if (lineAvoid) {
                 // avoid line by moving in opposite direction to line

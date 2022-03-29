@@ -7,7 +7,6 @@
 #include <Point.h>
 #include <Common.h>
 
-
 enum Side {
   facingYellow,
   facingBlue, 
@@ -23,7 +22,7 @@ typedef union camBuffer {
 class Camera {
   public:
     void begin();
-    void read();
+    bool read();
     void process();
     void update();
     float cmDist(float pixelDist);
@@ -55,7 +54,7 @@ class Camera {
     Point frontVector;
     Point oppGoalVec;
     Point ownGoalVec;
-    Side side = facingYellow; // face yellow goal by default;
+    Side side = facingYellow; // face yellow goal by default
     camBuffer buffer;
 };
 

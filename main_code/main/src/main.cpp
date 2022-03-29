@@ -8,18 +8,13 @@
 #include <Config.h>
 #include <EEPROM.h>
 #include <IMU.h>
-#include <PID.h>
 #include <MyTimer.h>
+#include <PID.h>
 #include <Pins.h>
 #include <Point.h>
 #include <Role.h>
 #include <Wire.h>
 #include <functions.h>
-
-
-// TODO: triangulate position based on coords of both goals
-// TODO: if only one goal visible, use that goal
-// TODO: if goalie, use own goal only
 
 void moveInCircle() {
     MyTimer circleTimer(5);
@@ -36,6 +31,59 @@ void moveInCircle() {
     }
 }
 
+void precisionMovement() {
+    int points[11] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
+    cnt = 0;
+    lineAvoid = false;
+    while (cnt < 11) {
+        updateAll();
+        goTo(neutralPoints[points[cnt]]);
+        if (reachedPoint(neutralPoints[points[cnt]])) {
+            lineTrack = false;
+            long timer = millis();
+            while (millis() - timer < 1500) {
+                updateAll();
+                setMove(0, 0, 0);
+                sendLayer1();
+            }
+            cnt++;
+            Point transitionPoint;
+            bool transition = true;
+            switch (points[cnt]) {
+                case TopLeftCorner:
+                    transitionPoint = TopLeftDot;
+                    break;
+                case TopRightCorner:
+                    transitionPoint = TopRightDot;
+                    break;
+                case BottomRightCorner:
+                    transitionPoint = BottomRightDot;
+                    break;
+                case BottomLeftCorner:
+                    transitionPoint = BottomLeftDot;
+                    break;
+                default:
+                    transition = false;
+            }
+
+            if (transition) {
+                // move to at least 30 cm within transition point
+                while (!reachedPoint(transitionPoint, 300)) {
+                    updateAll();
+                    goTo(transitionPoint);
+                    angleCorrect();
+                    sendLayer1();
+                }
+            }
+        }
+        angleCorrect();
+        sendLayer1();
+    }
+    while (1) {
+        setMove(0, 0, 0);
+        sendLayer1();
+    }
+}
 
 void setup() {
 #ifdef SET_ID
@@ -52,7 +100,7 @@ void setup() {
     L4Serial.begin(STM32_BAUD);
     camera.begin();
     bt.begin();
-    //cmp.begin();
+    // cmp.begin();
     bbox.begin();
 
     pinMode(KICKER_PIN, OUTPUT);
@@ -73,7 +121,7 @@ void loop() {
     if (readTOF()) {
         updatePosition();
         updateDebug();
-        //bbox.print();
+        // bbox.print();
         bbox.printTOF();
         String dir[4] = {"Front", "Left", "Back", "Right"};
         for (int i = 0; i < 4; i++) {
@@ -84,10 +132,10 @@ void loop() {
         Serial.println();
     }
 
-    //goTo(neutralPoints[CentreDot]);
-    // angleCorrect();
-    // sendLayer1();
-    // bbox.print();
+    // goTo(neutralPoints[CentreDot]);
+    //  angleCorrect();
+    //  sendLayer1();
+    //  bbox.print();
 
     // // controlDribbler();
     // cmp.printCalib();
@@ -105,7 +153,7 @@ void loop() {
     //     Serial.println(lineData.chordLength.val);
     // }
 
-    // camera.update():
+    // camera.update();
 
     // heading = cmp.read();
     // readLayer4();
@@ -121,7 +169,7 @@ void loop() {
     //     if (ballData.captured) {
     //         trackGoal();
     //         if (camera.oppDist <= KICK_DISTANCE_THRES) {
-    //             kick();
+    //             kick = true;
     //         }
     //     } else if (ballData.visible) {
     //         trackBall();

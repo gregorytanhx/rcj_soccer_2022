@@ -2,8 +2,8 @@
 
 void Camera::begin() { CamSerial.begin(CAMERA_BAUD); }
 
-void Camera::read() {
-    newData = false;
+bool Camera::read() {
+    bool newData = false;
     while (CamSerial.available() >= CAMERA_PACKET_SIZE) {
         newData = true;
         uint8_t syncByte = CamSerial.read();
@@ -20,6 +20,7 @@ void Camera::read() {
         yellowAngle = buffer.vals[4];
         yellowPixelDist = buffer.vals[5];
     }
+    return newData
 }
 
 float Camera::cmDist(float pixelDist) {
@@ -78,8 +79,7 @@ void Camera::process() {
 }
 
 void Camera::update() {
-    read();
-    if (newData) {
+    if (read()) {
         process();
     }
 }

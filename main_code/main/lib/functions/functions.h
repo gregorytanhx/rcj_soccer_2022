@@ -33,6 +33,7 @@ bool lineAvoid = true;
 bool hasBall = false;
 bool calibrate = false;
 bool doneCalibrating = false;
+bool kick = false;
 
 TOFBuffer tof;
 IMU cmp(&Wire1);
@@ -136,9 +137,14 @@ void controlDribbler() {
     }
 }
 
-void kick() {
-    digitalWriteFast(KICKER_PIN, LOW);
-    kickerTimer.update();
+void updateKick() {
+    if (kick) {
+        digitalWriteFast(KICKER_PIN, LOW);
+        kickerTimer.update();
+    }
+    if (kickerTimer.timeHasPassed(false)) {
+        digitalWriteFast(KICKER_PIN, HIGH);
+    }
 }
 
 void setMove(float speed, float angle, float rotation) {
@@ -287,6 +293,21 @@ void trackGoal() {
     setMove(SPEED, robotAngle, 0);
 }
 
+bool reachedPoint(Point target, int dist = 50) {
+    Point moveVector = target - botCoords;
+    float x_axis = sin(deg2rad(moveVector.getAngle())) * bbox.Xconfidence;
+    float y_axis = cos(deg2rad(moveVector.getAngle())) * bbox.Yconfidence;
+    float moveAngle = polarAngle(y_axis, x_axis);
+    
+    // confident in both x and y axis
+    return (abs(moveVector.getDistance() * sin(deg2rad(moveAngle))) < dist &&
+            abs(moveVector.getDistance() * cos(deg2rad(moveAngle))) < dist);
+}
+
+bool pointOnLine(Point tmp) {
+    return abs(tmp.x) >= 960
+}
+
 void goTo(Point target) {
     // Point target: vector pointing from centre of field to point on field
 
@@ -320,12 +341,14 @@ void goTo(Point target) {
         float Xspeed = abs(moveSpeed * sin(deg2rad(moveAngle)));
         float Yspeed = abs(moveSpeed * cos(deg2rad(moveAngle)));
 
-        if (abs(moveVector.getDistance() * sin(deg2rad(moveAngle))) < 100) {
+        if (abs(moveVector.getDistance() * sin(deg2rad(moveAngle))) < 50) {
             Xspeed = 0;
         }
-        if (abs(moveVector.getDistance() * cos(deg2rad(moveAngle))) < 100) {
+        if (abs(moveVector.getDistance() * cos(deg2rad(moveAngle))) < 50) {
             Yspeed = 0;
         }
+
+        moveSpeed = sqrt(Xspeed * Xspeed + Yspeed * Yspeed);
         // Serial.print("X Dist");
         // Serial.print(moveVector.getDistance() * sin(deg2rad(moveAngle)));
         // Serial.print(" Y Dist");
@@ -334,7 +357,7 @@ void goTo(Point target) {
         // Serial.print(Xspeed);
         // Serial.print(" Y Speed");
         // Serial.println(Yspeed);
-        moveSpeed = sqrt(Xspeed * Xspeed + Yspeed * Yspeed);
+       
 
     } else {
         moveAngle = moveVector.getAngle();
@@ -348,7 +371,13 @@ void goTo(Point target) {
     // Serial.print(moveVector.getDistance());
     // Serial.print(" Speed: ");
     // Serial.println(moveSpeed);
-
+    if pointOnLine(target) {
+        lineTrack = true;
+        if (lineData.onLine) {
+            // can afford to move at faster speed if line tracking
+            moveSpeed = 70;
+        }
+    }
     setMove(moveSpeed, moveAngle, 0);
 }
 
@@ -425,9 +454,7 @@ void updateBluetooth() {
     }
 }
 
-void angleCorrect() { 
-    moveData.rotation.val = cmp.readQuat() * 0.2; 
-}
+void angleCorrect() { moveData.rotation.val = cmp.readQuat() * 0.2; }
 
 void updateDebug() {
     ballData.angle = 0;
@@ -435,5 +462,14 @@ void updateDebug() {
     bt.updateDebug(bbox, ballData);
 }
 
-#endif
+void updateAll() {
+    readLayer1();
+    heading = cmp.read();
+    if (readTOF()) updatePosition();
+    updateDebug();
+    camera.update();
+    updateBallData();
+    if (bluetoothTimer.timeHasPassed()) updateBluetooth();
+}
 
+#endif
