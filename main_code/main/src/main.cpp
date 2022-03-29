@@ -1,20 +1,7 @@
-#include <Adafruit_BNO055_t4.h>
-#include <Adafruit_Sensor.h>
-#include <Arduino.h>
-#include <BBox.h>
-#include <Bluetooth.h>
-#include <Camera.h>
-#include <Common.h>
-#include <Config.h>
-#include <EEPROM.h>
-#include <IMU.h>
-#include <MyTimer.h>
-#include <PID.h>
-#include <Pins.h>
-#include <Point.h>
-#include <Role.h>
-#include <Wire.h>
-#include <functions.h>
+#include <declarations.h>
+#include <movement.h>
+#include <communication.h>
+#include <localisation.h>
 
 void moveInCircle() {
     MyTimer circleTimer(5);
@@ -29,6 +16,10 @@ void moveInCircle() {
         angleCorrect();
         sendLayer1();
     }
+}
+
+void robustness() {
+    // TBD
 }
 
 void precisionMovement() {
@@ -47,34 +38,34 @@ void precisionMovement() {
                 sendLayer1();
             }
             cnt++;
-            Point transitionPoint;
-            bool transition = true;
-            switch (points[cnt]) {
-                case TopLeftCorner:
-                    transitionPoint = TopLeftDot;
-                    break;
-                case TopRightCorner:
-                    transitionPoint = TopRightDot;
-                    break;
-                case BottomRightCorner:
-                    transitionPoint = BottomRightDot;
-                    break;
-                case BottomLeftCorner:
-                    transitionPoint = BottomLeftDot;
-                    break;
-                default:
-                    transition = false;
-            }
+            // Point transitionPoint;
+            // bool transition = true;
+            // switch (points[cnt]) {
+            //     case TopLeftCorner:
+            //         transitionPoint = TopLeftDot;
+            //         break;
+            //     case TopRightCorner:
+            //         transitionPoint = TopRightDot;
+            //         break;
+            //     case BottomRightCorner:
+            //         transitionPoint = BottomRightDot;
+            //         break;
+            //     case BottomLeftCorner:
+            //         transitionPoint = BottomLeftDot;
+            //         break;
+            //     default:
+            //         transition = false;
+            // }
 
-            if (transition) {
-                // move to at least 30 cm within transition point
-                while (!reachedPoint(transitionPoint, 300)) {
-                    updateAll();
-                    goTo(transitionPoint);
-                    angleCorrect();
-                    sendLayer1();
-                }
-            }
+            // if (transition) {
+            //     // move to at least 30 cm within transition point
+            //     while (!reachedPoint(transitionPoint, 300)) {
+            //         updateAll();
+            //         goTo(transitionPoint);
+            //         angleCorrect();
+            //         sendLayer1();
+            //     }
+            // }
         }
         angleCorrect();
         sendLayer1();
