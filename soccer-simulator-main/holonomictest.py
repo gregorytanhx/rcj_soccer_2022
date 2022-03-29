@@ -15,11 +15,11 @@ y = 400
 x1 = 400
 y1 = 400
 while angle < 360:
-    x = 200
-    y = 400
-    x1 = 200
-    y1 = 400
-    while time.time() - last < 0.2:
+    # x = 200
+    # y = 400
+    # x1 = 200
+    # y1 = 400
+    while time.time() - last < 0.01:
         #pygame.draw.rect(screen, (0,0,0), pygame.Rect(0, 0, 800, 800))
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -30,7 +30,7 @@ while angle < 360:
         a = sin(degtorad(50+angle)) * (1/sin(degtorad(80)))
         b = sin(degtorad(50-angle)) * (1/sin(degtorad(80)))
 
-        x_co = sin(degtorad(angle)) * 0.7778619134302062
+        x_co = sin(degtorad(angle)) * 0.6527036446661
         y_co = cos(degtorad(angle)) * 0.7778619134302062
         # x_co = sin(degtorad(angle)) * 0.7071067811865476
         # y_co = cos(degtorad(angle)) * 0.7071067811865476

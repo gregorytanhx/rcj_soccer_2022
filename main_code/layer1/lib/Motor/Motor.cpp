@@ -14,27 +14,24 @@ void Motors::init() {
     pinMode(BR_PWM, OUTPUT);
 }
 
-void Motors::setMove(float speed, float angle, float rotation) {
-    // a = sin(deg2rad(50 + angle)) * MOTOR_MULT;
-    // b = sin(deg2rad(50 - angle)) * MOTOR_MULT;
+void Motors::setMove(float speed, float angle, float rotation,
+                     float angSpeed = -1.0) {
+   
+    // angle between motors is 100 from left to right, 80 from top to bottom
+    if (angSpeed == -1.0) angSpeed = speed;
 
-    // fl = a - rotation * 0.1;
-    // fr = b + rotation * 0.1;
-    // bl = b - rotation * 0.1;
-    // br = a + rotation * 0.1;
+    x_co = sinf(deg2rad(angle)) * 0.6527036446661;
+    y_co = cosf(deg2rad(angle)) * 0.7778619134302;
 
-    x_co = sinf(angle) * 0.6527036446661;
-    y_co = cosf(angle) * 0.7778619134302;
+    fl = (x_co + y_co) * speed + (0.1 * rotation) * angSpeed;
+    bl = (-x_co + y_co) * speed + (0.1 * rotation) * angSpeed;
+    fr = (-x_co + y_co) * speed - (0.1 * rotation) * angSpeed;
+    br = (x_co + y_co) * speed - (0.1 * rotation) * angSpeed;
 
-    fl = (x_co + y_co + 0.1 * rotation);
-    bl = (-x_co + y_co + 0.1 * rotation);
-    fr = -(x_co - y_co + 0.1 * rotation);
-    br = -(-x_co - y_co + 0.1 * rotation);
-    
-    FL_OUT = round(fl * speed);
-    FR_OUT = round(fr * speed);
-    BL_OUT = round(bl * speed);
-    BR_OUT = round(br * speed);
+    FL_OUT = round(fl);
+    FR_OUT = round(fr);
+    BL_OUT = round(bl);
+    BR_OUT = round(br);
 }
 
 void Motors::moveOut() {

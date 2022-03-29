@@ -121,10 +121,13 @@ void setup() {
 void loop() {
     read_sensors();
 
-    // for (int i = 0; i < 4; i++) {
-    //     L4DebugSerial.print(buffer.vals[i]);
-    //     L4DebugSerial.print(" ");
-    // }
-    // L4DebugSerial.println();
-    if (tofCnt == 4) sendVals();
+  
+    if (tofCnt == 4){
+        // for (int i = 0; i < 4; i++) {
+        //     L4DebugSerial.print(buffer.vals[i]);
+        //     L4DebugSerial.print(" ");
+        // }
+        // L4DebugSerial.println();
+        sendVals();
+    }
 }
