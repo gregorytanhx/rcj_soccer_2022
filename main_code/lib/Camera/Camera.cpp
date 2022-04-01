@@ -14,19 +14,15 @@ bool Camera::read() {
         }
 
         ballAngle = buffer.vals[0];
-        ballPixelDist = buffer.vals[1];
+        ballDist = buffer.vals[1];
         blueAngle = buffer.vals[2];
-        bluePixelDist = buffer.vals[3];
+        blueDist = buffer.vals[3];
         yellowAngle = buffer.vals[4];
-        yellowPixelDist = buffer.vals[5];
+        yellowDist = buffer.vals[5];
     }
-    return newData
+    return newData;
 }
 
-float Camera::cmDist(float pixelDist) {
-    // TO BE DONE
-    return pixelDist * 10;
-}
 
 void Camera::process() {
     blueVisible = blueAngle != 500;
@@ -37,10 +33,6 @@ void Camera::process() {
     ballAngle = nonReflex(ballAngle);
     blueAngle = nonReflex(blueAngle);
     yellowAngle = nonReflex(yellowAngle);
-
-    ballDist = cmDist(ballPixelDist);
-    yellowDist = cmDist(yellowPixelDist);
-    blueDist = cmDist(bluePixelDist);
 
     // set side only once
     if ((blueVisible && yellowVisible) && side == unset) {

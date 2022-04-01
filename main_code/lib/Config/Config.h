@@ -4,7 +4,7 @@
 #include <Arduino.h>
 
 #define DEBUG
-#define SET_ID
+// #define SET_ID
 //#define USE_LAYER4_IMU
 
 
@@ -17,7 +17,7 @@
 
 #define EEPROM_ID_ADDR 0
 // robot ID: 0 for striker, 1 for goalie
-#define ID 0
+#define ID 1
 
 #define IMU_CALIB_ADDR 1
 

@@ -36,9 +36,9 @@ void init_sensors() {
         sensors[i].init();
         sensors[i].setI2CAddress(0x30 + i * 2);
         sensors[i].setDistanceModeLong();
-        sensors[i].setROI(4, 4, 63);
-        sensors[i].setTimingBudgetInMs(TIME_BUDGET);
-        sensors[i].setIntermeasurementPeriod(IMP);
+        sensors[i].setROI(4, 4, 199);
+        sensors[i].setTimingBudgetInMs(100);
+        sensors[i].setIntermeasurementPeriod(33);
         delay(10);
     }
 }

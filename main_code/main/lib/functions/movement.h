@@ -2,6 +2,7 @@
 #define MOVEMENT_H
 
 #include <declarations.h>
+#include <localisation.h>
 
 void controlDribbler() {
     // use pwm to control dribbler
@@ -24,11 +25,6 @@ void updateKick() {
     }
 }
 
-void setMove(float speed, float angle, float rotation) {
-    moveData.speed.val = speed;
-    moveData.angle.val = angle;
-    moveData.rotation.val = rotation;
-}
 
 void updateBallData() {
     ballData.visible = camera.ballVisible;
@@ -54,8 +50,6 @@ void updateBallData() {
         ballData.visible = true;
     }
 }
-
-bool readLightGate() { return analogRead(LIGHT_GATE_PIN) >= LIGHT_GATE_THRESH; }
 
 void updateLineControl() {
     // determine how to handle line

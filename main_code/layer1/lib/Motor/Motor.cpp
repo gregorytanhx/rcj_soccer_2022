@@ -1,6 +1,7 @@
 #include "Motor.h"
 
-void Motors::init() {
+void Motors::init(uint8_t id) {
+    robotID = id;
     pinMode(FL_DIG, OUTPUT);
     pinMode(FL_PWM, OUTPUT);
 
@@ -15,18 +16,18 @@ void Motors::init() {
 }
 
 void Motors::setMove(float speed, float angle, float rotation,
-                     float angSpeed = -1.0) {
+                     float angSpeed) {
    
     // angle between motors is 100 from left to right, 80 from top to bottom
     if (angSpeed == -1.0) angSpeed = speed;
 
-    x_co = sinf(deg2rad(angle)) * 0.6527036446661;
-    y_co = cosf(deg2rad(angle)) * 0.7778619134302;
+    a = sin(deg2rad(50 + angle)) * MOTOR_MULT;
+    b = sin(deg2rad(50 - angle)) * MOTOR_MULT;
 
-    fl = (x_co + y_co) * speed + (0.1 * rotation) * angSpeed;
-    bl = (-x_co + y_co) * speed + (0.1 * rotation) * angSpeed;
-    fr = (-x_co + y_co) * speed - (0.1 * rotation) * angSpeed;
-    br = (x_co + y_co) * speed - (0.1 * rotation) * angSpeed;
+    fl = a * speed - angSpeed * rotation * 0.1;
+    fr = b * speed + angSpeed * rotation * 0.1;
+    bl = b * speed - angSpeed * rotation * 0.1;
+    br = a * speed + angSpeed * rotation * 0.1;
 
     FL_OUT = round(fl);
     FR_OUT = round(fr);
@@ -35,15 +36,33 @@ void Motors::setMove(float speed, float angle, float rotation,
 }
 
 void Motors::moveOut() {
-    analogWrite(FL_PWM, abs(FL_OUT));
-    digitalWrite(FL_DIG, FL_OUT > 0 ? HIGH : LOW);
+    
+    if (robotID == 0) {
+        // bot 1
+        analogWrite(FL_PWM, abs(FL_OUT));
+        digitalWrite(FL_DIG, FL_OUT > 0 ? HIGH : LOW);
 
-    analogWrite(FR_PWM, abs(FR_OUT));
-    digitalWrite(FR_DIG, FR_OUT > 0 ? HIGH : LOW);
+        analogWrite(FR_PWM, abs(FR_OUT));
+        digitalWrite(FR_DIG, FR_OUT > 0 ? HIGH : LOW);
 
-    analogWrite(BL_PWM, abs(BL_OUT));
-    digitalWrite(BL_DIG, BL_OUT > 0 ? LOW : HIGH);
+        analogWrite(BL_PWM, abs(BL_OUT));
+        digitalWrite(BL_DIG, BL_OUT > 0 ? HIGH : LOW);
 
-    analogWrite(BR_PWM, abs(BR_OUT));
-    digitalWrite(BR_DIG, BR_OUT > 0 ? LOW : HIGH);
+        analogWrite(BR_PWM, abs(BR_OUT));
+        digitalWrite(BR_DIG, BR_OUT > 0 ? LOW : HIGH);
+    } else {
+        // bot 2
+        analogWrite(FL_PWM, abs(FL_OUT));
+        digitalWrite(FL_DIG, FL_OUT > 0 ? LOW : HIGH);
+
+        analogWrite(FR_PWM, abs(FR_OUT));
+        digitalWrite(FR_DIG, FR_OUT > 0 ? LOW : HIGH);
+
+        analogWrite(BL_PWM, abs(BL_OUT));
+        digitalWrite(BL_DIG, BL_OUT > 0 ? HIGH : LOW);
+
+        analogWrite(BR_PWM, abs(BR_OUT));
+        digitalWrite(BR_DIG, BR_OUT > 0 ? LOW : HIGH);
+    }
+   
 }

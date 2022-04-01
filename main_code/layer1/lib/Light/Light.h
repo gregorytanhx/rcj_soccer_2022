@@ -9,7 +9,7 @@
 #include <Pins.h>
 
 // whether or not to use saved calibration values
-#define USE_EEPROM
+//#define USE_EEPROM
 
 // microseconds between each channel switch
 #define MUX_DELAY 100   

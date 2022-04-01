@@ -68,7 +68,7 @@ Point neutralPoints[] = {Point(-350, 515),  Point(350, 515),  Point(0, 0),
                          Point(-965, -660), Point(-965, 660)};
 
 // enum for neutral points
-enum {
+enum points {
     TopLeftDot,
     TopRightDot,
     CentreDot,
@@ -82,6 +82,12 @@ enum {
     BottomRightCorner
 };
 
+bool readLightGate() { return analogRead(LIGHT_GATE_PIN) >= LIGHT_GATE_THRESH; }
 
+void setMove(float speed, float angle, float rotation) {
+    moveData.speed.val = speed;
+    moveData.angle.val = angle;
+    moveData.rotation.val = rotation;
+}
 
 #endif

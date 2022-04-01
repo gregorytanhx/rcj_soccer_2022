@@ -2,41 +2,33 @@
 #define CAMERA_H
 
 #include <Arduino.h>
-#include <math.h>
+#include <Common.h>
 #include <Config.h>
 #include <Point.h>
-#include <Common.h>
+#include <math.h>
 
-enum Side {
-  facingYellow,
-  facingBlue, 
-  unset
-};
+enum Side { facingYellow, facingBlue, unset };
 
 typedef union camBuffer {
-  int16_t vals[(CAMERA_PACKET_SIZE - 1) / 2];
-  uint8_t b[CAMERA_PACKET_SIZE - 1];
+    int16_t vals[(CAMERA_PACKET_SIZE - 1) / 2];
+    uint8_t b[CAMERA_PACKET_SIZE - 1];
 } camBuffer;
 
-// class to receive and process data from OpenMV 
+// class to receive and process data from OpenMV
 class Camera {
-  public:
+   public:
     void begin();
     bool read();
     void process();
     void update();
     float cmDist(float pixelDist);
 
-    float ballDist;
-    float yellowDist;
-    float blueDist;
-
     float ballAngle;
-    int ballPixelDist;
+    float ballDist;
     float blueAngle;
-    int bluePixelDist;
+    float blueDist;
     float yellowAngle;
-    int yellowPixelDist;
+    float yellowDist;
 
     float oppAngle;
     float ownDist;
@@ -54,7 +46,7 @@ class Camera {
     Point frontVector;
     Point oppGoalVec;
     Point ownGoalVec;
-    Side side = facingYellow; // face yellow goal by default
+    Side side = facingYellow;  // face yellow goal by default
     camBuffer buffer;
 };
 

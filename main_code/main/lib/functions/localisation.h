@@ -23,7 +23,7 @@ bool reachedPoint(Point target, int dist = 50) {
             abs(moveVector.getDistance() * cos(deg2rad(moveAngle))) < dist);
 }
 
-bool pointOnLine(Point tmp) { return abs(tmp.x) >= 960 }
+bool pointOnLine(Point tmp) { return abs(tmp.x) >= 960; }
 
 void goTo(Point target) {
     // Point target: vector pointing from centre of field to point on field
@@ -51,9 +51,11 @@ void goTo(Point target) {
         if (bbox.Xconfidence < TOF_CONFIDENCE_THRESH) bbox.Xconfidence = 0;
         if (bbox.Yconfidence < TOF_CONFIDENCE_THRESH) bbox.Yconfidence = 0;
 
+        // adjust x/y ratio based on confidence to produce new weighted angle
         float x_axis = sin(deg2rad(moveVector.getAngle())) * bbox.Xconfidence;
         float y_axis = cos(deg2rad(moveVector.getAngle())) * bbox.Yconfidence;
         moveAngle = polarAngle(y_axis, x_axis);
+
 
         float Xspeed = abs(moveSpeed * sin(deg2rad(moveAngle)));
         float Yspeed = abs(moveSpeed * cos(deg2rad(moveAngle)));
@@ -87,7 +89,7 @@ void goTo(Point target) {
     // Serial.print(moveVector.getDistance());
     // Serial.print(" Speed: ");
     // Serial.println(moveSpeed);
-    if pointOnLine (target) {
+    if (pointOnLine (target)) {
         lineTrack = true;
         if (lineData.onLine) {
             // can afford to move at faster speed if line tracking

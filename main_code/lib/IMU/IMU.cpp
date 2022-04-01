@@ -29,11 +29,12 @@ void IMU::begin() {
             ;
     }
 
+  
+    uint8_t system, gyro, accel, mag = 0;
+    //loadCalib();
     delay(1000);
     bno.setExtCrystalUse(true);
     delay(100);
-    uint8_t system, gyro, accel, mag = 0;
-    loadCalib();
     while (gyro != 3) {
         bno.getCalibration(&system, &gyro, &accel, &mag);
         bno.getEvent(&event);
@@ -205,7 +206,7 @@ void IMU::calibrate() {
         displaySensorOffsets(newCalib);
 
         Serial.println("\n\nStoring calibration data to EEPROM...");
-
+        // write calibration to eeprom memory
         eeAddress += sizeof(long);
         EEPROM.put(eeAddress, newCalib);
         Serial.println("Data stored to EEPROM.");

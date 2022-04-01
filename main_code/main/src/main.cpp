@@ -24,7 +24,7 @@ void robustness() {
 
 void precisionMovement() {
     int points[11] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
-    cnt = 0;
+    int cnt = 0;
     lineAvoid = false;
     while (cnt < 11) {
         updateAll();
@@ -78,20 +78,20 @@ void precisionMovement() {
 
 void setup() {
 #ifdef SET_ID
-    EEPROM.write(EEPROM_ID_ADDR, ID);
+    eeprom_buffered_write_byte(EEPROM_ID_ADDR, ID)
 #else
     robotID = EEPROM.read(EEPROM_ID_ADDR);
 #endif
     // defaultRole = robotID == 0 ? Role::attack : Role::defend;
 
 #ifdef DEBUG
-    Serial.begin(9600);
+        Serial.begin(9600);
 #endif
     L1Serial.begin(STM32_BAUD);
     L4Serial.begin(STM32_BAUD);
     camera.begin();
     bt.begin();
-    // cmp.begin();
+    //cmp.begin();
     bbox.begin();
 
     pinMode(KICKER_PIN, OUTPUT);
@@ -106,20 +106,23 @@ void setup() {
 }
 
 void loop() {
+    //Serial.println(cmp.read());
+    // cmp.read();
+    // cmp.calibrate();
     // TODO: Test TOF localisation
 
     // front, left, back, right
     if (readTOF()) {
         updatePosition();
         updateDebug();
-        // bbox.print();
         bbox.printTOF();
-        String dir[4] = {"Front", "Left", "Back", "Right"};
-        for (int i = 0; i < 4; i++) {
-            Serial.print(dir[i] + "Raw : ");
-            Serial.print(tof.vals[i]);
-            Serial.print("  ");
-        }
+        //bbox.checkFieldDims();
+        // String dir[4] = {"Front", "Left", "Back", "Right"};
+        // for (int i = 0; i < 4; i++) {
+        //     Serial.print(dir[i] + "Raw : ");
+        //     Serial.print(tof.vals[i]);
+        //     Serial.print("  ");
+        // }
         Serial.println();
     }
 

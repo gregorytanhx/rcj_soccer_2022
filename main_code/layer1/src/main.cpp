@@ -28,6 +28,7 @@ bool lineAvoid = false;
 bool calibrate = false;
 bool doneCalibrating = false;
 
+uint8_t robotID;
 int spd = 0;
 
 void sendData() {
@@ -61,9 +62,18 @@ int maxVals[32];
 
 // handle line avoidance directly through stm32
 void setup() {
+    
+#ifdef SET_ID
+    robotID = ID;
+    eeprom_buffered_write_byte(EEPROM_ID_ADDR, ID);
+    eeprom_buffer_flush();
+#else
+    eeprom_buffer_fill();
+    robotID = eeprom_buffered_read_byte(EEPROM_ID_ADDR);
+#endif
     light.init();
-
-    motors.init();
+   
+    motors.init(robotID);
 
     L1DebugSerial.begin(9600);
     L1CommSerial.begin(STM32_BAUD);
@@ -76,10 +86,10 @@ void setup() {
 }
 
 void loop() {
-    // receiveData();
-    motors.setMove(0, 0, 200);
-    motors.moveOut();
-
+    receiveData();
+    // motors.setMove(30, 0, 0);
+    // motors.moveOut();
+    
     if (calibrate) {
         if (doneCalibrating) {
             light.read();
@@ -90,10 +100,10 @@ void loop() {
         }
 
     } else {
-        light.read();
+        light.readRaw();
 
         if (light.doneReading()) {
-            // light.printLight();
+            light.printLight();
             // light.printThresh();
             light.getLineData(lineData);
             sendData();

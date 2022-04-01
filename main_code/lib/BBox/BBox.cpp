@@ -85,10 +85,10 @@ void BBox::printTOF() {
 }
 
 void BBox::checkFieldDims() {
-    String axis[2] = {"X-axis", "Y-axis"};
+    String axis[2] = {"Y-axis", "X-axis"};
     for (int i = 0; i < 2; i++) {
         Serial.print(axis[i] + ": ");
-        Serial.print(tofAvg[i].getAvg() + tofAvg[i * 2].getAvg());
+        Serial.print(tofAvg[i].getAvg() + tofAvg[i + 2].getAvg());
         Serial.print("  ");
     }
     Serial.println();
