@@ -38,23 +38,23 @@ void Camera::process() {
     }
 
     if (side == facingBlue) {
-        ownAngle = yellowAngle;
-        ownDist = yellowDist;
-        oppAngle = blueAngle;
-        oppDist = blueDist;
-        oppVisible = blueVisible;
-        ownVisible = yellowVisible;
+        ownGoalAngle = yellowAngle;
+        ownGoalDist = yellowDist;
+        oppGoalAngle = blueAngle;
+        oppGoalDist = blueDist;
+        oppGoalVisible = blueVisible;
+        ownGoalVisible = yellowVisible;
     } else {
-        oppAngle = yellowAngle;
-        oppDist = yellowDist;
-        ownAngle = blueAngle;
-        ownDist = blueDist;
-        oppVisible = yellowVisible;
-        ownVisible = blueVisible;
+        oppGoalAngle = yellowAngle;
+        oppGoalDist = yellowDist;
+        ownGoalAngle = blueAngle;
+        ownGoalDist = blueDist;
+        oppGoalVisible = yellowVisible;
+        ownGoalVisible = blueVisible;
     }
 
-    oppGoalVec = Point(oppAngle, oppDist);
-    ownGoalVec = Point(ownAngle, ownDist);
+    oppGoalVec = Point(oppGoalAngle, oppGoalDist);
+    ownGoalVec = Point(ownGoalAngle, ownGoalDist);
 
     // vector pointing to the centre of the field
     centreVector = oppGoalVec + ownGoalVec;

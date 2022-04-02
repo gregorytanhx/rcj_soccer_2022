@@ -70,8 +70,6 @@ class Light {
     LightBuffer lightBuffer;
     LineData lineData;
     int lightVals[32];
-    int sigA;
-    int sigB;
     int maxVals[32];
     int minVals[32];
     long readTimer = 0;

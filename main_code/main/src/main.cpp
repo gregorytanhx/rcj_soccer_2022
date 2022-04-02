@@ -3,52 +3,95 @@
 #include <localisation.h>
 #include <movement.h>
 
+PID goalieBallPID(1.9, 0, 0);
+PID goalieGoalPID(0.6, 0, 0);
+
 void normal() {
+    // regular program
     updateAllData();
+    lineAvoid = true;
     if (currentRole() == Role::attack) {
-        // ball captured
+        // attack program
         if (ballData.captured) {
             trackGoal();
             // turn off front dribbler + turn on kicker if facing front goal and
             // 50cm away
-            if (camera.oppDist <= 50 &&
-                (camera.oppAngle < 30 || camera.oppAngle > 330) &&
+            if (camera.oppGoalDist <= 50 &&
+                (camera.oppGoalAngle < 30 || camera.oppGoalAngle > 330) &&
                 (robotAngle < 60 || robotAngle > 300)) {
-                    // kick every 1.5s
-                    if (millis() - lastKickTime > 1500) {
-                        dribble = false;
-                        kick = true;
-                        lastKickTime = millis();
-                        lastDribbleTime = millis();
-                    } else {
-                        kick = false;
-                    }
+                // kick every 1.5s
+                if (millis() - lastKickTime > 1500) {
+                    dribble = false;
+                    kick = true;
+                    lastKickTime = millis();
+                    lastDribbleTime = millis();
+                } else {
+                    kick = false;
+                }
             }
             if (millis() - lastDribbleTime > 500) {
                 // if kick failed, turn dribbler back on
                 dribble = true;
             }
-        } else if () {
+        } else if (ballData.visible) {
             trackBall();
             // turn on front dribbler if ball within +-50 deg of front AND
             // closer than 50 cm
-            if ((camera.ballAngle < 50 || camera.ballAngle > 310) && camera.ballDist < 50) {
+            if ((camera.ballAngle < 50 || camera.ballAngle > 310) &&
+                camera.ballDist < 50) {
                 dribble = true;
             }
-        }
-
-        else {
+        } else {
             goTo(Point(STRIKER_HOME_X, STRIKER_HOME_Y));
         }
+
+        updateKick();
+        updateDribbler();
+        angleCorrect();
+        sendLayer1();
+
     } else {
-        if (millis()  - lastBallTime < 500) {
-            guardGoal();
+        // defence program
+        lineTrack = true;
+        if (!lineData.onLine || camera.oppGoalDist > 75) {
+            // return to goal area if not on line or too far from goal centre
+            float goalMult, goalOffset;
+            int tempAng = camera.ownGoalAngle - 180;
+            if (tempAng >= 0) {
+                goalOffset = fmin(tempAng * 1.0, 90);
+            } else {
+                goalOffset = fmax(tempAng * 1.0, -90);
+            }
+            // add offset if goal angle is very steep
+            if (camera.ownGoalAngle < 100 || camera.ownGoalAngle > 260) {
+                goalMult = 0.3;
+            } else {
+                goalMult = 0;
+            }
+
+            robotAngle = mod(camera.ownGoalAngle + goalOffset * goalMult, 360);
+            moveSpeed = 70;
+
+        } else if (ballData.visible && ballData.dist < 100) {
+            // if ball is visible, align to ball
+            // since robot is line tracking, simply set target angle to ball
+            // angle
+            robotAngle = ballData.ballAngle;
+
+            // ideally, ball angle should be zero
+            // TODO: add compass angle to ball angle when that works
+            float error = abs(allData.angle));
+            moveSpeed = goalieBallPID.update(error);
+
         } else {
-            goTo(Point(GOALIE_HOME_X, GOALIE_HOME_Y));
+            // if ball not visible, align to goal centre
+            // since robot is line tracking, simply set target angle to own goal
+            // angle
+            robotAngle = camera.ownGoalAngle;
+            float error = abs(nonReflex(camera.ownGoalAngle - 180));
         }
     }
-    updateKick();
-    updateDribbler();
+
     angleCorrect();
     sendLayer1();
 }
@@ -68,61 +111,157 @@ void moveInCircle() {
     }
 }
 
-void robustness() {
-    // TBD
+void robot1() {
+    // robot 1 program for SG Open technical challenge
+    // challenge 2: score ball into goal that it is closest to then go to other
+    // spot
+    // challenge 3: ball is randomly positioned on either side of field, score
+    // ball into any goal
+
+    bool firstTime = true;
+
+    while (1) {
+        // face yellow goal by default
+        points startPoint, endPoint;
+        bool facingYellow = true;
+        bool ballScored = false;
+        bool botPosFound = false;
+        bool ballPosFound = false;
+
+        while ((!firstTime && millis() - timer < 1100) || !posFound ||
+               !ballPosFound) {
+            // if tof values are not confident, wait for other robot to stop
+            // blocking
+
+            updateAllData();
+            if (tof.vals[1] < 350 && tof.vals[3] > 600) {
+                // starting at P1A
+                startPoint = LeftSide;
+                endPoint = RightSide;
+                posFound = true;
+            } else if (tof.vals[1] > 600 && tof.vals[3] < 350) {
+                // starting at P1B
+                startPoint = RightSide;
+                endPoint = RightSide;
+                posFound = true;
+            }
+
+            if (ballData.visible && !ballPosFound) {
+                ballPosFound = true;
+                if (ballData.ballAngle < 50 || ballData.ballAngle > 310) {
+                    // ball closer to YELLOW goal
+                    facingYellow = true;
+
+                } else if (ballData.ballAngle < 130 ||
+                           ballData.ballAngle > 230) {
+                    // ball closer to BLUE goal
+                    facingYellow = false;
+                } else {
+                    // challenge has entered third stage
+                    // score yellow goal by default
+                    facingYellow = true;
+                }
+            }
+            setMove(0, 0, 0);
+            sendLayer1();
+        }
+
+        // use camera based correction cus compass confirmed fucked after
+        // spinning so many times
+
+        long shotTime = 0;
+        // run standard attack program, assume ball has been scored once kicked
+        while (!ballScored) {
+            updateAllData();
+            if (millis() - shotTime < 500) {
+                ballScored = true;
+            }
+            if (ballData.captured) {
+                // turn off front dribbler + turn on kicker if facing front goal
+                // and 40cm away
+                float goalDist, goalAngle;
+                if (facingYellow) {
+                    goalDist = camera.yellowDist;
+                    goalAngle = camera.yellowAngle;
+                } else {
+                    goalDist = camera.blueDist;
+                    goalAngle = camera.blueAngle;
+                }
+
+                trackGoal(goalAngle);
+                if (goalDist <= 40 && (goalAngle < 30 || goalAngle > 330) &&
+                    (robotAngle < 60 || robotAngle > 300)) {
+                    // kick every 1.5s
+                    dribble = false;
+                    kick = true;
+                    shotTime = millis();
+                }
+                if (millis() - lastDribbleTime > 500) {
+                    // if kick failed, turn dribbler back on
+                    dribble = true;
+                }
+            } else if (ballData.visible) {
+                trackBall();
+                // turn on front dribbler if ball within +-50 deg of front AND
+                // closer than 50 cm
+                if ((camera.ballAngle < 50 || camera.ballAngle > 310) &&
+                    camera.ballDist < 50) {
+                    dribble = true;
+                }
+            } else {
+                goTo(Point(STRIKER_HOME_X, STRIKER_HOME_Y));
+            }
+
+            updateKick();
+            updateDribbler();
+
+            // face the correct goal
+            if (facingYellow)
+                camAngleCorrect();
+            else
+                camAngleCorrect(180);
+
+            sendLayer1();
+        }
+
+        // go to end point once ball has been scored
+        while (!reachedPoint(neutralPoints[endPoint], 100)) {
+            updateAllData();
+            goTo(neutralPoints[endPoint]);
+            if (facingYellow)
+                camAngleCorrect();
+            else
+                camAngleCorrect(180);
+            sendLayer1();
+        }
+    }
 }
 
-void precisionMovement() {
-    int points[11] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11};
+void robot2() {
+    // robot 2 program for SG Open technical challenge
+    // cycle between 5 neutral points
+    points pts[5] = {TopLeftDot, TopRightDot, CentreDot, BottomLeftDot,
+                     BottomRightDot};
     int cnt = 0;
     lineAvoid = false;
-    while (cnt < 11) {
+    while (1) {
         updateAll();
-        goTo(neutralPoints[points[cnt]]);
-        if (reachedPoint(neutralPoints[points[cnt]])) {
+        goTo(neutralPoints[pts[cnt]]);
+        // stop at all neutral points except middle
+        if (reachedPoint(neutralPoints[pts[cnt]]) &&
+            neutralPoints[pts[cnt]] != CentreDot) {
             lineTrack = false;
             long timer = millis();
-            while (millis() - timer < 1500) {
+            while (millis() - timer < 1100) {
                 updateAll();
                 setMove(0, 0, 0);
                 sendLayer1();
             }
             cnt++;
-            // Point transitionPoint;
-            // bool transition = true;
-            // switch (points[cnt]) {
-            //     case TopLeftCorner:
-            //         transitionPoint = TopLeftDot;
-            //         break;
-            //     case TopRightCorner:
-            //         transitionPoint = TopRightDot;
-            //         break;
-            //     case BottomRightCorner:
-            //         transitionPoint = BottomRightDot;
-            //         break;
-            //     case BottomLeftCorner:
-            //         transitionPoint = BottomLeftDot;
-            //         break;
-            //     default:
-            //         transition = false;
-            // }
-
-            // if (transition) {
-            //     // move to at least 30 cm within transition point
-            //     while (!reachedPoint(transitionPoint, 300)) {
-            //         updateAll();
-            //         goTo(transitionPoint);
-            //         angleCorrect();
-            //         sendLayer1();
-            //     }
-            // }
         }
         angleCorrect();
         sendLayer1();
-    }
-    while (1) {
-        setMove(0, 0, 0);
-        sendLayer1();
+        cnt %= 5;
     }
 }
 

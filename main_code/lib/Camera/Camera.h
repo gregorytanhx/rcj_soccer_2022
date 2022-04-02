@@ -30,13 +30,13 @@ class Camera {
     float yellowAngle;
     float yellowDist;
 
-    float oppAngle;
-    float ownDist;
-    float ownAngle;
-    float oppDist;
+    float oppGoalAngle;
+    float ownGoalDist;
+    float ownGoalAngle;
+    float oppGoalDist;
 
-    bool oppVisible = false;
-    bool ownVisible = false;
+    bool oppGoalVisible = false;
+    bool ownGoalVisible = false;
     bool blueVisible = false;
     bool yellowVisible = false;
     bool ballVisible = false;

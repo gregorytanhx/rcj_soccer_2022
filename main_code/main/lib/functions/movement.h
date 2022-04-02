@@ -91,39 +91,27 @@ void trackBall() {
     setMove(60, robotAngle, 0);
 }
 
-void trackGoal() {
+void trackGoal(float goalAngle = -1.0) {
+    if (goalAngle == -1.0) goalAngle = camera.oppGoalAngle;
     float goalOffset;
-    if (camera.oppAngle < 180)
-        goalOffset = fmin(camera.oppAngle, 90);
+    if (goalAngle < 180)
+        goalOffset = fmin(goalAngle, 90);
     else
-        goalOffset = max((360 - camera.oppAngle), -90);
+        goalOffset = max((360 - goalAngle), -90);
 
     float goalMult = 1.5;
-    robotAngle = camera.oppAngle + goalMult * goalOffset;
+    robotAngle = goalAngle + goalMult * goalOffset;
     setMove(60, robotAngle, 0);
 }
 
-void guardGoal() {
-    // align robot to x-coordinate of ball while tracking line
-    // TODO: slowdown nearer to edges
-    if (lineData.onLine) {
-        if (abs(ballData.x) < GOALIE_LEEWAY_DIST) {
-            // stop once ball is within certain horizontal distance
-            float moveSpeed = 0;
-        } else {
-            float moveSpeed = max(goaliePID.update(abs(ballData.x)), MIN_SPEED);
-        }
 
-        float moveAngle = (ballData.angle > 180) ? -90 : 90;
-        lineTrack = true;
-    } else {
-        Point target = Point(ballData.x, GOALIE_HOME_Y);
-        goTo(target);
-    }
+void angleCorrect(int targetAng = 0) { 
+    moveData.rotation.val = cmpPID.update(cmp.readQuat() - targetAng); 
 }
 
-void angleCorrect() { 
-    moveData.rotation.val = cmpPID.update(cmp.readQuat()); 
+void camAngleCorrect(int targetAng = 0) {
+
+    moveData.rotation.val = cmpPID.update(camera.frontVector.getAngle() - targetAng);
 }
 
 #endif

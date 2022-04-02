@@ -42,6 +42,7 @@ long lastDribbleTime = 0;
 TOFBuffer tof;
 IMU cmp(&Wire1);
 float heading;
+float moveSpeed;
 float robotAngle;
 float frontTOF, backTOF, leftTOF, rightTOF;
 
@@ -62,7 +63,6 @@ Point relBallCoords(0, 0);
 Point absBallCoords(0, 0);
 
 PID coordPID(0.15, 0, 0.1);
-PID goaliePID(1, 0, 0);
 PID cmpPID(0.2, 0.001, 0.1);
 
 // initialise neutral point coordinates
