@@ -33,6 +33,11 @@ bool hasBall = false;
 bool calibrate = false;
 bool doneCalibrating = false;
 bool kick = false;
+bool kicked = false;
+long lastBallTime = 0;
+long lastKickTime = 0;
+long lastGateTime = 0;
+long lastDribbleTime = 0;
 
 TOFBuffer tof;
 IMU cmp(&Wire1);
@@ -40,7 +45,7 @@ float heading;
 float robotAngle;
 float frontTOF, backTOF, leftTOF, rightTOF;
 
-MyTimer kickerTimer(500);
+MyTimer kickerTimer(50);
 MyTimer bluetoothTimer(BLUETOOTH_UPDATE_TIME);
 MyTimer dribblerTimer(2000);
 

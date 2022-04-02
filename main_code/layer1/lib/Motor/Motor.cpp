@@ -40,29 +40,29 @@ void Motors::moveOut() {
     if (robotID == 0) {
         // bot 1
         analogWrite(FL_PWM, abs(FL_OUT));
-        digitalWrite(FL_DIG, FL_OUT > 0 ? HIGH : LOW);
+        digitalWriteFast(FL_DIG, FL_OUT > 0 ? HIGH : LOW);
 
         analogWrite(FR_PWM, abs(FR_OUT));
-        digitalWrite(FR_DIG, FR_OUT > 0 ? HIGH : LOW);
+        digitalWriteFast(FR_DIG, FR_OUT > 0 ? HIGH : LOW);
 
         analogWrite(BL_PWM, abs(BL_OUT));
-        digitalWrite(BL_DIG, BL_OUT > 0 ? HIGH : LOW);
+        digitalWriteFast(BL_DIG, BL_OUT > 0 ? HIGH : LOW);
 
         analogWrite(BR_PWM, abs(BR_OUT));
-        digitalWrite(BR_DIG, BR_OUT > 0 ? LOW : HIGH);
+        digitalWriteFast(BR_DIG, BR_OUT > 0 ? LOW : HIGH);
     } else {
         // bot 2
         analogWrite(FL_PWM, abs(FL_OUT));
-        digitalWrite(FL_DIG, FL_OUT > 0 ? LOW : HIGH);
+        digitalWriteFast(FL_DIG, FL_OUT > 0 ? LOW : HIGH);
 
         analogWrite(FR_PWM, abs(FR_OUT));
-        digitalWrite(FR_DIG, FR_OUT > 0 ? LOW : HIGH);
+        digitalWriteFast(FR_DIG, FR_OUT > 0 ? LOW : HIGH);
 
         analogWrite(BL_PWM, abs(BL_OUT));
-        digitalWrite(BL_DIG, BL_OUT > 0 ? HIGH : LOW);
+        digitalWriteFast(BL_DIG, BL_OUT > 0 ? HIGH : LOW);
 
         analogWrite(BR_PWM, abs(BR_OUT));
-        digitalWrite(BR_DIG, BR_OUT > 0 ? LOW : HIGH);
+        digitalWriteFast(BR_DIG, BR_OUT > 0 ? LOW : HIGH);
     }
    
 }

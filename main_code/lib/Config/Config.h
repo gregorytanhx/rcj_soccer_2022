@@ -30,11 +30,6 @@
 #define BALL_DRIBBLE_THRESH 40
 #define MOTOR_MULT 1.0154266118857451
 
-// kick ball when 40cm to the goal
-#define KICK_DISTANCE_THRES 40 
-
-#define CMP_KP 0.8
-
 // 10cm within target
 #define COORD_LEEWAY_DIST 100
 #define TOF_CONFIDENCE_THRESH 0.4
@@ -47,10 +42,6 @@
 
 #define STM32_BAUD 250000
 
-#define OFFSET_MULT 0.95
-#define BALL_MULT_A 1
-#define BALL_MULT_B 1
-
 // send: sent by layer 1, rec: received by layer 1
 #define LAYER1_REC_PACKET_SIZE 16
 #define LAYER1_SEND_PACKET_SIZE 13
@@ -59,9 +50,7 @@
 #define LAYER4_PACKET_SIZE 9
 #define LIGHT_PACKET_SIZE 65
 
-// tof settings
-#define TIME_BUDGET 100
-#define IMP 33
+
 #define LAYER4_SYNC_BYTE 1
 
 #define DRIBBLER_WAIT 3000

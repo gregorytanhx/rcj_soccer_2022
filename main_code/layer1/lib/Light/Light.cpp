@@ -1,11 +1,5 @@
 #include "Light.h"
 
-Light::Light() {
-    sigA = SIG_A;
-    sigB = SIG_B;
-
-}
-
 void Light::init() {
     pinMode(mux_A1, OUTPUT);
     pinMode(mux_A2, OUTPUT);

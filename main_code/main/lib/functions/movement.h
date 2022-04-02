@@ -4,12 +4,12 @@
 #include <declarations.h>
 #include <localisation.h>
 
-void controlDribbler() {
+void updateDribbler() {
     // use pwm to control dribbler
-    bool dribble = ballData.dist <= BALL_DRIBBLE_THRESH;
-    if (dribble || !dribblerTimer.timeHasPassed()) {
+    // turn on dribbler if facing ball and within 50 cm
+    // turn off dribbler if ball in possession, facing goal and within 50cm
+    if (dribble) {
         analogWrite(DRIBBLER_PIN, DRIBBLER_UPPER_LIMIT);
-        dribblerTimer.update();
     } else {
         analogWrite(DRIBBLER_PIN, DRIBBLER_LOWER_LIMIT);
     }
@@ -18,24 +18,30 @@ void controlDribbler() {
 void updateKick() {
     if (kick) {
         digitalWriteFast(KICKER_PIN, LOW);
-        kickerTimer.update();
+        if (!kicked) {
+            kickerTimer.update();
+        }
+        kicked = true;
     }
-    if (kickerTimer.timeHasPassed(false)) {
+    if (kicked && kickerTimer.timeHasPassed(false)) {
         digitalWriteFast(KICKER_PIN, HIGH);
+        kicked = false;
     }
 }
 
 
 void updateBallData() {
-    ballData.visible = camera.ballVisible;
-    ballData.captured = readLightGate();
-    if (ballData.visible) {
+    
+    if (readLightGate()) lastGateTime = millis();
+    ballData.captured = millis() - lastGateTime < 100;
+    if (camera.ballVisible) {
         relBallCoords = Point(camera.ballAngle, camera.ballDist);
         absBallCoords = relBallCoords + botCoords;
         ballData.angle = camera.ballAngle;
         ballData.dist = camera.ballDist;
         ballData.x = absBallCoords.x;
         ballData.y = absBallCoords.y;
+        lastBallTime = millis();
 
     } else if (bt.otherData.ballData.visible) {
         // find ball position based on other robot's data
@@ -48,7 +54,9 @@ void updateBallData() {
         ballData.dist = relBallCoords.getDistance();
         // treat ball as visible
         ballData.visible = true;
+        lastBallTime = millis();
     }
+    ballData.visible = millis() - lastBallTime < 500;
 }
 
 void updateLineControl() {
@@ -80,7 +88,7 @@ void trackBall() {
     float ballMult = fmin(1, 0.0134 * exp(factor * 2.6));
 
     robotAngle = ballData.angle + ballMult * ballOffset;
-    setMove(SPEED, robotAngle, 0);
+    setMove(60, robotAngle, 0);
 }
 
 void trackGoal() {
@@ -92,7 +100,7 @@ void trackGoal() {
 
     float goalMult = 1.5;
     robotAngle = camera.oppAngle + goalMult * goalOffset;
-    setMove(SPEED, robotAngle, 0);
+    setMove(60, robotAngle, 0);
 }
 
 void guardGoal() {

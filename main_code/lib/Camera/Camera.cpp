@@ -12,7 +12,6 @@ bool Camera::read() {
                 buffer.b[i] = CamSerial.read();
             }
         }
-
         ballAngle = buffer.vals[0];
         ballDist = buffer.vals[1];
         blueAngle = buffer.vals[2];
@@ -28,11 +27,6 @@ void Camera::process() {
     blueVisible = blueAngle != 500;
     yellowVisible = yellowAngle != 500;
     ballVisible = ballAngle != 500;
-
-    // change angle range to 180 to -180
-    ballAngle = nonReflex(ballAngle);
-    blueAngle = nonReflex(blueAngle);
-    yellowAngle = nonReflex(yellowAngle);
 
     // set side only once
     if ((blueVisible && yellowVisible) && side == unset) {

@@ -1,7 +1,57 @@
-#include <declarations.h>
-#include <movement.h>
 #include <communication.h>
+#include <declarations.h>
 #include <localisation.h>
+#include <movement.h>
+
+void normal() {
+    updateAllData();
+    if (currentRole() == Role::attack) {
+        // ball captured
+        if (ballData.captured) {
+            trackGoal();
+            // turn off front dribbler + turn on kicker if facing front goal and
+            // 50cm away
+            if (camera.oppDist <= 50 &&
+                (camera.oppAngle < 30 || camera.oppAngle > 330) &&
+                (robotAngle < 60 || robotAngle > 300)) {
+                    // kick every 1.5s
+                    if (millis() - lastKickTime > 1500) {
+                        dribble = false;
+                        kick = true;
+                        lastKickTime = millis();
+                        lastDribbleTime = millis();
+                    } else {
+                        kick = false;
+                    }
+            }
+            if (millis() - lastDribbleTime > 500) {
+                // if kick failed, turn dribbler back on
+                dribble = true;
+            }
+        } else if () {
+            trackBall();
+            // turn on front dribbler if ball within +-50 deg of front AND
+            // closer than 50 cm
+            if ((camera.ballAngle < 50 || camera.ballAngle > 310) && camera.ballDist < 50) {
+                dribble = true;
+            }
+        }
+
+        else {
+            goTo(Point(STRIKER_HOME_X, STRIKER_HOME_Y));
+        }
+    } else {
+        if (millis()  - lastBallTime < 500) {
+            guardGoal();
+        } else {
+            goTo(Point(GOALIE_HOME_X, GOALIE_HOME_Y));
+        }
+    }
+    updateKick();
+    updateDribbler();
+    angleCorrect();
+    sendLayer1();
+}
 
 void moveInCircle() {
     MyTimer circleTimer(5);
@@ -82,47 +132,45 @@ void setup() {
 #else
     robotID = EEPROM.read(EEPROM_ID_ADDR);
 #endif
-    // defaultRole = robotID == 0 ? Role::attack : Role::defend;
+        defaultRole = robotID == 0 ? Role::attack : Role::defend;
 
-#ifdef DEBUG
-        Serial.begin(9600);
-#endif
+    Serial.begin(9600);
     L1Serial.begin(STM32_BAUD);
     L4Serial.begin(STM32_BAUD);
     camera.begin();
     bt.begin();
-    //cmp.begin();
+    // cmp.begin();
     bbox.begin();
 
     pinMode(KICKER_PIN, OUTPUT);
     digitalWrite(KICKER_PIN, HIGH);
     pinMode(DRIBBLER_PIN, OUTPUT);
-    // analogWriteFrequency(DRIBBLER_PIN, 1000);
-    // analogWrite(DRIBBLER_PIN, DRIBBLER_LOWER_LIMIT);
-    // delay(DRIBBLER_WAIT);
+    analogWriteFrequency(DRIBBLER_PIN, 1000);
+    analogWrite(DRIBBLER_PIN, DRIBBLER_LOWER_LIMIT);
+    delay(DRIBBLER_WAIT);
 
     pinMode(LED_BUILTIN, OUTPUT);
     digitalWrite(LED_BUILTIN, HIGH);
 }
 
 void loop() {
-    //Serial.println(cmp.read());
-    // cmp.read();
-    // cmp.calibrate();
-    // TODO: Test TOF localisation
+    // Serial.println(cmp.read());
+    //  cmp.read();
+    //  cmp.calibrate();
+    //  TODO: Test TOF localisation
 
     // front, left, back, right
     if (readTOF()) {
         updatePosition();
         updateDebug();
         bbox.printTOF();
-        //bbox.checkFieldDims();
-        // String dir[4] = {"Front", "Left", "Back", "Right"};
-        // for (int i = 0; i < 4; i++) {
-        //     Serial.print(dir[i] + "Raw : ");
-        //     Serial.print(tof.vals[i]);
-        //     Serial.print("  ");
-        // }
+        // bbox.checkFieldDims();
+        //  String dir[4] = {"Front", "Left", "Back", "Right"};
+        //  for (int i = 0; i < 4; i++) {
+        //      Serial.print(dir[i] + "Raw : ");
+        //      Serial.print(tof.vals[i]);
+        //      Serial.print("  ");
+        //  }
         Serial.println();
     }
 
@@ -158,30 +206,4 @@ void loop() {
     // }
 
     // updateBallData();
-
-    // if (currentRole() == Role::attack) {
-    //     if (ballData.captured) {
-    //         trackGoal();
-    //         if (camera.oppDist <= KICK_DISTANCE_THRES) {
-    //             kick = true;
-    //         }
-    //     } else if (ballData.visible) {
-    //         trackBall();
-
-    //     } else {
-    //         goTo(Point(STRIKER_HOME_X, STRIKER_HOME_Y));
-    //     }
-    // } else {
-    //     if (ballData.visible) {
-    //         guardGoal();
-    //     } else {
-    //         goTo(Point(GOALIE_HOME_X, GOALIE_HOME_Y));
-    //     }
-    // }
-
-    // if (kickerTimer.timeHasPassed()) digitalWriteFast(KICKER_PIN, HIGH);
-
-    // angleCorrect();
-    // sendLayer1();
-    // readLayer1();
 }

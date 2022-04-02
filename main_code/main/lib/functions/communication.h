@@ -120,14 +120,14 @@ void updateDebug() {
     bt.updateDebug(bbox, ballData);
 }
 
-void updateAll() {
+void updateAllData() {
     readLayer1();
     heading = cmp.read();
     if (readTOF()) updatePosition();
     updateDebug();
     camera.update();
     updateBallData();
-    if (bluetoothTimer.timeHasPassed()) updateBluetooth();
+    // if (bluetoothTimer.timeHasPassed()) updateBluetooth();
 }
 
 #endif

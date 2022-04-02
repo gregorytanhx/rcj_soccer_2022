@@ -17,7 +17,6 @@
 // class to control light sensors
 class Light {
    public:
-    Light();
     void calibrate();
     void init();
     void read();
