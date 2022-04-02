@@ -6,18 +6,16 @@ void BBox::begin() {
     }
 }
 
-void BBox::update(TOFBuffer tof, LineData lineData, float heading) {
+void BBox::update(TOFBuffer tof, LineData lineData, float heading, Camera &camera) {
     // TODO: use kalman filter to detect if TOF is temporarily blocked?
     // TODO: integrate camera coordinates as weighted sum?
     // TODO: integrate light sensors to confirm x-position
-
 
     for (int i = 0; i < 4; i++) {
         // update moving average for each TOF
         tofAvg[i].reading(tof.vals[i]);
     }
     
-
     int frontTOF = tofAvg[0].getAvg();
     int leftTOF = tofAvg[1].getAvg();
     int backTOF = tofAvg[2].getAvg();
@@ -40,6 +38,8 @@ void BBox::update(TOFBuffer tof, LineData lineData, float heading) {
     // take area of robot over area of bbox as confidence score
     Xconfidence = min(1, (float)180 / (float)width);
     Yconfidence = min(1, (float)180 / (float)height);
+
+    
 
 
     if (lineData.onLine) {

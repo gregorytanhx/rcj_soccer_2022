@@ -21,7 +21,7 @@ void normal() {
             trackGoal();
             // turn off front dribbler + turn on kicker if facing front goal and
             // 50cm away
-            if (camera.oppGoalDist <= 500 &&
+            if (camera.oppGoalDist <= 50 &&
                 (camera.oppGoalAngle < 30 || camera.oppGoalAngle > 330) &&
                 (robotAngle < 60 || robotAngle > 300)) {
                 // kick every 1.5s
@@ -76,7 +76,7 @@ void normal() {
             moveSpeed = 0;
             robotAngle = 0;
         } 
-        if (!lineData.onLine || camera.oppGoalDist > 750) {
+        if (!lineData.onLine || camera.oppGoalDist > 75) {
             // return to goal area if not on line or too far from goal centre
             float goalMult, goalOffset;
             int tempAng = camera.ownGoalAngle - 180;
@@ -95,7 +95,7 @@ void normal() {
             robotAngle = mod(camera.ownGoalAngle + goalOffset * goalMult, 360);
             moveSpeed = 70;
 
-        } else if (ballData.visible && ballData.dist < 1000) {
+        } else if (ballData.visible && ballData.dist < 100) {
             // if ball is visible, align to ball
             // since robot is line tracking, simply set target angle to ball
             // angle

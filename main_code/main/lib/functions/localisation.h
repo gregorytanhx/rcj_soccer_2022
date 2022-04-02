@@ -7,7 +7,7 @@ void updatePosition() {
     // TODO: combine camera data with TOF data
     // TODO: use light sensors to confirm robot's position along x-axis
     lineData.onLine = false;
-    bbox.update(tof, lineData, moveData.rotation.val);
+    bbox.update(tof, lineData, moveData.rotation.val, camera);
     botCoords.x = bbox.x;
     botCoords.y = bbox.y;
 }

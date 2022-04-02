@@ -15,10 +15,9 @@ bool Camera::read() {
         ballAngle = buffer.vals[0];
         ballDist = buffer.vals[1];
         blueAngle = buffer.vals[2];
-        // use mm distance 
-        blueDist = buffer.vals[3] * 10;
+        blueDist = buffer.vals[3];
         yellowAngle = buffer.vals[4];
-        yellowDist = buffer.vals[5] * 10;
+        yellowDist = buffer.vals[5];
     }
     return newData;
 }
@@ -59,6 +58,8 @@ void Camera::process() {
 
     // vector pointing to the centre of the field
     centreVector = oppGoalVec + ownGoalVec;
+    // use mm for localisation
+    centreVector *= 10;
     centreVector /= 2;
 
     // vector pointing to front of field
