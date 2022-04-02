@@ -15,8 +15,6 @@ void Motors::init(uint8_t id) {
     pinMode(BR_DIG, OUTPUT);
     pinMode(BR_PWM, OUTPUT);
 
-  
-
 }
 
 void Motors::setMove(float speed, float angle, float rotation,

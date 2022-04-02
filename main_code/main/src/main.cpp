@@ -21,7 +21,7 @@ void normal() {
             trackGoal();
             // turn off front dribbler + turn on kicker if facing front goal and
             // 50cm away
-            if (camera.oppGoalDist <= 50 &&
+            if (camera.oppGoalDist <= 500 &&
                 (camera.oppGoalAngle < 30 || camera.oppGoalAngle > 330) &&
                 (robotAngle < 60 || robotAngle > 300)) {
                 // kick every 1.5s
@@ -62,7 +62,7 @@ void normal() {
         lineTrack = true;
         if (camera.ballVisible && camera.newData &&
             abs(lastBallAngle - camera.ballAngle) < 1 &&
-            abs(lastBallDist - camera.ballDist) < 3) {
+            abs(lastBallDist - camera.ballDist) < 20) {
             ballCnt++;
         } else {
             ballCnt = 0;
@@ -76,7 +76,7 @@ void normal() {
             moveSpeed = 0;
             robotAngle = 0;
         } 
-        if (!lineData.onLine || camera.oppGoalDist > 75) {
+        if (!lineData.onLine || camera.oppGoalDist > 750) {
             // return to goal area if not on line or too far from goal centre
             float goalMult, goalOffset;
             int tempAng = camera.ownGoalAngle - 180;
@@ -95,7 +95,7 @@ void normal() {
             robotAngle = mod(camera.ownGoalAngle + goalOffset * goalMult, 360);
             moveSpeed = 70;
 
-        } else if (ballData.visible && ballData.dist < 100) {
+        } else if (ballData.visible && ballData.dist < 1000) {
             // if ball is visible, align to ball
             // since robot is line tracking, simply set target angle to ball
             // angle
@@ -141,7 +141,9 @@ void moveInCircle() {
     }
 }
 
+
 void robot1() {
+    // this shit damn cancer 
     // robot 1 program for SG Open technical challenge
     // challenge 2: score ball into goal that it is closest to then go to other
     // spot
@@ -219,7 +221,7 @@ void robot1() {
                 }
 
                 trackGoal(goalAngle);
-                if (goalDist <= 40 && (goalAngle < 30 || goalAngle > 330) &&
+                if (goalDist <= 400 && (goalAngle < 30 || goalAngle > 330) &&
                     (robotAngle < 60 || robotAngle > 300)) {
                     // kick every 1.5s
                     dribble = false;
@@ -270,6 +272,7 @@ void robot1() {
 void robot2() {
     // robot 2 program for SG Open technical challenge
     // cycle between 5 neutral points
+
     points pts[5] = {TopLeftDot, TopRightDot, CentreDot, BottomLeftDot,
                      BottomRightDot};
     int cnt = 0;
@@ -301,7 +304,7 @@ void setup() {
 #else
     robotID = EEPROM.read(EEPROM_ID_ADDR);
 #endif
-        defaultRole = robotID == 0 ? Role::attack : Role::defend;
+    defaultRole = robotID == 0 ? Role::attack : Role::defend;
 
     Serial.begin(9600);
     L1Serial.begin(STM32_BAUD);

@@ -11,6 +11,7 @@ void BBox::update(TOFBuffer tof, LineData lineData, float heading) {
     // TODO: integrate camera coordinates as weighted sum?
     // TODO: integrate light sensors to confirm x-position
 
+
     for (int i = 0; i < 4; i++) {
         // update moving average for each TOF
         tofAvg[i].reading(tof.vals[i]);

@@ -15,9 +15,10 @@ bool Camera::read() {
         ballAngle = buffer.vals[0];
         ballDist = buffer.vals[1];
         blueAngle = buffer.vals[2];
-        blueDist = buffer.vals[3];
+        // use mm distance 
+        blueDist = buffer.vals[3] * 10;
         yellowAngle = buffer.vals[4];
-        yellowDist = buffer.vals[5];
+        yellowDist = buffer.vals[5] * 10;
     }
     return newData;
 }
