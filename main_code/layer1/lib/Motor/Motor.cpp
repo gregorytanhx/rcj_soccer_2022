@@ -2,9 +2,6 @@
 
 void Motors::init(uint8_t id) {
     robotID = id;
-    // // use 12 bit resolution for motor speed
-    // analogWriteResolution(12);
-    // analogWriteFrequency(14648.437);
 
     pinMode(FL_DIG, OUTPUT);
     pinMode(FL_PWM, OUTPUT);

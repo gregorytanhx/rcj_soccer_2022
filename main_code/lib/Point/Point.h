@@ -20,6 +20,8 @@ class Point {
     Point(int posX, int posY) {
       x = posX;
       y = posY;
+      angle = fmod(90 - rad2deg(atan2(y, x)), 360);
+      distance = sqrt(x * x + y * y);
     } 
 
     Point(float ang, float dist) {
@@ -29,10 +31,6 @@ class Point {
         y = (int)(distance * cos(deg2rad(angle)));
     }
 
-    void process() {
-        // obtain angle and distance for new vectors obtained from addition / subtraction
-
-    }
     float getAngle() { 
         // calculate polar angle as bearing from north in degrees
         return fmod(90 - rad2deg(atan2(y, x)), 360); 
@@ -80,6 +78,8 @@ class Point {
     }
 
     bool operator!=(const Point &p) { return x != p.x || y != p.y; }
+
+    bool operator==(const Point &p) { return x == p.x && y == p.y; }
 };
 
 #endif

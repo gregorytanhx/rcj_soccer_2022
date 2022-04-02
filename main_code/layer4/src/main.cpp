@@ -18,9 +18,10 @@ int tofCnt = 4;
 TOFBuffer buffer;
 
 // front, left, back, right
-SFEVL53L1X sensors[] = {
-    SFEVL53L1X(Wire1, SHUT_1, INT_1), SFEVL53L1X(Wire1, SHUT_2, INT_2),
-    SFEVL53L1X(Wire1, SHUT_3, INT_3), SFEVL53L1X(Wire1, SHUT_4, INT_4)};
+SFEVL53L1X sensors[] = { SFEVL53L1X(Wire1, SHUT_1, INT_1),
+                         SFEVL53L1X(Wire1, SHUT_2, INT_2),
+                         SFEVL53L1X(Wire1, SHUT_3, INT_3), 
+                         SFEVL53L1X(Wire1, SHUT_4, INT_4) };
 
 void init_sensors() {
     // Shut down all sensors
@@ -70,39 +71,6 @@ void read_sensors() {
 void sendVals() {
     L4CommSerial.write(LAYER4_SYNC_BYTE);
     L4CommSerial.write(buffer.b, sizeof(buffer.b));
-}
-
-void i2c_scanner() {
-    byte error, address;
-    int nDevices;
-
-    L4DebugSerial.println("Scanning...");
-
-    nDevices = 0;
-    for (address = 1; address < 127; address++) {
-        // The i2c_scanner uses the return value of
-        // the Write.endTransmisstion to see if
-        // a device did acknowledge to the address.
-        Wire1.beginTransmission(address);
-        error = Wire1.endTransmission();
-
-        if (error == 0) {
-            L4DebugSerial.print("I2C device found at address 0x");
-            if (address < 16) Serial.print("0");
-            L4DebugSerial.print(address, HEX);
-            L4DebugSerial.println("  !");
-
-            nDevices++;
-        } else if (error == 4) {
-            L4DebugSerial.print("Unknown error at address 0x");
-            if (address < 16) Serial.print("0");
-            L4DebugSerial.println(address, HEX);
-        }
-    }
-    if (nDevices == 0)
-        L4DebugSerial.println("No I2C devices found");
-    else
-        L4DebugSerial.println("done");
 }
 
 void setup() {
