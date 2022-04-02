@@ -29,6 +29,10 @@ class Point {
         y = (int)(distance * cos(deg2rad(angle)));
     }
 
+    void process() {
+        // obtain angle and distance for new vectors obtained from addition / subtraction
+
+    }
     float getAngle() { 
         // calculate polar angle as bearing from north in degrees
         return fmod(90 - rad2deg(atan2(y, x)), 360); 
@@ -48,6 +52,20 @@ class Point {
     Point &operator-=(const Point &rhs) {
         this->x -= rhs.x;
         this->y -= rhs.y;
+        return *this;
+    }
+
+    Point &operator*=(const float mult) {
+        // multiply point by a constant
+        this->x *= round((float)this->x * mult);
+        this->y *= round((float)this->y * mult);
+        return *this;
+    }
+
+    Point &operator/=(const float mult) {
+        // divide point by a constant
+        this->x = round((float)this->x / mult);
+        this->y = round((float)this->y / mult);
         return *this;
     }
 

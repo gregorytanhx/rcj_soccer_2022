@@ -32,7 +32,7 @@ void goTo(Point target) {
     // otherwise use a combination of camera and TOF coords
     Point moveVector;
     float moveSpeed, moveAngle;
-    if (camera.oppVisible && camera.ownVisible) {
+    if (camera.oppGoalVisible && camera.ownGoalVisible) {
         // go to point based on vector calculations from camera
         moveVector = camera.centreVector + target;
     } else {
@@ -47,7 +47,7 @@ void goTo(Point target) {
     // each axis eg. if x-axis is completely blocked, move along y-axis until
     // robot is not blocked
 
-    if (!(camera.oppVisible && camera.ownVisible)) {
+    if (!(camera.oppGoalVisible && camera.ownGoalVisible)) {
         if (bbox.Xconfidence < TOF_CONFIDENCE_THRESH) bbox.Xconfidence = 0;
         if (bbox.Yconfidence < TOF_CONFIDENCE_THRESH) bbox.Yconfidence = 0;
 

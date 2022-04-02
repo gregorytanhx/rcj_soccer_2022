@@ -58,7 +58,7 @@ void Camera::process() {
 
     // vector pointing to the centre of the field
     centreVector = oppGoalVec + ownGoalVec;
-    centreVector.distance /= 2;
+    centreVector /= 2;
 
     // vector pointing to front of field
     frontVector = oppGoalVec - centreVector;
