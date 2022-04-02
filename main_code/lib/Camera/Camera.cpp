@@ -3,7 +3,7 @@
 void Camera::begin() { CamSerial.begin(CAMERA_BAUD); }
 
 bool Camera::read() {
-    bool newData = false;
+    newData = false;
     while (CamSerial.available() >= CAMERA_PACKET_SIZE) {
         newData = true;
         uint8_t syncByte = CamSerial.read();

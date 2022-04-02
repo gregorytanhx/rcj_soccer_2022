@@ -39,6 +39,12 @@ long lastKickTime = 0;
 long lastGateTime = 0;
 long lastDribbleTime = 0;
 
+int ballCnt = 0;
+float lastBallAngle;
+float lastBallDist;
+bool goalieCharge = false;
+long goalieChargeTimer;
+
 TOFBuffer tof;
 IMU cmp(&Wire1);
 float heading;

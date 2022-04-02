@@ -6,11 +6,16 @@
 PID goalieBallPID(1.9, 0, 0);
 PID goalieGoalPID(0.6, 0, 0);
 
+
 void normal() {
     // regular program
     updateAllData();
     lineAvoid = true;
-    if (currentRole() == Role::attack) {
+    if (currentRole() == Role::attack || goalieCharge) {
+        if (millis() - goalieChargeTimer > 3000){
+            // stop goalie from charging after 3s
+            goalieCharge = false;
+        }
         // attack program
         if (ballData.captured) {
             trackGoal();
@@ -44,6 +49,8 @@ void normal() {
         } else {
             goTo(Point(STRIKER_HOME_X, STRIKER_HOME_Y));
         }
+        // move at faster speed if goalie is charging
+        if (goalieCharge) moveData.speed = 80;
 
         updateKick();
         updateDribbler();
@@ -53,6 +60,22 @@ void normal() {
     } else {
         // defence program
         lineTrack = true;
+        if (camera.ballVisible && camera.newData &&
+            abs(lastBallAngle - camera.ballAngle) < 1 &&
+            abs(lastBallDist - camera.ballDist) < 3) {
+            ballCnt++;
+        } else {
+            ballCnt = 0;
+        }
+        if (ballCnt >= 10) {
+            // goalie charges to score if ball has not moved for some time
+            goalieCharge = true;
+            goalieChargeTimer = millis();
+            lineTrack = false;
+            // avoid moving in the wrong direction before swapping to attack mode
+            moveSpeed = 0;
+            robotAngle = 0;
+        } 
         if (!lineData.onLine || camera.oppGoalDist > 75) {
             // return to goal area if not on line or too far from goal centre
             float goalMult, goalOffset;
@@ -77,19 +100,26 @@ void normal() {
             // since robot is line tracking, simply set target angle to ball
             // angle
             robotAngle = ballData.ballAngle;
-
-            // ideally, ball angle should be zero
+            // target ball angle is zero
             // TODO: add compass angle to ball angle when that works
-            float error = abs(allData.angle));
+            float error = abs(allData.angle);
             moveSpeed = goalieBallPID.update(error);
+            moveSpeed = min(110, moveSpeed);
 
         } else {
             // if ball not visible, align to goal centre
             // since robot is line tracking, simply set target angle to own goal
             // angle
             robotAngle = camera.ownGoalAngle;
+            // target goal angle is 180
             float error = abs(nonReflex(camera.ownGoalAngle - 180));
+            moveSpeed = goalieBallPID.update(error);
+            moveSpeed = min(110, moveSpeed);
         }
+
+        setMove(moveSpeed, robotAngle, 0);
+        lastBallAngle = camera.ballAngle;
+        lastBallDist = camera.ballDist;
     }
 
     angleCorrect();
