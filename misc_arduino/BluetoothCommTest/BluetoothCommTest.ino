@@ -8,23 +8,21 @@ char c;
 // the setup function runs once when you press reset or power the board
 void setup() {
   // initialize digital pin LED_BUILTIN as an output.
-  Serial.begin(38400M);
+  Serial.begin(9600);
   Serial.println("ready");
   Serial2.begin(38400);
-  pinMode(EN_PIN, OUTPUT);
-  digitalWrite(EN_PIN, HIGH);
   pinMode(KICK_PIN, OUTPUT);
   digitalWrite(KICK_PIN, HIGH);
+  pinMode(EN_PIN, OUTPUT);
+  digitalWrite(EN_PIN, LOW);
 
 }
 
 // the loop function runs over and over again forever
 void loop() {
-   while (Serial.available()) {
-      Serial2.write(Serial.read());
-   }
+   Serial2.write(255);
    while (Serial2.available()){
-      Serial.write(Serial2.read());
+      Serial.println(Serial2.read());
    }
    
       

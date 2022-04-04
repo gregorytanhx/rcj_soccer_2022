@@ -22,7 +22,11 @@
 // size of received data
 #define DEBUG_PACKET_SIZE 29
 
-// BOT 1 ADDRESS: 98d3:51:fe65d9
+
+// https://www.teachmemicro.com/hc-05-bluetooth-command-list/
+// ^^^^ use this link to pair hc05
+// BOT 1 ADDRESS: 98d3,71,fe3c46
+// BOT 2 ADDRESS: 98d3,51,fe65d9
 
 // union to serialise and deserialise bluetooth data
 typedef union BTBuffer {

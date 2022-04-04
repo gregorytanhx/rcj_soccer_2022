@@ -366,15 +366,15 @@ void robot2() {
     int cnt = 0;
     lineAvoid = false;
     while (1) {
-        updateAll();
+        updateAllData();
         goTo(neutralPoints[pts[cnt]]);
         // stop at all neutral points except middle
         if (reachedPoint(neutralPoints[pts[cnt]]) &&
-            neutralPoints[pts[cnt]] != CentreDot) {
+            pts[cnt] != CentreDot) {
             lineTrack = false;
             long timer = millis();
             while (millis() - timer < 1100) {
-                updateAll();
+                updateAllData();
                 setMove(0, 0, 0);
                 sendLayer1();
             }
