@@ -10,6 +10,8 @@
 #include <utility/imumaths.h>
 #include <EEPROM.h>
 
+//#define USE_LAYER4_IMU
+
 #ifdef USE_LAYER4_IMU
     #include <Adafruit_BNO055.h>
     #define Serial L4DebugSerial

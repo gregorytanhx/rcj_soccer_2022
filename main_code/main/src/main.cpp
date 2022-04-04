@@ -6,13 +6,12 @@
 PID goalieBallPID(1.9, 0, 0);
 PID goalieGoalPID(0.6, 0, 0);
 
-
 void normal() {
     // regular program
     updateAllData();
     lineAvoid = true;
     if (currentRole() == Role::attack || goalieCharge) {
-        if (millis() - goalieChargeTimer > 3000){
+        if (millis() - goalieChargeTimer > 3000) {
             // stop goalie from charging after 3s
             goalieCharge = false;
         }
@@ -72,10 +71,11 @@ void normal() {
             goalieCharge = true;
             goalieChargeTimer = millis();
             lineTrack = false;
-            // avoid moving in the wrong direction before swapping to attack mode
+            // avoid moving in the wrong direction before swapping to attack
+            // mode
             moveSpeed = 0;
             robotAngle = 0;
-        } 
+        }
         if (!lineData.onLine || camera.oppGoalDist > 75) {
             // return to goal area if not on line or too far from goal centre
             float goalMult, goalOffset;
@@ -141,14 +141,22 @@ void moveInCircle() {
     }
 }
 
-
 void robot1() {
-    // this shit damn cancer 
+    // this shit damn cancer
     // robot 1 program for SG Open technical challenge
     // challenge 2: score ball into goal that it is closest to then go to other
     // spot
     // challenge 3: ball is randomly positioned on either side of field, score
     // ball into any goal
+
+    // gay ass strategy for challenge 2: 
+    // start robot perpendicular to line facing field
+    // robot moves to top part corner of field (left TOF < 42 cm)
+    // robot tracks ball like normal
+    // once ball is caught, turn and kick into goal
+    // turn 180 degrees
+    // reverse until line is detected
+    // move to centre of field 
 
     bool firstTime = true;
 
@@ -167,15 +175,39 @@ void robot1() {
 
             updateAllData();
             if (tof.vals[1] < 350 && tof.vals[3] > 600) {
-                // starting at P1A
-                startPoint = LeftSide;
-                endPoint = RightSide;
-                posFound = true;
+                // left tof closer to wall
+                if ((camera.yellowAngle < 60 || camera.yellowAngle > 300) ||
+                    (camera.blueAngle > 120 || camera.blueAngle < 240)) {
+                    // starting at P1A
+                    startPoint = LeftSide;
+                    endPoint = RightSide;
+                    posFound = true;
+                } else if ((camera.blueAngle < 60 || camera.blueAngle > 300) ||
+                           (camera.yellowAngle > 120 ||
+                            camera.yellowAngle < 240)) {
+                    // starting at P1B
+                    startPoint = RightSide;
+                    endPoint = LeftSide;
+                    posFound = true;
+                }
+
             } else if (tof.vals[1] > 600 && tof.vals[3] < 350) {
-                // starting at P1B
-                startPoint = RightSide;
-                endPoint = RightSide;
-                posFound = true;
+                // right tof closer to wall
+
+                if ((camera.yellowAngle < 60 || camera.yellowAngle > 300) ||
+                    (camera.blueAngle > 120 || camera.blueAngle < 240)) {
+                    // starting at P1B
+                    startPoint = RightSide;
+                    endPoint = LefttSide;
+                    posFound = true;
+                } else if ((camera.blueAngle < 60 || camera.blueAngle > 300) ||
+                           (camera.yellowAngle > 120 ||
+                            camera.yellowAngle < 240)) {
+                    // starting at P1A
+                    startPoint = LeftSide;
+                    endPoint = RightSide;
+                    posFound = true;
+                }
             }
 
             if (ballData.visible && !ballPosFound) {
@@ -304,7 +336,7 @@ void setup() {
 #else
     robotID = EEPROM.read(EEPROM_ID_ADDR);
 #endif
-    defaultRole = robotID == 0 ? Role::attack : Role::defend;
+        defaultRole = robotID == 0 ? Role::attack : Role::defend;
 
     Serial.begin(9600);
     L1Serial.begin(STM32_BAUD);

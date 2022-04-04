@@ -6,7 +6,7 @@ void BBox::begin() {
     }
 }
 
-void BBox::update(TOFBuffer tof, LineData lineData, float heading, Camera &camera) {
+void BBox::update(TOFBuffer &tof, LineData &lineData, float heading, Camera &camera) {
     // TODO: use kalman filter to detect if TOF is temporarily blocked?
     // TODO: integrate camera coordinates as weighted sum?
     // TODO: integrate light sensors to confirm x-position
@@ -39,7 +39,8 @@ void BBox::update(TOFBuffer tof, LineData lineData, float heading, Camera &camer
     Xconfidence = min(1, (float)180 / (float)width);
     Yconfidence = min(1, (float)180 / (float)height);
 
-    
+    if (Xconfidence < 0.5) x = camera.centreVector.x;
+    if (Yconfidence < 0.5) y = camera.centreVector.y;
 
 
     if (lineData.onLine) {

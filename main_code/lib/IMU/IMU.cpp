@@ -209,6 +209,7 @@ void IMU::calibrate() {
         // write calibration to eeprom memory
         eeAddress += sizeof(long);
         EEPROM.put(eeAddress, newCalib);
+
         Serial.println("Data stored to EEPROM.");
 
         Serial.println("\n--------------------------------\n");

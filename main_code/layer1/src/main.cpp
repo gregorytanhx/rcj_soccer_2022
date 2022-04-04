@@ -122,10 +122,10 @@ void loop() {
                 lineTimer.update();
                 float closestAngle = nonReflex(light.getClosestAngle(angle));
                 // use PID to control angle of correction
-                float correction = lineTrackPID.update(closestAngle - angle);
-                float moveAngle = angle + correction;
+                // float correction = lineTrackPID.update(closestAngle - angle);
+                // float moveAngle = angle + correction;
 
-                motors.setMove(speed, moveAngle, 0);
+                motors.setMove(closestAngle, moveAngle, 0);
 
             } else if (lineAvoid) {
                 // avoid line by moving in opposite direction to line
