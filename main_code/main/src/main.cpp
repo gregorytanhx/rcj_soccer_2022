@@ -149,81 +149,71 @@ void robot1() {
     // challenge 3: ball is randomly positioned on either side of field, score
     // ball into any goal
 
-    // gay ass strategy for challenge 2: 
+    // gay ass strategy for challenge 2:
     // start robot perpendicular to line facing field
     // robot moves to top part corner of field (left TOF < 42 cm)
     // robot tracks ball like normal
     // once ball is caught, turn and kick into goal
     // turn 180 degrees
     // reverse until line is detected
-    // move to centre of field 
+    // move to centre of field
 
     bool firstTime = true;
+    bool challenge3 = false;
+    bool scoringBlue = false;
+    long kickTime = 0;
+    int heading = 0;
 
     while (1) {
         // face yellow goal by default
-        points startPoint, endPoint;
-        bool facingYellow = true;
         bool ballScored = false;
         bool botPosFound = false;
         bool ballPosFound = false;
+        bool posFound = false;
+        int side = 0;  // 0 for side away from wall, 1 for side next to wall
 
-        while ((!firstTime && millis() - timer < 1100) || !posFound ||
-               !ballPosFound) {
+        // treat yellow as front of field
+        camera.side = Side::facingYellow;
+
+        while (((!firstTime && millis() - timer < 1100) || !ballPosFound ||
+               !posFound) && !challenge3) {
             // if tof values are not confident, wait for other robot to stop
             // blocking
-
             updateAllData();
-            if (tof.vals[1] < 350 && tof.vals[3] > 600) {
-                // left tof closer to wall
-                if ((camera.yellowAngle < 60 || camera.yellowAngle > 300) ||
-                    (camera.blueAngle > 120 || camera.blueAngle < 240)) {
-                    // starting at P1A
-                    startPoint = LeftSide;
-                    endPoint = RightSide;
+            if (camera.blueVisible && camera.yellowVisible && !posFound) {
+                if (camera.blueAngle > 270 && camera.yellowAngle < 90) {
+                    side = 0;
                     posFound = true;
-                } else if ((camera.blueAngle < 60 || camera.blueAngle > 300) ||
-                           (camera.yellowAngle > 120 ||
-                            camera.yellowAngle < 240)) {
-                    // starting at P1B
-                    startPoint = RightSide;
-                    endPoint = LeftSide;
-                    posFound = true;
-                }
-
-            } else if (tof.vals[1] > 600 && tof.vals[3] < 350) {
-                // right tof closer to wall
-
-                if ((camera.yellowAngle < 60 || camera.yellowAngle > 300) ||
-                    (camera.blueAngle > 120 || camera.blueAngle < 240)) {
-                    // starting at P1B
-                    startPoint = RightSide;
-                    endPoint = LefttSide;
-                    posFound = true;
-                } else if ((camera.blueAngle < 60 || camera.blueAngle > 300) ||
-                           (camera.yellowAngle > 120 ||
-                            camera.yellowAngle < 240)) {
-                    // starting at P1A
-                    startPoint = LeftSide;
-                    endPoint = RightSide;
+                } else if (camera.yellowAngle > 270 && camera.blueAngle < 90) {
+                    side = 1;
                     posFound = true;
                 }
             }
 
             if (ballData.visible && !ballPosFound) {
-                ballPosFound = true;
-                if (ballData.ballAngle < 50 || ballData.ballAngle > 310) {
-                    // ball closer to YELLOW goal
-                    facingYellow = true;
+                if (ballData.angle < 10 || ballData.angle > 350) {
+                    // ball is directly in front of robot, challenge has moved
+                    // on to next stage
+                    ballPosFound = true;
+                    challenge3 = true;
 
-                } else if (ballData.ballAngle < 130 ||
-                           ballData.ballAngle > 230) {
-                    // ball closer to BLUE goal
-                    facingYellow = false;
-                } else {
-                    // challenge has entered third stage
-                    // score yellow goal by default
-                    facingYellow = true;
+                    heading = 90;
+                    while (abs(camera.frontVector.getAngle() - heading) > 5) {
+                        updateAllData();
+                        angleCorrect(heading);
+                        moveData.angSpeed = 100;
+                        sendLayer();
+                    
+
+                } else if (camera.blueVisible &&
+                           abs(camera.blueAngle - ballData.angle) < 90) {
+                    // ball close to blue goal
+                    ballPosFound = true;
+                    scoringBlue = true;
+                } else if (camera.yellowVisible &&
+                           abs(camera.yellowAngle - ballData.angle) < 90) {
+                    ballPosFound = true;
+                    scoringBlue = false;
                 }
             }
             setMove(0, 0, 0);
@@ -232,33 +222,112 @@ void robot1() {
 
         // use camera based correction cus compass confirmed fucked after
         // spinning so many times
-
-        long shotTime = 0;
-        // run standard attack program, assume ball has been scored once kicked
-        while (!ballScored) {
-            updateAllData();
-            if (millis() - shotTime < 500) {
-                ballScored = true;
-            }
-            if (ballData.captured) {
-                // turn off front dribbler + turn on kicker if facing front goal
-                // and 40cm away
-                float goalDist, goalAngle;
-                if (facingYellow) {
-                    goalDist = camera.yellowDist;
-                    goalAngle = camera.yellowAngle;
-                } else {
-                    goalDist = camera.blueDist;
-                    goalAngle = camera.blueAngle;
+        if (!challenge3) {
+            lineTrack = true;
+            if ((scoringBlue && side == 0) || (!scoringBlue && side == 1)) {
+                while (bbox.tofAvg[1] > 420 && bbox.tofAvg[3] < 1800) {
+                    updateAllData();
+                    setMove(70, 270, 0);
+                    angleCorrect(heading);
+                    sendLayer1();
                 }
+            } else {
+                while (bbox.tofAvg[3] > 420 && bbox.tofAvg[1] < 1800) {
+                    updateAllData();
+                    setMove(70, 90, 0);
+                    angleCorrect(heading);
+                    sendLayer1();
+                }
+            }
+            while (!ballScored) {
+                updateAllData();
+                if (lastKickTime && millis() - lastKickTime > 500)
+                    ballScored = true;
+                if (ballData.captured) {
+                    // turn off front dribbler + turn on kicker if facing front
+                    // goal and 40cm away
+                    int target = 0;
+                    if (scoringBlue) target = 180;
+                    // spin to face goal
+                    while (abs(camera.frontVector.getAngle() - target) > 5) {
+                        updateAllData();
+                        angleCorrect(target);
+                        moveData.angSpeed = 100;
+                        sendLayer();
+                    }
+                    kick = true;
+                    dribble = false;
+                    lastKickTime = millis();
+                } else if (ballData.visible) {
+                    trackBall();
+                    // turn on front dribbler if ball within +-50 deg of front
+                    // AND closer than 50 cm
+                    if ((camera.ballAngle < 50 || camera.ballAngle > 310) &&
+                        camera.ballDist < 50) {
+                        dribble = true;
+                    }
+                } else {
+                    goTo(Point(STRIKER_HOME_X, STRIKER_HOME_Y));
+                }
+                updateKick();
+                if (ballData.captured)
+                    angleCorrect(target);
+                else
+                    angleCorrect(heading);
+                sendLayer1();
+            }
 
-                trackGoal(goalAngle);
-                if (goalDist <= 400 && (goalAngle < 30 || goalAngle > 330) &&
+            heading = (heading + 180) % 360;
+
+            // reverse until line
+            while (!lineData.onLine) {
+                updateAllData();
+                setMove(60, 180, 0);
+                angleCorrect(heading);
+                sendLayer1();
+            }
+            // go back to field centre
+            if (scoringBlue && side == 0 || !scoringBlue && side == 1) {
+                while (bbox.tofAvg[1] > 1200 && bbox.tofAvg[3] < 1100) {
+                    updateAllData();
+                    setMove(70, 270, 0);
+                    angleCorrect(heading);
+                    sendLayer1();
+                }
+            } else {
+                while (bbox.tofAvg[3] > 1200 && bbox.tofAvg[1] < 1100) {
+                    updateAllData();
+                    setMove(70, 90, 0);
+                    angleCorrect(heading);
+                    sendLayer1();
+                }
+            }
+        } else {
+
+            // move on to challenge 3
+            target = 90;
+
+            if (millis() - goalieChargeTimer > 3000) {
+                // stop goalie from charging after 3s
+                goalieCharge = false;
+            }
+            // attack program
+            if (ballData.captured) {
+                trackGoal();
+                // turn off front dribbler + turn on kicker if facing front goal
+                // and 50cm away
+                if (camera.oppGoalDist <= 50 &&
+                    (camera.oppGoalAngle < 30 || camera.oppGoalAngle > 330) &&
                     (robotAngle < 60 || robotAngle > 300)) {
                     // kick every 1.5s
-                    dribble = false;
-                    kick = true;
-                    shotTime = millis();
+                    if (millis() - lastKickTime > 1500) {
+                        dribble = false;
+                        kick = true;
+                        lastKickTime = millis();
+                        lastDribbleTime = millis();
+                    } else {
+                        kick = false;
+                    }
                 }
                 if (millis() - lastDribbleTime > 500) {
                     // if kick failed, turn dribbler back on
@@ -275,29 +344,16 @@ void robot1() {
             } else {
                 goTo(Point(STRIKER_HOME_X, STRIKER_HOME_Y));
             }
+            // move at faster speed if goalie is charging
+            if (goalieCharge) moveData.speed = 80;
 
             updateKick();
             updateDribbler();
-
-            // face the correct goal
-            if (facingYellow)
-                camAngleCorrect();
-            else
-                camAngleCorrect(180);
-
+            angleCorrect();
             sendLayer1();
         }
 
-        // go to end point once ball has been scored
-        while (!reachedPoint(neutralPoints[endPoint], 100)) {
-            updateAllData();
-            goTo(neutralPoints[endPoint]);
-            if (facingYellow)
-                camAngleCorrect();
-            else
-                camAngleCorrect(180);
-            sendLayer1();
-        }
+
     }
 }
 

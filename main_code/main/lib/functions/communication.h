@@ -8,6 +8,7 @@ void sendLayer1() {
     L1Serial.write(moveData.speed.b, 4);
     L1Serial.write(moveData.angle.b, 4);
     L1Serial.write(moveData.rotation.b, 4);
+    L1Serial.write(moveData.angSpeed.b, 4);
     L1Serial.write(lineTrack);
     L1Serial.write(lineAvoid);
     L1Serial.write(calibrate);

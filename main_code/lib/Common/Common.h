@@ -30,7 +30,7 @@ typedef union int16Data {
 } int16Data;
 
 typedef union motorBuffer {
-    float vals[3];
+    float vals[4];
     uint8_t b[sizeof(vals)];
 } motorBuffer;
 
@@ -47,11 +47,13 @@ typedef struct MoveData {
     floatData speed;
     floatData angle;
     floatData rotation;
+    floatData angSpeed;
 
-    MoveData(int moveSpeed, int moveAngle, int moveRotation) {
+    MoveData(float moveSpeed, float moveAngle, float moveRotation, float angSpeed) {
         speed.val = moveSpeed;
         angle.val = moveAngle;
         rotation.val = moveRotation;
+        angSpeed.val = angSpeed;
     }
 } MoveData;
 

@@ -13,6 +13,7 @@ Motors motors;
 float speed = 0;
 float angle = 0;
 float rotation = 0;
+float angSpeed = -1.0;
 LineData lineData;
 
 // buffer for receiving data from teensy
@@ -55,6 +56,7 @@ void receiveData() {
             speed = buffer.vals[0];
             angle = buffer.vals[1];
             rotation = buffer.vals[2];
+            angSpeed = buffer.vals[3];
         }
     }
 }
@@ -125,14 +127,14 @@ void loop() {
                 // float correction = lineTrackPID.update(closestAngle - angle);
                 // float moveAngle = angle + correction;
 
-                motors.setMove(closestAngle, moveAngle, 0);
+                motors.setMove(closestAngle, moveAngle, rotation, angSpeed);
 
             } else if (lineAvoid) {
                 // avoid line by moving in opposite direction to line
                 float moveAngle = fmod(lineData.lineAngle.val + 180, 360);
 
                 motors.setMove(fmax(60 * lineData.chordLength.val, 30),
-                               moveAngle, 0);
+                               moveAngle, rotation, angSpeed);
             } else {
                 // ignore line
                 motors.setMove(speed, angle, rotation);
@@ -148,7 +150,7 @@ void loop() {
             lastLineAngle = lineData.lineAngle.val;
         } else {
             // no line detected, move according to teensy instructions
-            motors.setMove(speed, angle, rotation);
+            motors.setMove(speed, angle, rotation, angSpeed);
             // motors.setMove(0, 0, 0);
             // reset last line angle
             lastLineAngle = -1;

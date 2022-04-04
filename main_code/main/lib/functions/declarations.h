@@ -95,10 +95,11 @@ enum points {
 
 bool readLightGate() { return analogRead(LIGHT_GATE_PIN) >= LIGHT_GATE_THRESH; }
 
-void setMove(float speed, float angle, float rotation) {
+void setMove(float speed, float angle, float rotation, float angSpeed = -1.0) {
     moveData.speed.val = speed;
     moveData.angle.val = angle;
     moveData.rotation.val = rotation;
+    moveData.angSpeed.val = angSpeed;
 }
 
 #endif

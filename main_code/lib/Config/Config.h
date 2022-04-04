@@ -43,7 +43,7 @@
 #define STM32_BAUD 250000
 
 // send: sent by layer 1, rec: received by layer 1
-#define LAYER1_REC_PACKET_SIZE 16
+#define LAYER1_REC_PACKET_SIZE 20
 #define LAYER1_SEND_PACKET_SIZE 13
 #define LAYER1_REC_SYNC_BYTE 2
 #define LAYER1_SEND_SYNC_BYTE 2
