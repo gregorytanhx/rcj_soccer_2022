@@ -1,7 +1,7 @@
 import time
 from pyb import UART, LED
 
-import sensor, image, time
+import sensor, image, time, struct
 from math import *
 import ulab
 
@@ -10,7 +10,7 @@ from ulab import numpy as np
 np_dot = np.dot
 print( "version", ulab.__version__ )
 led = LED(2) # green led
-led.on()
+led.off()
 
 '''Kalman Filter for smoother ball following'''
 
@@ -86,7 +86,7 @@ sensor.set_auto_whitebal(False) #Must remain false for blob tracking
 
 sensor.set_brightness(0)
 sensor.set_contrast(3)
-sensor.set_saturation(3)
+#sensor.set_saturation(3)
 
 #sensor.__write_reg(0x0E, 0b00000000) # Disable night mode
 #sensor.__write_reg(0x3E, 0b00000000) # Disable BLC
@@ -98,21 +98,21 @@ uart = UART(1, 1000000)
 ID = 'whitebot'
 
 if ID == 'whitebot':
-    centreX = 120
-    centreY = 160
+    centreY = 135
+    centreX = 156
 
     # LAB thresholds
     # lab field values
-    red_thresh = [(50, 75, 23, 70, 40, 76)]
-    blue_thresh = [(40, 59, -20, 20, -60, -20)]
-    yellow_thresh = [(70, 90, -10, 10, 50, 80)]
+    red_thresh = [(50, 71, 40, 67, 10, 40)]
+    blue_thresh = [(20, 50, -10, 25, -60, -20)]
+    yellow_thresh = [(60, 90, 0, 30, 30, 60)]
     green_thresh = [(50, 75, -50, -20, -5, 15)]
     white_thresh = [(70, 93, -30, 10, -10, 20)]
     black_thresh = [(10, 16, -10, 10, -5, 15)]
 
 else:
-    centreX = 120
-    centreY = 160
+    centreY = 135
+    centreX = 156
 
     # LAB thresholds
     # lab field values
@@ -129,15 +129,16 @@ notFoundCount = 0
 
 def distanceMapper(pixel):
     # use polynomial regression to map pixel distance to centimetre distance
-    polarity = pixel / abs(pixel)
+    polarity = pixel / abs(pixel) if pixel != 0 else 1
     # use absolute value since polynomial equation is different for negative numbers
     pixel = abs(pixel)
-    return ((-1.08267) +
-           (1.21493) * pixel +
-           (-0.0402618) * pixel**2 +
-           (0.000964692) * pixel**3  +
-           (-0.00000913121) * pixel**4 +
-           (0.000000030743) * pixel**5) * polarity
+
+    return ((-429.16710081)  +
+           (28.8895419207) * pixel +
+           (-0.7630707045) * pixel**2 +
+           (0.0098843558) * pixel**3  +
+           (-0.0000624211) * pixel**4 +
+           (0.0000001550) * pixel**5) * polarity
 
 def distanceUnmapper(real):
     # use polynomial regression to map centimetre distance back to pixel distance
@@ -161,19 +162,22 @@ class obj:
         self.angle = 500
         self.dist = 500
 
-    def centralise(self, selfX, selfY):
+    def centralise(self):
         self.x -= centreX
         self.y = centreY - self.y
 
     def process(self, mapDist = True):
         # currently ball is mapped before finding angle, goals are not
         # need to test to see if that makes a difference
-        self.angle = degrees(atan2(self.x, self.y))
+        self.angle = degrees(atan2(self.y, self.x))
         if self.angle < 0: self.angle += 360
         if mapDist:
             self.dist = round(distanceMapper(sqrt(self.x ** 2 + self.y ** 2)), 2)
         else:
             self.dist = round(sqrt(self.x ** 2 + self.y ** 2), 2)
+
+        # ratio of distance to area should be fixed, allowing us to see if goal is obstructed.
+        self.confidence = (self.area / self.dist) / 0.1
 
 
 def track_field(thresh, pixel_thresh, area_thresh, color = (255, 255, 255), debug=False, roi = (15, 10, 280, 210), stride = 1, margin = 20):
@@ -187,20 +191,21 @@ def track_field(thresh, pixel_thresh, area_thresh, color = (255, 255, 255), debu
         img.draw_cross(X, Y, color = color)
 
 
-def track_obj(thresh, pixel_thresh, area_thresh, color = (255, 255, 255), debug=False, roi = (40, 10, 240, 200), stride = 1, margin = 5, merge = False):
+def track_obj(thresh, pixel_thresh, area_thresh, color = (255, 255, 255), debug=False, roi = (0, 0, 340, 240), stride = 1, margin = 5, merge = False):
     found_obj = None
+    found_blob = None
     max_area = 0
     box = None
-    img.draw_cross(160, 120, color = (255, 0, 0))
     blobs = img.find_blobs(thresh, merge=merge, roi = roi, x_stride = stride, y_stride = stride, pixels_threshold=pixel_thresh, area_threshold=area_thresh, margin = margin)
     for blob in blobs:
         if blob.area() > max_area:
+            found_blob = blob
             max_area = blob.area()
-            found_obj = obj(blob.cy(), blob.cx(), blob.w(), blob.h())
+            found_obj = obj(blob.cx(), blob.cy(), blob.w(), blob.h())
 
     if debug and found_obj:
-        img.draw_rectangle((found_obj.x, found_obj.y, found_obj.w, found_obj.h), color = color)
-        img.draw_cross(found_obj.x, found_obj.y, color = color)
+        img.draw_rectangle(found_blob.rect(), color = color)
+        img.draw_cross(found_blob.cx(), found_blob.cy(), color = color)
 
     return found_obj if found_obj else None
 
@@ -209,54 +214,57 @@ def track_obj(thresh, pixel_thresh, area_thresh, color = (255, 255, 255), debug=
 def find_objects(debug=False):
     global ballFound
     global notFoundCount
-    ball = track_obj(red_thresh, 5, 5, debug = debug, stride=2)
-    blue = track_obj(blue_thresh, 10, 10, color = (0, 0, 255), stride = 10,  debug = debug, merge = True, margin = 30)
-    yellow = track_obj(yellow_thresh, 20, 20, color = (0, 255, 0), stride = 10, debug =  debug, merge = True, margin = 30)
+    img.draw_cross(centreX, centreY, color = (255, 0, 0))
+    ball = track_obj(red_thresh, 2, 2, debug = debug, stride=2)
+    blue = track_obj(blue_thresh, 20, 20, color = (0, 0, 255), stride = 20,  debug = debug, merge = True, margin = 30)
+    yellow = track_obj(yellow_thresh, 20, 20, color = (0, 255, 0), stride = 20, debug =  debug, merge = True, margin = 30)
 
-    if ballFound:
-        kf.F[0][2] = dT
-        kf.F[1][3] = dT
 
-        state = kf.predict()
-        predW = state[4][0]
-        predH = state[5][0]
-        predX = state[0][0]
-        predY = state[1][0]
-        if debug:
-            debugPredX = distanceUnmapper(predX) + centreX
-            debugPredY = distanceUnmapper(predY) * 2 - centreY
-            predRect = (int(debugPredX - predH / 2), int(debugPredY - predW / 2), int(predW), int(predH))
 
-            img.draw_rectangle(predRect, color = (0, 255, 255))
-            img.draw_cross(int(debugPredX), int(debugPredX), color = (0, 255, 255))
+    #if ballFound:
+        #kf.F[0][2] = dT
+        #kf.F[1][3] = dT
 
-        # ball not detected but was recently seen
-        if not ball:
-            ball = obj(predY, predX, predW, predH)
-            ball.angle = degrees(atan2(ball.x, ball.y))
-            ball.dist = sqrt(ball.x ** 2 + ball.y ** 2)
+        #state = kf.predict()
+        #predW = state[4][0]
+        #predH = state[5][0]
+        #predX = state[0][0]
+        #predY = state[1][0]
+        #if debug:
+            #debugPredX = distanceUnmapper(predX) + centreX
+            #debugPredY = distanceUnmapper(predY) * 2 - centreY
+            #predRect = (int(debugPredX - predH / 2), int(debugPredY - predW / 2), int(predW), int(predH))
 
-    if ball:
-        notFoundCount = 0
-        # map pixel dist to real dist so kalman filter can track ball more accurately
-        ball.centralise()
-        ball.x = distanceMapper(ball.x)
-        ball.y = distanceMapper(ball.y)
-        z = np.array([[ball.x], [ball.y], [ball.w], [ball.h]], dtype=np.float)
-        ball.process(mapDist = False)
-        if not ballFound:
-            # first detection!
-            kf.P = np.eye(kf.F.shape[1])
-            kf.x = np.array([z[0],z[1], [0], [0], z[2], z[3]], dtype=np.float)
+            ##img.draw_rectangle(predRect, color = (0, 255, 255))
+            ##img.draw_cross(int(debugPredX), int(debugPredX), color = (0, 255, 255))
 
-            ballFound = True
-        else:
-            kf.update(z)
-    else:
-     # ball not detected
-        notFoundCount += 1
-        if notFoundCount >= 100:
-            found = False
+        ## ball not detected but was recently seen
+        #if not ball:
+            #ball = obj(predY, predX, predW, predH)
+            #ball.angle = degrees(atan2(ball.x, ball.y))
+            #ball.dist = sqrt(ball.x ** 2 + ball.y ** 2)
+
+    #if ball:
+        #notFoundCount = 0
+        ## map pixel dist to real dist so kalman filter can track ball more accurately
+        #ball.centralise()
+        #ball.x = distanceMapper(ball.x)
+        #ball.y = distanceMapper(ball.y)
+        #z = np.array([[ball.x], [ball.y], [ball.w], [ball.h]], dtype=np.float)
+        #ball.process(mapDist = False)
+        #if not ballFound:
+            ## first detection!
+            #kf.P = np.eye(kf.F.shape[1])
+            #kf.x = np.array([z[0],z[1], [0], [0], z[2], z[3]], dtype=np.float)
+
+            #ballFound = True
+        #else:
+            #kf.update(z)
+    #else:
+     ## ball not detected
+        #notFoundCount += 1
+        #if notFoundCount >= 100:
+            #found = False
 
     # fuck forgot why i did this
     #if (blue):
@@ -270,39 +278,41 @@ def find_objects(debug=False):
     if yellow:
         yellow.centralise()
         yellow.process()
-        if debug:
-            print(f"Yellow Goal: Angle: {yellow.angle} Distance: {yellow.dist}")
+        #if debug:
+            #print(f"Yellow Goal: Angle: {yellow.angle} Distance: {yellow.dist}")
     else:
         yellow = obj(0, 0, 0, 0)
-        if debug:
-            print(f"Yellow Goal not detected!")
+
     if blue:
         blue.centralise()
         blue.process()
-        if debug:
-            print(f"Blue Goal: Angle: {blue.angle} Distance: {blue.dist}")
+        #if debug:
+            #print(f"Blue Goal: Angle: {blue.angle} Distance: {blue.dist}")
     else:
         blue = obj(0, 0, 0, 0)
-        if debug:
-            print(f"Blue Goal not detected!")
+        #if debug:
+            #print(f"Blue Goal not detected!")
 
     if ball:
+        ball.centralise()
+        #ball.process()
         if debug:
-            print(f"Ball: Angle: {ball.angle} Distance: {ball.dist}")
+            print(f"X pixel dist: {ball.x}")
+            #print(f"Ball: Angle: {ball.angle} Distance: {ball.dist}")
     else:
         ball = obj(0, 0, 0, 0)
         if debug:
             print(f"Ball not detected!")
 
 
-    return [ball.angle, ball.dist, blue.angle, blue.dist, blue.area, yellow.angle, yellow.dist, yellow.area]
+    return [ball.angle, ball.dist, blue.angle, blue.dist, yellow.angle, yellow.dist]
 
 def send(data):
     sendData = [42]
 
     for num in data:
-        num = round(num)
-        sendData += list(num.to_bytes(2, 'little'))
+        num = round(num, 2)
+        sendData += list(struct.pack("<f", num))
 
     for num in sendData:
         try:
@@ -311,7 +321,7 @@ def send(data):
             pass
 
 while(True):
-    debug = True
+    debug = False
     clock.tick()
     img = sensor.snapshot()
 
@@ -321,6 +331,5 @@ while(True):
 
     send(data)
 
-    if debug:
-        print(clock.fps())
+    print("FPS:", clock.fps())
 

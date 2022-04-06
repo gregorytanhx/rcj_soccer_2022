@@ -13,13 +13,13 @@ void BBox::update(TOFBuffer &tof, LineData &lineData, float heading, Camera &cam
 
     for (int i = 0; i < 4; i++) {
         // update moving average for each TOF
-        tofAvg[i].reading(tof.vals[i]);
+        tofVals[i] = tofAvg[i].reading(tof.vals[i]);
     }
     
-    int frontTOF = tofAvg[0].getAvg();
-    int leftTOF = tofAvg[1].getAvg();
-    int backTOF = tofAvg[2].getAvg();
-    int rightTOF = tofAvg[3].getAvg();
+    int frontTOF = tofVals[0];
+    int leftTOF = tofVals[1];
+    int backTOF = tofVals[2];
+    int rightTOF = tofVals[3];
 
     // measured from left
     Xstart = FIELD_WIDTH / 2 - rightTOF;
@@ -80,7 +80,7 @@ void BBox::printTOF() {
     String dir[4] = {"Front", "Left", "Back", "Right"};
     for (int i = 0; i < 4; i++) {
         Serial.print(dir[i] + ": ");
-        Serial.print(tofAvg[i].getAvg());
+        Serial.print(tofVals[i]);
         Serial.print("  ");
     }
     Serial.println();
@@ -90,7 +90,7 @@ void BBox::checkFieldDims() {
     String axis[2] = {"Y-axis", "X-axis"};
     for (int i = 0; i < 2; i++) {
         Serial.print(axis[i] + ": ");
-        Serial.print(tofAvg[i].getAvg() + tofAvg[i + 2].getAvg());
+        Serial.print(tofVals[i] + tofVals[i + 2]);
         Serial.print("  ");
     }
     Serial.println();

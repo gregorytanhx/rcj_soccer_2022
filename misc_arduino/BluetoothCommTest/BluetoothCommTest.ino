@@ -10,7 +10,7 @@ void setup() {
   // initialize digital pin LED_BUILTIN as an output.
   Serial.begin(9600);
   Serial.println("ready");
-  Serial2.begin(38400);
+  Serial2.begin(115200);
   pinMode(KICK_PIN, OUTPUT);
   digitalWrite(KICK_PIN, HIGH);
   pinMode(EN_PIN, OUTPUT);

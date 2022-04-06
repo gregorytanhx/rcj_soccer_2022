@@ -49,11 +49,11 @@ typedef struct MoveData {
     floatData rotation;
     floatData angSpeed;
 
-    MoveData(float moveSpeed, float moveAngle, float moveRotation, float angSpeed) {
+    MoveData(float moveSpeed, float moveAngle, float moveRotation, float angSpd) {
         speed.val = moveSpeed;
         angle.val = moveAngle;
         rotation.val = moveRotation;
-        angSpeed.val = angSpeed;
+        angSpeed.val = angSpd;
     }
 } MoveData;
 

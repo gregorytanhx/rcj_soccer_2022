@@ -2,6 +2,8 @@
 #define COMM_H
 
 #include <declarations.h>
+#include <movement.h>
+#include <communication.h>
 
 void sendLayer1() {
     L1Serial.write(LAYER1_REC_SYNC_BYTE);
@@ -106,6 +108,13 @@ void updateRole() {
 }
 
 void updateBluetooth() {
+    ballData.x = 60;
+    ballData.y = 40;
+    ballData.visible = true;
+    botCoords.x = 250;
+    botCoords.y = 0;
+    role = Role::attack;
+    onField = true;
     btData = BluetoothData(ballData, botCoords, role, onField);
     bt.update(btData);
     if (bt.isConnected && roleSwitching) {

@@ -18,7 +18,7 @@
 #include <Wire.h>
 
 LineData lineData;
-MoveData moveData(0, 0, 0);
+MoveData moveData(0, 0, 0, 0);
 BallData ballData;
 Bluetooth bt;
 BluetoothData btData;
@@ -33,6 +33,7 @@ bool hasBall = false;
 bool calibrate = false;
 bool doneCalibrating = false;
 bool kick = false;
+bool dribble = false;
 bool kicked = false;
 long lastBallTime = 0;
 long lastKickTime = 0;

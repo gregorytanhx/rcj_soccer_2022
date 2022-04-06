@@ -10,7 +10,13 @@ void normal() {
     // regular program
     updateAllData();
     lineAvoid = true;
+    lineTrack = false;
     if (currentRole() == Role::attack || goalieCharge) {
+        if (currentRole() == Role::attack) {
+            Serial.println("ATTACK MODE");
+        } else if (goalieCharge) {
+            Serial.println("GOALIE ATTACK MODE");
+        }
         if (millis() - goalieChargeTimer > 3000) {
             // stop goalie from charging after 3s
             goalieCharge = false;
@@ -44,12 +50,15 @@ void normal() {
             if ((camera.ballAngle < 50 || camera.ballAngle > 310) &&
                 camera.ballDist < 50) {
                 dribble = true;
+            } else {
+                dribble = false;
             }
         } else {
+            dribble = false;
             goTo(Point(STRIKER_HOME_X, STRIKER_HOME_Y));
         }
         // move at faster speed if goalie is charging
-        if (goalieCharge) moveData.speed = 80;
+        if (goalieCharge) moveData.speed.val = 80;
 
         updateKick();
         updateDribbler();
@@ -59,6 +68,8 @@ void normal() {
     } else {
         // defence program
         lineTrack = true;
+        lineAvoid = false;
+        Serial.println("DEFENCE MODE");
         if (camera.ballVisible && camera.newData &&
             abs(lastBallAngle - camera.ballAngle) < 1 &&
             abs(lastBallDist - camera.ballDist) < 20) {
@@ -92,17 +103,17 @@ void normal() {
                 goalMult = 0;
             }
 
-            robotAngle = mod(camera.ownGoalAngle + goalOffset * goalMult, 360);
+            robotAngle = fmod(camera.ownGoalAngle + goalOffset * goalMult, 360);
             moveSpeed = 70;
 
         } else if (ballData.visible && ballData.dist < 100) {
             // if ball is visible, align to ball
             // since robot is line tracking, simply set target angle to ball
             // angle
-            robotAngle = ballData.ballAngle;
+            robotAngle = ballData.angle;
             // target ball angle is zero
             // TODO: add compass angle to ball angle when that works
-            float error = abs(allData.angle);
+            float error = abs(ballData.angle);
             moveSpeed = goalieBallPID.update(error);
             moveSpeed = min(110, moveSpeed);
 
@@ -162,6 +173,7 @@ void robot1() {
     bool challenge3 = false;
     bool scoringBlue = false;
     long kickTime = 0;
+    long timer = 0;
     int heading = 0;
 
     while (1) {
@@ -176,7 +188,8 @@ void robot1() {
         camera.side = Side::facingYellow;
 
         while (((!firstTime && millis() - timer < 1100) || !ballPosFound ||
-               !posFound) && !challenge3) {
+                !posFound) &&
+               !challenge3) {
             // if tof values are not confident, wait for other robot to stop
             // blocking
             updateAllData();
@@ -201,10 +214,9 @@ void robot1() {
                     while (abs(camera.frontVector.getAngle() - heading) > 5) {
                         updateAllData();
                         angleCorrect(heading);
-                        moveData.angSpeed = 100;
-                        sendLayer();
-                    
-
+                        moveData.angSpeed.val = 100;
+                        sendLayer1();
+                    }
                 } else if (camera.blueVisible &&
                            abs(camera.blueAngle - ballData.angle) < 90) {
                     // ball close to blue goal
@@ -225,43 +237,45 @@ void robot1() {
         if (!challenge3) {
             lineTrack = true;
             if ((scoringBlue && side == 0) || (!scoringBlue && side == 1)) {
-                while (bbox.tofAvg[1] > 420 && bbox.tofAvg[3] < 1800) {
+                while (bbox.tofVals[1] > 420 && bbox.tofVals[3] < 1800) {
                     updateAllData();
                     setMove(70, 270, 0);
                     angleCorrect(heading);
                     sendLayer1();
                 }
             } else {
-                while (bbox.tofAvg[3] > 420 && bbox.tofAvg[1] < 1800) {
+                while (bbox.tofVals[3] > 420 && bbox.tofVals[1] < 1800) {
                     updateAllData();
                     setMove(70, 90, 0);
                     angleCorrect(heading);
                     sendLayer1();
                 }
             }
+            lineTrack = false;
             while (!ballScored) {
                 updateAllData();
                 if (lastKickTime && millis() - lastKickTime > 500)
                     ballScored = true;
                 if (ballData.captured) {
-                    // turn off front dribbler + turn on kicker if facing front
-                    // goal and 40cm away
+                    // turn off front dribbler + turn on kicker if facing
+                    // front goal and 40cm away
                     int target = 0;
                     if (scoringBlue) target = 180;
                     // spin to face goal
                     while (abs(camera.frontVector.getAngle() - target) > 5) {
                         updateAllData();
                         angleCorrect(target);
-                        moveData.angSpeed = 100;
-                        sendLayer();
+                        moveData.angSpeed.val = 100;
+                        sendLayer1();
                     }
                     kick = true;
                     dribble = false;
                     lastKickTime = millis();
+                    angleCorrect(target);
                 } else if (ballData.visible) {
                     trackBall();
-                    // turn on front dribbler if ball within +-50 deg of front
-                    // AND closer than 50 cm
+                    // turn on front dribbler if ball within +-50 deg of
+                    // front AND closer than 50 cm
                     if ((camera.ballAngle < 50 || camera.ballAngle > 310) &&
                         camera.ballDist < 50) {
                         dribble = true;
@@ -270,13 +284,11 @@ void robot1() {
                     goTo(Point(STRIKER_HOME_X, STRIKER_HOME_Y));
                 }
                 updateKick();
-                if (ballData.captured)
-                    angleCorrect(target);
-                else
+                if (!ballData.captured)
                     angleCorrect(heading);
                 sendLayer1();
             }
-
+            lineTrack = true;
             heading = (heading + 180) % 360;
 
             // reverse until line
@@ -288,14 +300,14 @@ void robot1() {
             }
             // go back to field centre
             if (scoringBlue && side == 0 || !scoringBlue && side == 1) {
-                while (bbox.tofAvg[1] > 1200 && bbox.tofAvg[3] < 1100) {
+                while (bbox.tofVals[1] > 1200 && bbox.tofVals[3] < 1100) {
                     updateAllData();
                     setMove(70, 270, 0);
                     angleCorrect(heading);
                     sendLayer1();
                 }
             } else {
-                while (bbox.tofAvg[3] > 1200 && bbox.tofAvg[1] < 1100) {
+                while (bbox.tofVals[3] > 1200 && bbox.tofVals[1] < 1100) {
                     updateAllData();
                     setMove(70, 90, 0);
                     angleCorrect(heading);
@@ -303,9 +315,8 @@ void robot1() {
                 }
             }
         } else {
-
             // move on to challenge 3
-            target = 90;
+            heading = 90;
 
             if (millis() - goalieChargeTimer > 3000) {
                 // stop goalie from charging after 3s
@@ -314,9 +325,9 @@ void robot1() {
             // attack program
             if (ballData.captured) {
                 trackGoal();
-                // turn off front dribbler + turn on kicker if facing front goal
-                // and 50cm away
-                if (camera.oppGoalDist <= 50 &&
+                // turn off front dribbler + turn on kicker if facing front
+                // goal and 50cm away from goal
+                if (camera.oppGoalDist < 50 &&
                     (camera.oppGoalAngle < 30 || camera.oppGoalAngle > 330) &&
                     (robotAngle < 60 || robotAngle > 300)) {
                     // kick every 1.5s
@@ -335,8 +346,8 @@ void robot1() {
                 }
             } else if (ballData.visible) {
                 trackBall();
-                // turn on front dribbler if ball within +-50 deg of front AND
-                // closer than 50 cm
+                // turn on front dribbler if ball within +-50 deg of front
+                // AND closer than 50 cm
                 if ((camera.ballAngle < 50 || camera.ballAngle > 310) &&
                     camera.ballDist < 50) {
                     dribble = true;
@@ -345,17 +356,17 @@ void robot1() {
                 goTo(Point(STRIKER_HOME_X, STRIKER_HOME_Y));
             }
             // move at faster speed if goalie is charging
-            if (goalieCharge) moveData.speed = 80;
+            if (goalieCharge) moveData.speed.val = 80;
 
             updateKick();
             updateDribbler();
             angleCorrect();
             sendLayer1();
         }
-
-
+        timer = millis();
     }
 }
+
 
 void robot2() {
     // robot 2 program for SG Open technical challenge
@@ -369,8 +380,7 @@ void robot2() {
         updateAllData();
         goTo(neutralPoints[pts[cnt]]);
         // stop at all neutral points except middle
-        if (reachedPoint(neutralPoints[pts[cnt]]) &&
-            pts[cnt] != CentreDot) {
+        if (reachedPoint(neutralPoints[pts[cnt]]) && pts[cnt] != CentreDot) {
             lineTrack = false;
             long timer = millis();
             while (millis() - timer < 1100) {
@@ -409,8 +419,8 @@ void setup() {
     analogWrite(DRIBBLER_PIN, DRIBBLER_LOWER_LIMIT);
     delay(DRIBBLER_WAIT);
 
-    pinMode(LED_BUILTIN, OUTPUT);
-    digitalWrite(LED_BUILTIN, HIGH);
+    // pinMode(LED_BUILTIN, OUTPUT);
+    // digitalWrite(LED_BUILTIN, HIGH);
 }
 
 void loop() {
@@ -418,21 +428,40 @@ void loop() {
     //  cmp.read();
     //  cmp.calibrate();
     //  TODO: Test TOF localisation
-
-    // front, left, back, right
-    if (readTOF()) {
-        updatePosition();
-        updateDebug();
-        bbox.printTOF();
-        // bbox.checkFieldDims();
-        //  String dir[4] = {"Front", "Left", "Back", "Right"};
-        //  for (int i = 0; i < 4; i++) {
-        //      Serial.print(dir[i] + "Raw : ");
-        //      Serial.print(tof.vals[i]);
-        //      Serial.print("  ");
-        //  }
-        Serial.println();
+    // updateBluetooth();
+    // if (bt.isConnected) {
+    //     if (bt.newData) {
+    //         Serial.print("Ball X: ");
+    //         Serial.print(bt.otherData.ballData.x);
+    //         Serial.print(" Ball Y: ");
+    //         Serial.print(bt.otherData.ballData.y);
+    //         Serial.println();
+    //     }
+        
+    // } else {
+    //     Serial.println("Disconnected");
+    // }
+    camera.update();
+    if (camera.newData) {
+        camera.printData();
+        
     }
+    
+   
+    // front, left, back, right
+    // if (readTOF()) {
+    //     updatePosition();
+    //     updateDebug();
+    //     bbox.printTOF();
+    //     // bbox.checkFieldDims();
+    //     //  String dir[4] = {"Front", "Left", "Back", "Right"};
+    //     //  for (int i = 0; i < 4; i++) {
+    //     //      Serial.print(dir[i] + "Raw : ");
+    //     //      Serial.print(tof.vals[i]);
+    //     //      Serial.print("  ");
+    //     //  }
+    //     Serial.println();
+    // }
 
     // goTo(neutralPoints[CentreDot]);
     //  angleCorrect();

@@ -22,7 +22,6 @@ bool Camera::read() {
     return newData;
 }
 
-
 void Camera::process() {
     blueVisible = blueAngle != 500;
     yellowVisible = yellowAngle != 500;
@@ -30,9 +29,11 @@ void Camera::process() {
 
     // set side only once
     if ((blueVisible && yellowVisible) && side == unset) {
-        if (abs(blueAngle) <= 90 && abs(yellowAngle) >= 90) {
+        if ((blueAngle < 90 || blueAngle > 270) &&
+            (yellowAngle > 90 || yellowAngle < 270)) {
             side = facingBlue;
-        } else if (abs(yellowAngle) <= 90 && abs(blueAngle) >= 90) {
+        } else if ((yellowAngle < 90 || yellowAngle > 270) &&
+                   (blueAngle > 90 || blueAngle < 270)) {
             side = facingYellow;
         }
     }
@@ -53,21 +54,58 @@ void Camera::process() {
         ownGoalVisible = blueVisible;
     }
 
-    oppGoalVec = Point(oppGoalAngle, oppGoalDist);
-    ownGoalVec = Point(ownGoalAngle, ownGoalDist);
+    oppGoalVec = Point(oppGoalAngle, oppGoalDist * 10);
+    ownGoalVec = Point(ownGoalAngle, ownGoalDist * 10);
 
     // vector pointing to the centre of the field
     centreVector = oppGoalVec + ownGoalVec;
-    // use mm for localisation
-    centreVector *= 10;
+
     centreVector /= 2;
 
     // vector pointing to front of field
     frontVector = oppGoalVec - centreVector;
+
 }
 
 void Camera::update() {
     if (read()) {
         process();
+    }
+}
+
+void Camera::printData() {
+    String obj[] = {"Ball", "Blue", "Yellow"};
+    String vals[] = {"Angle", "Dist"};
+    if (side == facingBlue) {
+        Serial.println("FACING BLUE");
+    } else if (side == facingYellow) {
+        Serial.println("FACING YELLOW");
+    }
+    if (ballVisible) {
+        Serial.print("Ball Angle: ");
+        Serial.print(ballAngle);
+        Serial.print(" Ball Dist: ");
+        Serial.print(ballDist);
+    } 
+    if (blueVisible) {
+        Serial.print(" Blue Angle: ");
+        Serial.print(blueAngle);
+        Serial.print(" Blue Dist: ");
+        Serial.print(blueDist);
+    }
+    if (yellowVisible) {
+        Serial.print(" Yellow Angle: ");
+        Serial.print(yellowAngle);
+        Serial.print(" Yellow Dist: ");
+        Serial.print(yellowDist);
+    }
+    Serial.println();
+
+    if (blueVisible && yellowVisible) {
+        Serial.print("Orientation: ");
+        Serial.print(-frontVector.getAngle());
+        Serial.print(" Angle to Centre: ");
+        Serial.print(centreVector.getAngle());
+        Serial.println();
     }
 }

@@ -45,12 +45,15 @@ void Bluetooth::send() {
 
 void Bluetooth::receive() {
     bool nothingRecieved = true;
-    while (BTSerial.available() >= BLUETOOTH_PACKET_SIZE) {
+    newData = false;
+    while (BTSerial.available() >= sizeof(btBuffer.b) + 1) {
+        newData = true;
         uint8_t syncByte = BTSerial.read();
         if (syncByte == BLUETOOTH_SYNC_BYTE) {
             // read into buffer
-            for (int i = 0; i < BLUETOOTH_PACKET_SIZE - 1; i++) {
+            for (int i = 0; i < sizeof(btBuffer.b); i++) {
                 btBuffer.b[i] = BTSerial.read();
+            
             }
             // obtain data from buffer
             otherData.ballData = BallData(btBuffer.vals[4], btBuffer.vals[5],
@@ -76,7 +79,10 @@ void Bluetooth::receive() {
 
 void Bluetooth::update(BluetoothData data) {
     ownData = data;
-    send();
+    if (millis() - lastSendTime > 100) {
+        send();
+        lastSendTime = millis();
+    }
     receive();
 }
 

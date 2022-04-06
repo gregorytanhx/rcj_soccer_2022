@@ -10,7 +10,7 @@
 enum Side { facingYellow, facingBlue, unset };
 
 typedef union camBuffer {
-    int16_t vals[(CAMERA_PACKET_SIZE - 1) / 2];
+    float vals[(CAMERA_PACKET_SIZE - 1) / 4];
     uint8_t b[CAMERA_PACKET_SIZE - 1];
 } camBuffer;
 
@@ -21,6 +21,7 @@ class Camera {
     bool read();
     void process();
     void update();
+    void printData();
     float cmDist(float pixelDist);
 
     float ballAngle;
@@ -46,7 +47,7 @@ class Camera {
     Point frontVector;
     Point oppGoalVec;
     Point ownGoalVec;
-    Side side = facingYellow;  // face yellow goal by default
+    Side side = unset;  // face yellow goal by default
     camBuffer buffer;
 };
 

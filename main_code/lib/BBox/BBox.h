@@ -20,15 +20,17 @@ class BBox {
     int Xend;
     int Ystart;
     int Yend;
+    int tofVals[4];
     float Xconfidence;
     float Yconfidence;
     void begin();
-    void update(TOFBuffer tof, LineData lineData, float heading);
+    void update(TOFBuffer &tof, LineData &lineData, float heading, Camera &camera);
     void print();
     void printTOF();
     void checkFieldDims();
     movingAvg tofAvg[4] = {movingAvg(DATAPOINTS), movingAvg(DATAPOINTS),
                            movingAvg(DATAPOINTS), movingAvg(DATAPOINTS)};
+
 };
 
 #endif

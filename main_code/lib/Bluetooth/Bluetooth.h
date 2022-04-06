@@ -14,9 +14,9 @@
 #define BLUETOOTH_BAUD 115200
 #define BLUETOOTH_SYNC_BYTE 71
 #define BLUETOOTH_PACKET_SIZE 21
-#define BLUETOOTH_LOST_COMMUNICATION_TIME 5000
-// robots ping each other every second
-#define BLUETOOTH_UPDATE_TIME 1000
+#define BLUETOOTH_LOST_COMMUNICATION_TIME 3000
+// robots ping each other every 200 ms
+#define BLUETOOTH_UPDATE_TIME 200
 
 #define DEBUG_SYNC_BYTE 1
 // size of received data
@@ -108,6 +108,8 @@ class Bluetooth {
 
     bool isConnected = false;
     bool previouslyConnected = false;
+    bool newData = false;
+    long lastSendTime = 0;
     MyTimer timer = MyTimer(BLUETOOTH_LOST_COMMUNICATION_TIME);
     void begin();
     void initAT();
