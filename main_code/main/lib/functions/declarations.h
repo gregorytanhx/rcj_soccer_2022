@@ -8,7 +8,6 @@
 #include <Bluetooth.h>
 #include <Camera.h>
 #include <Common.h>
-#include <Config.h>
 #include <EEPROM.h>
 #include <IMU.h>
 #include <PID.h>

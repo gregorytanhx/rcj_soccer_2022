@@ -1,7 +1,6 @@
 #include <Arduino.h>
 #include <Common.h>
 #include <ComponentObject.h>
-#include <Config.h>
 #include <Pins.h>
 #include <SparkFun_VL53L1X.h>
 #include <Wire.h>

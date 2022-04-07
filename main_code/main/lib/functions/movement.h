@@ -111,7 +111,7 @@ void angleCorrect(int targetAng = 0) {
 
 void camAngleCorrect(int targetAng = 0) {
 
-    moveData.rotation.val = cmpPID.update(camera.frontVector.getAngle() - targetAng);
+    moveData.rotation.val = cmpPID.update(targetAng - camera.frontVector.getAngle());
 }
 
 #endif

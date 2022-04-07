@@ -1,6 +1,5 @@
 #include <Arduino.h>
 #include <Common.h>
-#include <Config.h>
 #include <Light.h>
 #include <Motor.h>
 #include <MyTimer.h>

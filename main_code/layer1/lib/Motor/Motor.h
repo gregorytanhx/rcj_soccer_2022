@@ -4,7 +4,6 @@
 #include <Arduino.h>
 #include <Common.h>
 #include <Pins.h>
-#include <Config.h>
 
 
 // class to control all motors

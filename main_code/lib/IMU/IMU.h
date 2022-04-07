@@ -4,7 +4,6 @@
 #include <Adafruit_Sensor.h>
 #include <Arduino.h>
 #include <Common.h>
-#include <Config.h>
 #include <Wire.h>
 #include <math.h>
 #include <utility/imumaths.h>

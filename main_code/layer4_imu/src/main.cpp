@@ -1,6 +1,5 @@
 #include <Arduino.h>
 #include <Common.h>
-#include <Config.h>
 #include <Pins.h>
 #include <IMU.h>
 #include <Wire.h>

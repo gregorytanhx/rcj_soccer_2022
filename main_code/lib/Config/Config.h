@@ -7,7 +7,6 @@
 // #define SET_ID
 //#define USE_LAYER4_IMU
 
-
 #define FIELD_WIDTH 1820
 #define FIELD_HEIGHT 2430
 #define GOALIE_HOME_X 0
@@ -28,17 +27,12 @@
 #define DRIBBLER_UPPER_LIMIT 64
 #define DRIBBLER_LOWER_LIMIT 32
 #define BALL_DRIBBLE_THRESH 40
-#define MOTOR_MULT 1.0154266118857451
 
 // 10cm within target
 #define COORD_LEEWAY_DIST 100
 #define TOF_CONFIDENCE_THRESH 0.4
 
 #define GOALIE_LEEWAY_DIST 5
-
-#define CAMERA_PACKET_SIZE 33
-#define CAMERA_SYNC_BYTE 42
-#define CAMERA_BAUD 1000000
 
 #define STM32_BAUD 250000
 
@@ -49,13 +43,10 @@
 #define LAYER1_SEND_SYNC_BYTE 2
 #define LAYER4_PACKET_SIZE 9
 #define LIGHT_PACKET_SIZE 65
-
-
 #define LAYER4_SYNC_BYTE 1
 
 #define DRIBBLER_WAIT 3000
 #define LIGHT_GATE_THRESH 20
-
 
 #define L1Serial Serial1
 #define L4Serial Serial5

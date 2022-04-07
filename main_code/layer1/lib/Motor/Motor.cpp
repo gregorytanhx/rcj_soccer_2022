@@ -23,8 +23,8 @@ void Motors::setMove(float speed, float angle, float rotation,
     // angle between motors is 100 from left to right, 80 from top to bottom
     if (angSpeed == -1.0) angSpeed = speed;
 
-    a = sin(deg2rad(50 + angle)) * MOTOR_MULT;
-    b = sin(deg2rad(50 - angle)) * MOTOR_MULT;
+    a = sin(deg2rad(50 + angle)) * 1.0154266118857451;
+    b = sin(deg2rad(50 - angle)) * 1.0154266118857451;
 
     fl = a * speed - angSpeed * rotation * 0.1;
     fr = b * speed + angSpeed * rotation * 0.1;

@@ -3,7 +3,6 @@
 
 #include <Common.h>
 #include <Point.h>
-#include <Config.h>
 
 typedef struct BallData {
     int16_t x;

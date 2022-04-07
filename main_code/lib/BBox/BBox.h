@@ -3,7 +3,6 @@
 
 #include <Arduino.h>
 #include <Common.h>
-#include <Config.h>
 #include <Camera.h>
 #include <Point.h>
 #include <movingAvg.h>

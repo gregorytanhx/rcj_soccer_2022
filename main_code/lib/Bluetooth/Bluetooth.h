@@ -4,7 +4,6 @@
 #include <Arduino.h>
 #include <BallData.h>
 #include <Common.h>
-#include <Config.h>
 #include <Pins.h>
 #include <MyTimer.h>
 #include <Point.h>
