@@ -46,7 +46,7 @@ void Light::printThresh() {
 
 void Light::printLight() {
     L1DebugSerial.print("Values: ");
-    for (int i = 0; i < 32; i++) {
+    for (int i = 16; i < 32; i++) {
         L1DebugSerial.print(lightVals[i]);
         L1DebugSerial.print(", ");
     }

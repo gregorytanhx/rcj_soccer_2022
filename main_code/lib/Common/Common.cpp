@@ -9,8 +9,8 @@ float angleDiff(float angle1, float angle2) {
     return min(abs(diff), 360 - abs(diff));
 }
 
-bool angleIsInside(float angleBoundCounterClockwise,
-                   float angleBoundClockwise, float angleCheck) {
+bool angleIsInside(float angleBoundCounterClockwise, float angleBoundClockwise,
+                   float angleCheck) {
     if (angleBoundCounterClockwise < angleBoundClockwise) {
         return (angleBoundCounterClockwise < angleCheck &&
                 angleCheck < angleBoundClockwise);
@@ -28,11 +28,16 @@ float nonReflex(float angle) {
     return angle;
 }
 
+float mod(float x, float y) {
+    x = fmod(x, y);
+    return x < 0 ? x + y : x;
+}
+
 float distance(float x, float y) { return sqrt(x * x + y * y); }
 
 int sign(int x) { return (x >= 0) ? 1 : -1; }
 
-float polarAngle(float y, float x) { 
+float polarAngle(float y, float x) {
     // return angle as bearing from north
     return fmod(90 - rad2deg(atan2(y, x)), 360);
 }

@@ -10,7 +10,7 @@ PID::PID(double p, double i, double d, double limit) {
 }
 
 double PID::update(double error) {
-    elapsedTime = (double)(millis() - lastTime) / (double)1000;
+    elapsedTime = (double)(millis() - lastTime) / 1000;
 
     proportional = error;
     integral += error * elapsedTime;
@@ -18,13 +18,13 @@ double PID::update(double error) {
         integral = integralLimit;
     }
     if ((error - lastError) != 0){
-        derivative = (error - lastError) / elapsedTime;
+        derivative = (error - lastError); // / elapsedTime;
     } else {
         derivative = 0;
     }
     lastTime = millis();
     lastError = error;
-    return kp * proportional + ki * integral + 0 * derivative;
+    return kp * proportional + ki * integral + kd * derivative;
 }
 
 void PID::resetIntegral() {

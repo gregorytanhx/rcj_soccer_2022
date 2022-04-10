@@ -16,7 +16,7 @@ int tofCnt = 4;
 
 TOFBuffer buffer;
 
-// front, left, back, right
+// front, right, back, left
 SFEVL53L1X sensors[] = { SFEVL53L1X(Wire1, SHUT_1, INT_1),
                          SFEVL53L1X(Wire1, SHUT_2, INT_2),
                          SFEVL53L1X(Wire1, SHUT_3, INT_3), 
@@ -82,13 +82,11 @@ void setup() {
     Wire1.begin();
     Wire1.setClock(400000);
     init_sensors();
-    digitalWrite(STM32_LED, HIGH);
 }
 
 void loop() {
     read_sensors();
 
-  
     if (tofCnt == 4){
         // for (int i = 0; i < 4; i++) {
         //     L4DebugSerial.print(buffer.vals[i]);

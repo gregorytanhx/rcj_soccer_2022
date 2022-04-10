@@ -380,17 +380,19 @@ void robot2() {
         updateAllData();
         goTo(neutralPoints[pts[cnt]]);
         // stop at all neutral points except middle
-        if (reachedPoint(neutralPoints[pts[cnt]]) && pts[cnt] != CentreDot) {
+        if (reachedPoint(neutralPoints[pts[cnt]], 30)) {
             lineTrack = false;
-            long timer = millis();
-            while (millis() - timer < 1100) {
-                updateAllData();
-                setMove(0, 0, 0);
-                sendLayer1();
+            if (pts[cnt] != CentreDot) {
+                long timer = millis();
+                while (millis() - timer < 1100) {
+                    updateAllData();
+                    setMove(0, 0, 0);
+                    sendLayer1();
+                }
             }
             cnt++;
         }
-        angleCorrect();
+        camAngleCorrect();
         sendLayer1();
         cnt %= 5;
     }
@@ -403,7 +405,8 @@ void setup() {
     robotID = EEPROM.read(EEPROM_ID_ADDR);
 #endif
         defaultRole = robotID == 0 ? Role::attack : Role::defend;
-
+    pinMode(KICKER_PIN, OUTPUT);
+    digitalWrite(KICKER_PIN, HIGH);
     Serial.begin(9600);
     L1Serial.begin(STM32_BAUD);
     L4Serial.begin(STM32_BAUD);
@@ -412,18 +415,36 @@ void setup() {
     // cmp.begin();
     bbox.begin();
 
-    pinMode(KICKER_PIN, OUTPUT);
-    digitalWrite(KICKER_PIN, HIGH);
+   
     pinMode(DRIBBLER_PIN, OUTPUT);
     analogWriteFrequency(DRIBBLER_PIN, 1000);
     analogWrite(DRIBBLER_PIN, DRIBBLER_LOWER_LIMIT);
     delay(DRIBBLER_WAIT);
+    lightGateVal.begin();
 
     // pinMode(LED_BUILTIN, OUTPUT);
     // digitalWrite(LED_BUILTIN, HIGH);
 }
 
 void loop() {
+    robot2();
+    
+    // camera.printData();
+    // // 
+    // if (camera.ballVisible) {
+    //     trackBall();
+    // } else {
+    //     setMove(0,0,0);
+    //     //goTo(neutralPoints[CentreDot]);
+    // }
+    // camAngleCorrect();
+    // sendLayer1();
+   
+    // camera.printData();
+    
+    // camAngleCorrect();
+    // //updateKick();
+    // sendLayer1();
     // Serial.println(cmp.read());
     //  cmp.read();
     //  cmp.calibrate();
@@ -441,11 +462,7 @@ void loop() {
     // } else {
     //     Serial.println("Disconnected");
     // }
-    camera.update();
-    if (camera.newData) {
-        camera.printData();
-        
-    }
+    
     
    
     // front, left, back, right

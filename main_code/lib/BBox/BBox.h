@@ -8,6 +8,7 @@
 #include <movingAvg.h>
 
 #define DATAPOINTS 5
+
 // class for bounding box for robot's position
 class BBox {
    public:
@@ -19,7 +20,13 @@ class BBox {
     int Xend;
     int Ystart;
     int Yend;
+    int flagCnt;
+    int tofOutCnt;
     int tofVals[4];
+    int tofFlag[4];
+    int prevTOF[4];
+    long flagTimer[4];
+    int tofOut[4];
     float Xconfidence;
     float Yconfidence;
     void begin();
@@ -27,6 +34,7 @@ class BBox {
     void print();
     void printTOF();
     void checkFieldDims();
+    int TOFout();
     movingAvg tofAvg[4] = {movingAvg(DATAPOINTS), movingAvg(DATAPOINTS),
                            movingAvg(DATAPOINTS), movingAvg(DATAPOINTS)};
 

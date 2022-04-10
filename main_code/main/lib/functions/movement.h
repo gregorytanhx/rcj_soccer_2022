@@ -29,10 +29,8 @@ void updateKick() {
     }
 }
 
-
 void updateBallData() {
-    
-    if (readLightGate()) lastGateTime = millis();
+    if (readLightGate() < 70) lastGateTime = millis();
     ballData.captured = millis() - lastGateTime < 100;
     if (camera.ballVisible) {
         relBallCoords = Point(camera.ballAngle, camera.ballDist);
@@ -82,13 +80,20 @@ void trackBall() {
     if (ballData.angle < 180)
         ballOffset = fmin(ballData.angle * 0.96, 90);
     else
-        ballOffset = max((360 - ballData.angle) * 0.96, -90);
+        ballOffset = max((ballData.angle - 360) * 0.96, -90);
 
-    float factor = 1 - ballData.dist / 520;
-    float ballMult = fmin(1, 0.0134 * exp(factor * 2.6));
+    float factor = 1 - ballData.dist / 100;
+    float ballMult = fmin(1, 0.1 * exp(factor * 2.6));
 
     robotAngle = ballData.angle + ballMult * ballOffset;
-    setMove(60, robotAngle, 0);
+
+    Serial.print("Ball Angle: ");
+    Serial.print(camera.ballAngle);
+    Serial.print(" Ball Dist: ");
+    Serial.print(camera.ballDist);
+    Serial.print(" Move Angle: ");
+    Serial.println(robotAngle);
+    setMove(50, robotAngle, 0);
 }
 
 void trackGoal(float goalAngle = -1.0) {
@@ -104,14 +109,20 @@ void trackGoal(float goalAngle = -1.0) {
     setMove(60, robotAngle, 0);
 }
 
-
-void angleCorrect(int targetAng = 0) { 
-    moveData.rotation.val = cmpPID.update(cmp.readQuat() - targetAng); 
+void angleCorrect(int targetAng = 0) {
+    moveData.rotation.val = cmpPID.update(cmp.readQuat() - targetAng);
 }
 
 void camAngleCorrect(int targetAng = 0) {
-
-    moveData.rotation.val = cmpPID.update(targetAng - camera.frontVector.getAngle());
+    if (camera.blueVisible && camera.yellowVisible) {
+        moveData.rotation.val = cmpPID.update(camera.frontVector.getAngle());
+        // Serial.print("Correction: ");
+        // Serial.println(moveData.rotation.val);
+        if (moveData.speed.val == 0) moveData.angSpeed.val = 40;
+        else moveData.angSpeed.val = 20;
+    } else {
+        moveData.rotation.val = 0;
+    }
 }
 
 #endif

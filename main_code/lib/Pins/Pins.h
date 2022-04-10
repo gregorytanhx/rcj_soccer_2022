@@ -30,14 +30,14 @@
 
 // tof pins
 #define SHUT_1 PA12
-#define SHUT_2 PA0
+#define SHUT_2 PA6
 #define SHUT_3 PA4
-#define SHUT_4 PA6
+#define SHUT_4 PA0
 
 #define INT_1 PA11
-#define INT_2 PA1
+#define INT_2 PA7
 #define INT_3 PA5
-#define INT_4 PA7
+#define INT_4 PA1
 
 #define LAYER4_SDA PB11
 #define LAYER4_SCL PB10

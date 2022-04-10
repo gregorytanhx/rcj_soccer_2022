@@ -15,6 +15,7 @@
 #include <Point.h>
 #include <Role.h>
 #include <Wire.h>
+#include <movingAvg.h>
 
 LineData lineData;
 MoveData moveData(0, 0, 0, 0);
@@ -55,6 +56,7 @@ float frontTOF, backTOF, leftTOF, rightTOF;
 MyTimer kickerTimer(50);
 MyTimer bluetoothTimer(BLUETOOTH_UPDATE_TIME);
 MyTimer dribblerTimer(2000);
+movingAvg lightGateVal(10);
 
 // decide if bots will switch roles mid match (while both still in)
 bool roleSwitching = false;
@@ -69,12 +71,12 @@ Point relBallCoords(0, 0);
 Point absBallCoords(0, 0);
 
 PID coordPID(0.15, 0, 0.1);
-PID cmpPID(0.2, 0.001, 0.1);
+PID cmpPID(0.15, 0, 0.6);
 
 // initialise neutral point coordinates
 // each point is an x and y coordinate with respect to field centre
-Point neutralPoints[] = {Point(-350, 515),  Point(350, 515),  Point(0, 0),
-                         Point(-350, -515), Point(350, -515), Point(0, -660),
+Point neutralPoints[] = {Point(-380, 485),  Point(330, 485),  Point(-20, 0),
+                         Point(-350, -485), Point(350, -485), Point(0, -660),
                          Point(0, 660),     Point(965, -660), Point(965, 660),
                          Point(-965, -660), Point(-965, 660)};
 
@@ -93,7 +95,10 @@ enum points {
     BottomRightCorner
 };
 
-bool readLightGate() { return analogRead(LIGHT_GATE_PIN) >= LIGHT_GATE_THRESH; }
+int readLightGate() {
+    return lightGateVal.reading(analogRead(LIGHT_GATE_PIN));
+    
+     }
 
 void setMove(float speed, float angle, float rotation, float angSpeed = -1.0) {
     moveData.speed.val = speed;

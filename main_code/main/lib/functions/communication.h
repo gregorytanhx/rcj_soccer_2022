@@ -132,9 +132,9 @@ void updateDebug() {
 
 void updateAllData() {
     readLayer1();
-    heading = cmp.read();
+    //heading = cmp.read();
     if (readTOF()) updatePosition();
-    updateDebug();
+    //updateDebug();
     camera.update();
     updateBallData();
     // if (bluetoothTimer.timeHasPassed()) updateBluetooth();

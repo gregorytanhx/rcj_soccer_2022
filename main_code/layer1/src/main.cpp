@@ -87,10 +87,9 @@ void setup() {
 }
 
 void loop() {
-    receiveData();
-    // motors.setMove(30, 0, 0);
+    // receiveData();
+    // motors.setMove(speed, angle, rotation, angSpeed);
     // motors.moveOut();
-    
     if (calibrate) {
         if (doneCalibrating) {
             light.read();
@@ -105,7 +104,6 @@ void loop() {
 
         if (light.doneReading()) {
             light.printLight();
-            // light.printThresh();
             light.getLineData(lineData);
             sendData();
             // if (lineData.onLine) {
@@ -126,7 +124,7 @@ void loop() {
                 // float correction = lineTrackPID.update(closestAngle - angle);
                 // float moveAngle = angle + correction;
 
-                motors.setMove(closestAngle, moveAngle, rotation, angSpeed);
+                motors.setMove(speed, closestAngle, rotation, angSpeed);
 
             } else if (lineAvoid) {
                 // avoid line by moving in opposite direction to line
@@ -136,7 +134,7 @@ void loop() {
                                moveAngle, rotation, angSpeed);
             } else {
                 // ignore line
-                motors.setMove(speed, angle, rotation);
+                motors.setMove(speed, angle, rotation, angSpeed);
             }
             if (lastLineAngle >= 0 &&
                 abs(lastLineAngle - lineData.lineAngle.val) >= 90) {

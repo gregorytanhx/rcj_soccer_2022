@@ -5,6 +5,7 @@
 #include <Common.h>
 #include <Point.h>
 #include <math.h>
+#include <movingAvg.h>
 
 #define CAMERA_PACKET_SIZE 33
 #define CAMERA_SYNC_BYTE 42
@@ -25,7 +26,7 @@ class Camera {
     void process();
     void update();
     void printData();
-    float cmDist(float pixelDist);
+    float getOrientation();
 
     float ballAngle;
     float ballDist;
@@ -50,7 +51,7 @@ class Camera {
     Point frontVector;
     Point oppGoalVec;
     Point ownGoalVec;
-    Side side = unset;  // face yellow goal by default
+    Side side = facingYellow;  // face yellow goal by default
     camBuffer buffer;
 };
 

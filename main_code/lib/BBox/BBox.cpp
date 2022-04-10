@@ -6,21 +6,38 @@ void BBox::begin() {
     }
 }
 
-void BBox::update(TOFBuffer &tof, LineData &lineData, float heading, Camera &camera) {
+void BBox::update(TOFBuffer &tof, LineData &lineData, float heading,
+                  Camera &camera) {
     // TODO: use kalman filter to detect if TOF is temporarily blocked?
     // TODO: integrate camera coordinates as weighted sum?
     // TODO: integrate light sensors to confirm x-position
-
+    flagCnt = 0;
     for (int i = 0; i < 4; i++) {
         // update moving average for each TOF
         tofVals[i] = tofAvg[i].reading(tof.vals[i]);
+        if (tof.vals[i] < 150) {
+            tofFlag[i] = 1;
+            flagTimer[i] = millis();
+            flagCnt++;
+            prevTOF[i] = tof.vals[i];
+        } else if (tof.vals[i] < prevTOF[i] * 0.7) {
+            if (!tofFlag[i]) flagTimer[i] = millis();
+            tofFlag[i] = 2;
+        } else {
+            tofFlag[i] = 0;
+            prevTOF[i] = tof.vals[i];
+        }
+        if (millis() - flagTimer[i] > 2000) {
+            tofFlag[i] = 0;
+            prevTOF[i] = tof.vals[i];
+        }
     }
-    
-    int frontTOF = tofVals[0];
-    int leftTOF = tofVals[1];
-    int backTOF = tofVals[2];
-    int rightTOF = tofVals[3];
 
+    int frontTOF = tofVals[0];
+    int rightTOF = tofVals[1];
+    int backTOF = tofVals[2];
+    int leftTOF = tofVals[3];
+ 
     // measured from left
     Xstart = FIELD_WIDTH / 2 - rightTOF;
     Xend = leftTOF - FIELD_WIDTH / 2;
@@ -36,12 +53,11 @@ void BBox::update(TOFBuffer &tof, LineData &lineData, float heading, Camera &cam
     y = (Ystart + Yend) / 2;
 
     // take area of robot over area of bbox as confidence score
-    Xconfidence = min(1, (float)180 / (float)width);
-    Yconfidence = min(1, (float)180 / (float)height);
+    Xconfidence = min(1, (float)200 / (float)width);
+    Yconfidence = min(1, (float)200 / (float)height);
 
-    if (Xconfidence < 0.5) x = camera.centreVector.x;
-    if (Yconfidence < 0.5) y = camera.centreVector.y;
-
+    // if (Xconfidence < 0.5) x = camera.centreVector.x;
+    // if (Yconfidence < 0.5) y = camera.centreVector.y;
 
     if (lineData.onLine) {
         float lineAngle = nonReflex(lineData.lineAngle.val + heading);
@@ -77,7 +93,7 @@ void BBox::print() {
 }
 
 void BBox::printTOF() {
-    String dir[4] = {"Front", "Left", "Back", "Right"};
+    String dir[4] = {"Front", "Right", "Back", "Left"};
     for (int i = 0; i < 4; i++) {
         Serial.print(dir[i] + ": ");
         Serial.print(tofVals[i]);
@@ -94,4 +110,40 @@ void BBox::checkFieldDims() {
         Serial.print("  ");
     }
     Serial.println();
+}
+
+int BBox::TOFout() {
+    tofOutCnt = 0;
+
+    for (int i = 0; i < 4; i++) {
+        if (tofFlag[i]) continue;
+        if (tofVals[i] < 400) {
+            tofOut[tofOutCnt] = i;
+            tofOutCnt++;
+        }
+    }
+
+    if (tofOutCnt == 0 || tofOutCnt == 4) return -1;
+    if (tofOutCnt == 1)  return mod(tofOut[0] * 90 + 180, 360);
+    if (tofOutCnt == 2) {
+        if ((tofOut[0] == 0 && tofOut[1] == 2) ||
+            (tofOut[0] == 1 && tofOut[1] == 3)) {
+            return -1;  // ignore cases of front && back or left && right
+        }
+        if (tofOut[0] == 0 && tofOut[1] == 3)
+            tofOut[0] = 4;  // special case to make avg method work
+        return mod((float)(tofOut[0] + tofOut[1]) * 0.5 * 90 + 180, 360);
+    }
+    if (tofOutCnt == 3) {
+        if (tofOut[0] == 0) {
+            if (tofOut[1] == 1) {
+                if (tofOut[2] == 2)
+                    return 270;  // detect front, right, back, move in 270 deg
+                else
+                    return 180;  // detect front, right, left, move in 180 deg
+            } else
+                return 90;  // detect front, left, back, move in 90 deg
+        } else
+            return 0;  // detect right, back, left move in 0 deg
+    }
 }
