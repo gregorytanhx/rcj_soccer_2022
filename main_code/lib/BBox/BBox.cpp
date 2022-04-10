@@ -116,7 +116,7 @@ int BBox::TOFout() {
     tofOutCnt = 0;
 
     for (int i = 0; i < 4; i++) {
-        if (tofFlag[i]) continue;
+        if (tofFlag[i] == 1) continue;
         if (tofVals[i] < 400) {
             tofOut[tofOutCnt] = i;
             tofOutCnt++;

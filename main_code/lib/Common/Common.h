@@ -10,8 +10,8 @@
 // #define SET_ID
 //#define USE_LAYER4_IMU
 
-#define FIELD_WIDTH 2000
-#define FIELD_HEIGHT 2200
+#define FIELD_WIDTH 1500
+#define FIELD_HEIGHT 1900
 #define GOALIE_HOME_X 0
 #define GOALIE_HOME_Y -760
 #define STRIKER_HOME_X 0
@@ -64,6 +64,7 @@
 float deg2rad(float angle);
 float rad2deg(float angle);
 float angleDiff(float angle1, float angle2);
+float angleAverage(float angle1, float angle2);
 float distance(float x, float y);
 float norm(float val, int max, int min);
 int sign(int x);

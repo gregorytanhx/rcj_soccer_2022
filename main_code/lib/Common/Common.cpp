@@ -9,6 +9,12 @@ float angleDiff(float angle1, float angle2) {
     return min(abs(diff), 360 - abs(diff));
 }
 
+float angleAverage(float angle1, float angle2) {
+    float avgX = sin(deg2rad(angle1)) + sin(deg2rad(angle2));
+    float avgY = cos(deg2rad(angle1)) + cos(deg2rad(angle2));
+    return rad2deg(atan2(avgX, avgY));
+}
+
 bool angleIsInside(float angleBoundCounterClockwise, float angleBoundClockwise,
                    float angleCheck) {
     if (angleBoundCounterClockwise < angleBoundClockwise) {

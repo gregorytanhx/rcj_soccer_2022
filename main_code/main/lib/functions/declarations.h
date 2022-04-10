@@ -45,6 +45,8 @@ float lastBallAngle;
 float lastBallDist;
 bool goalieCharge = false;
 long goalieChargeTimer;
+int lastDist;
+int distCnt = 0;
 
 TOFBuffer tof;
 IMU cmp(&Wire1);
@@ -75,10 +77,15 @@ PID cmpPID(0.15, 0, 0.6);
 
 // initialise neutral point coordinates
 // each point is an x and y coordinate with respect to field centre
-Point neutralPoints[] = {Point(-380, 485),  Point(330, 485),  Point(-20, 0),
-                         Point(-350, -485), Point(350, -485), Point(0, -660),
+Point neutralPoints[] = {Point(-370, 550),  Point(350, 520),  Point(0, 0),
+                         Point(-350, -400), Point(370, -400), Point(0, -660),
                          Point(0, 660),     Point(965, -660), Point(965, 660),
                          Point(-965, -660), Point(-965, 660)};
+// for camera only
+// Point neutralPoints[] = {Point(-370, 570),  Point(370, 570),  Point(0, 0),
+//                         Point(-350, -400), Point(350, -400), Point(0, -660),
+//                         Point(0, 660),     Point(965, -660), Point(965, 660),
+//                         Point(-965, -660), Point(-965, 660)};
 
 // enum for neutral points
 enum points {

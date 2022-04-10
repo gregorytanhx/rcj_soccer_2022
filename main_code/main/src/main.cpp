@@ -378,16 +378,18 @@ void robot2() {
     lineAvoid = false;
     while (1) {
         updateAllData();
-        goTo(neutralPoints[pts[cnt]]);
+        
         // stop at all neutral points except middle
-        if (reachedPoint(neutralPoints[pts[cnt]], 30)) {
+        if (goTo(neutralPoints[pts[cnt]], 40)) {
             lineTrack = false;
             if (pts[cnt] != CentreDot) {
                 long timer = millis();
                 while (millis() - timer < 1100) {
                     updateAllData();
                     setMove(0, 0, 0);
+                    camAngleCorrect();
                     sendLayer1();
+                    
                 }
             }
             cnt++;
@@ -427,18 +429,24 @@ void setup() {
 }
 
 void loop() {
-    robot2();
-    
-    // camera.printData();
-    // // 
+
+    updateAllData();
+
+    //camera.printData();
+    // 
     // if (camera.ballVisible) {
     //     trackBall();
     // } else {
-    //     setMove(0,0,0);
-    //     //goTo(neutralPoints[CentreDot]);
+    //     goTo(neutralPoints[CentreDot]);
     // }
-    // camAngleCorrect();
-    // sendLayer1();
+    //bbox.print();
+    bbox.print();
+    //bbox.checkFieldDims();
+    setMove(70, 270,0);
+    float tmpAng = bbox.TOFout();
+    if (tmpAng > 0) setMove(70, tmpAng, 0);
+    camAngleCorrect();
+    sendLayer1();
    
     // camera.printData();
     

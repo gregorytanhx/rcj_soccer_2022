@@ -82,7 +82,7 @@ sensor.set_auto_exposure(False, exposure_us = int(curr_exposure * 0.3))
 
 sensor.skip_frames(time = 2000)
 # === WHITE BAL ===
-sensor.set_auto_whitebal(False) #Must remain false for blob tracking
+sensor.set_auto_whitebal(False, rgb_gain_db = (-3.15645, -6.02073, -1.804)) #Must remain false for blob tracking
 
 sensor.set_brightness(0)
 sensor.set_contrast(3)
@@ -98,12 +98,12 @@ uart = UART(1, 1000000)
 ID = 'whitebot'
 
 if ID == 'whitebot':
-    centreY = 135
+    centreY = 140
     centreX = 156
 
     # LAB thresholds
     # lab field values
-    red_thresh = [(57, 71, 55, 75, 20, 50)]
+    red_thresh = [(57, 71, 55, 70, 20, 40)]
     blue_thresh = [(15, 50, -10, 25, -60, -15)]
     yellow_thresh = [(60, 90, 0, 30, 30, 60)]
     green_thresh = [(50, 75, -50, -20, -5, 15)]
@@ -285,8 +285,8 @@ def find_objects(debug=False):
     if yellow:
         yellow.centralise()
         yellow.process()
-        if debug:
-            print(f"Yellow Goal: Angle: {yellow.angle} Distance: {yellow.dist} Pixel Distance: {yellow.unmappedDist}")
+        #if debug:
+            #print(f"Yellow Goal: Angle: {yellow.angle} Distance: {yellow.dist} Pixel Distance: {yellow.unmappedDist}")
     else:
         yellow = obj(0, 0, 0, 0)
 
@@ -294,8 +294,8 @@ def find_objects(debug=False):
         blue.centralise()
         blue.process()
 
-        if debug:
-            print(f"Blue Goal: Angle: {blue.angle} Distance: {blue.dist} Pixel Distance: {blue.unmappedDist}")
+        #if debug:
+            #print(f"Blue Goal: Angle: {blue.angle} Distance: {blue.dist} Pixel Distance: {blue.unmappedDist}")
     else:
         blue = obj(0, 0, 0, 0)
         #if debug:
@@ -303,8 +303,8 @@ def find_objects(debug=False):
 
     if ball:
         if debug:
-            print()
-            #print(f"Y pixel dist: {ball.y}")
+
+
             print(f"Ball: Angle: {ball.angle} Distance: {ball.dist}")
     else:
         ball = obj(0, 0, 0, 0)
@@ -330,7 +330,7 @@ def send(data):
             pass
 
 while(True):
-    debug = False
+    debug = True
     clock.tick()
     img = sensor.snapshot()
 

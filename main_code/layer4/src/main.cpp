@@ -35,9 +35,9 @@ void init_sensors() {
         digitalWrite(shutPins[i], HIGH);
         sensors[i].init();
         sensors[i].setI2CAddress(0x30 + i * 2);
-        sensors[i].setDistanceModeLong();
+        sensors[i].setDistanceModeShort();
         sensors[i].setROI(4, 4, 199);
-        sensors[i].setTimingBudgetInMs(100);
+        sensors[i].setTimingBudgetInMs(33);
         sensors[i].setIntermeasurementPeriod(33);
         delay(10);
     }
