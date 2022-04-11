@@ -22,6 +22,7 @@ class BBox {
     int Yend;
     int flagCnt;
     int tofOutCnt;
+    int outAngle = -1;
     int tofVals[4];
     int tofFlag[4];
     int prevTOF[4];
@@ -34,7 +35,7 @@ class BBox {
     void print();
     void printTOF();
     void checkFieldDims();
-    int TOFout();
+    void processTOFout();
     movingAvg tofAvg[4] = {movingAvg(DATAPOINTS), movingAvg(DATAPOINTS),
                            movingAvg(DATAPOINTS), movingAvg(DATAPOINTS)};
 

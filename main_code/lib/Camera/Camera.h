@@ -47,6 +47,8 @@ class Camera {
     bool ballVisible = false;
     bool newData = false;
 
+    long lastPrintTime = 0;
+
     Point centreVector;
     Point frontVector;
     Point oppGoalVec;

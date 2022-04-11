@@ -77,15 +77,15 @@ PID cmpPID(0.15, 0, 0.6);
 
 // initialise neutral point coordinates
 // each point is an x and y coordinate with respect to field centre
-Point neutralPoints[] = {Point(-370, 550),  Point(350, 520),  Point(0, 0),
-                         Point(-350, -400), Point(370, -400), Point(0, -660),
-                         Point(0, 660),     Point(965, -660), Point(965, 660),
-                         Point(-965, -660), Point(-965, 660)};
+// Point neutralPoints[] = {Point(-370, 550),  Point(350, 520),  Point(0, 0),
+//                          Point(-350, -400), Point(370, -400), Point(0, -660),
+//                          Point(0, 660),     Point(965, -660), Point(965, 660),
+//                          Point(-965, -660), Point(-965, 660)};
 // for camera only
-// Point neutralPoints[] = {Point(-370, 570),  Point(370, 570),  Point(0, 0),
-//                         Point(-350, -400), Point(350, -400), Point(0, -660),
-//                         Point(0, 660),     Point(965, -660), Point(965, 660),
-//                         Point(-965, -660), Point(-965, 660)};
+Point neutralPoints[] = {Point(-550, 550),  Point(150, 550),  Point(-100, -100),
+                        Point(-550, -750), Point(200, -500), Point(0, -660),
+                        Point(0, 660),     Point(965, -660), Point(965, 660),
+                        Point(-965, -660), Point(-965, 660)};
 
 // enum for neutral points
 enum points {

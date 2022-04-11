@@ -37,6 +37,7 @@ void init_sensors() {
         sensors[i].setI2CAddress(0x30 + i * 2);
         sensors[i].setDistanceModeShort();
         sensors[i].setROI(4, 4, 199);
+        // Intermeasurement Period must be greater than or equal to time budget
         sensors[i].setTimingBudgetInMs(33);
         sensors[i].setIntermeasurementPeriod(33);
         delay(10);

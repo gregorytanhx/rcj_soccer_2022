@@ -83,8 +83,8 @@ void trackBall() {
     else
         ballOffset = max((ballData.angle - 360) * 1.0, -90);
 
-    float factor = 1 - ballData.dist / 100;
-    float ballMult = fmin(1, 0.05 * exp(factor * 3.6));
+    float factor = 1 - ballData.dist / 80;
+    float ballMult = fmin(1, 0.2 * exp(factor * 3.6));
     robotAngle = ballData.angle + ballMult * ballOffset;
     Serial.print(camera.ballAngle);
     Serial.print(" Ball Dist: ");
@@ -117,7 +117,7 @@ void camAngleCorrect(int targetAng = 0) {
         // Serial.print("Correction: ");
         // Serial.println(moveData.rotation.val);
         if (moveData.speed.val == 0) moveData.angSpeed.val = 40;
-        else moveData.angSpeed.val = 15;
+        else moveData.angSpeed.val = 10;
     } else {
         moveData.rotation.val = 0;
     }

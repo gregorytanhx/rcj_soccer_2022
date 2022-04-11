@@ -10,6 +10,7 @@ void updatePosition() {
     bbox.update(tof, lineData, moveData.rotation.val, camera);
     botCoords.x = bbox.x;
     botCoords.y = bbox.y;
+    bbox.processTOFout();
 }
 
 // bool reachedPoint(Point target, int dist = 30) {
@@ -84,6 +85,7 @@ bool goTo(Point target, int distThresh = 40) {
         camVector = camera.centreVector + target;
         moveAngle = camVector.getAngle();
         //moveAngle = angleAverage(camVector.getAngle(), moveAngle);
+        // compensate for orientation
         moveAngle = nonReflex(moveAngle) - camera.frontVector.getAngle();
         moveSpeed = constrain(camVector.getDistance() * 0.1, 30, 50);
         //dist = (camVector.getDistance() + dist) / 2 ;
@@ -96,12 +98,15 @@ bool goTo(Point target, int distThresh = 40) {
         
         Serial.println();
         Serial.println(moveAngle);
+        
         // Serial.print(" Distance to target: ");
-        // Serial.print(moveVector.getDistance());
+        // Serial.print(moveVector.getDistance());  
         // Serial.println();
         // Serial.print(target.getAngle());
         // Serial.print(" ");
         // Serial.println(target.getDistance());
+    } else {
+        moveSpeed = 0;
     }
 
     setMove(moveSpeed, moveAngle, 0);
@@ -111,7 +116,7 @@ bool goTo(Point target, int distThresh = 40) {
     } else {
         distCnt = 0;
     }
-    return distCnt >= 10;
+    return distCnt >= 100;
 }
 
 #endif

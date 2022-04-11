@@ -37,7 +37,7 @@ void BBox::update(TOFBuffer &tof, LineData &lineData, float heading,
     int rightTOF = tofVals[1];
     int backTOF = tofVals[2];
     int leftTOF = tofVals[3];
- 
+
     // measured from left
     Xstart = FIELD_WIDTH / 2 - rightTOF;
     Xend = leftTOF - FIELD_WIDTH / 2;
@@ -112,38 +112,42 @@ void BBox::checkFieldDims() {
     Serial.println();
 }
 
-int BBox::TOFout() {
+void BBox::processTOFout() {
     tofOutCnt = 0;
 
     for (int i = 0; i < 4; i++) {
         if (tofFlag[i] == 1) continue;
-        if (tofVals[i] < 400) {
+        if (tofVals[i] < 350) {
             tofOut[tofOutCnt] = i;
             tofOutCnt++;
         }
     }
 
-    if (tofOutCnt == 0 || tofOutCnt == 4) return -1;
-    if (tofOutCnt == 1)  return mod(tofOut[0] * 90 + 180, 360);
-    if (tofOutCnt == 2) {
+    if (tofOutCnt == 0 || tofOutCnt == 4)
+        outAngle = -1;
+    else if (tofOutCnt == 1)
+        outAngle = mod(tofOut[0] * 90 + 180, 360);
+    else if (tofOutCnt == 2) {
         if ((tofOut[0] == 0 && tofOut[1] == 2) ||
             (tofOut[0] == 1 && tofOut[1] == 3)) {
-            return -1;  // ignore cases of front && back or left && right
+            outAngle = -1;  // ignore cases of front && back or left && right
+        } else {
+            if (tofOut[0] == 0 && tofOut[1] == 3) {
+                tofOut[0] = 4;  // special case to make avg method work
+            }
+            outAngle = mod((float)(tofOut[0] + tofOut[1]) * 0.5 * 90 + 180, 360);
         }
-        if (tofOut[0] == 0 && tofOut[1] == 3)
-            tofOut[0] = 4;  // special case to make avg method work
-        return mod((float)(tofOut[0] + tofOut[1]) * 0.5 * 90 + 180, 360);
     }
     if (tofOutCnt == 3) {
         if (tofOut[0] == 0) {
             if (tofOut[1] == 1) {
                 if (tofOut[2] == 2)
-                    return 270;  // detect front, right, back, move in 270 deg
+                    outAngle = 270;  // detect front, right, back, move in 270 deg
                 else
-                    return 180;  // detect front, right, left, move in 180 deg
+                    outAngle = 180;  // detect front, right, left, move in 180 deg
             } else
-                return 90;  // detect front, left, back, move in 90 deg
+                outAngle = 90;  // detect front, left, back, move in 90 deg
         } else
-            return 0;  // detect right, back, left move in 0 deg
+            outAngle = 0;  // detect right, back, left move in 0 deg
     }
 }

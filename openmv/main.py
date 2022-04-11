@@ -82,7 +82,7 @@ sensor.set_auto_exposure(False, exposure_us = int(curr_exposure * 0.3))
 
 sensor.skip_frames(time = 2000)
 # === WHITE BAL ===
-sensor.set_auto_whitebal(False, rgb_gain_db = (-3.15645, -6.02073, -1.804)) #Must remain false for blob tracking
+sensor.set_auto_whitebal(False, rgb_gain_db = (-5.15645, -6.02073, -1.804)) #Must remain false for blob tracking
 
 sensor.set_brightness(0)
 sensor.set_contrast(3)
@@ -103,9 +103,9 @@ if ID == 'whitebot':
 
     # LAB thresholds
     # lab field values
-    red_thresh = [(57, 71, 55, 70, 20, 40)]
+    red_thresh = [(52, 74, 39, 63, 20, 40)]
     blue_thresh = [(15, 50, -10, 25, -60, -15)]
-    yellow_thresh = [(60, 90, 0, 30, 30, 60)]
+    yellow_thresh = [(60, 90, -30, 10, 30, 70)]
     green_thresh = [(50, 75, -50, -20, -5, 15)]
     white_thresh = [(70, 93, -30, 10, -10, 20)]
     black_thresh = [(10, 16, -10, 10, -5, 15)]
@@ -219,8 +219,8 @@ def find_objects(debug=False):
     predBall = None
     img.draw_cross(centreX, centreY, color = (255, 0, 0))
     ball = track_obj(red_thresh, 2, 2, debug = debug, stride=2)
-    blue = track_obj(blue_thresh, 20, 20, color = (0, 0, 255), stride = 15,  debug = debug, merge = True, margin = 30)
-    yellow = track_obj(yellow_thresh, 20, 20, color = (0, 255, 0), stride = 15, debug =  debug, merge = True, margin = 30)
+    blue = track_obj(blue_thresh, 10, 10, color = (0, 0, 255), stride = 15,  debug = debug, merge = True, margin = 30)
+    yellow = track_obj(yellow_thresh, 10, 10, color = (0, 255, 0), stride = 15, debug =  debug, merge = True, margin = 30)
 
     if ballFound:
         kf.F[0][2] = dT
@@ -330,7 +330,7 @@ def send(data):
             pass
 
 while(True):
-    debug = True
+    debug = False
     clock.tick()
     img = sensor.snapshot()
 

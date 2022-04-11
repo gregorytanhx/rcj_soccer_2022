@@ -380,7 +380,7 @@ void robot2() {
         updateAllData();
         
         // stop at all neutral points except middle
-        if (goTo(neutralPoints[pts[cnt]], 40)) {
+        if (goTo(neutralPoints[pts[cnt]], 90)) {
             lineTrack = false;
             if (pts[cnt] != CentreDot) {
                 long timer = millis();
@@ -428,31 +428,21 @@ void setup() {
     // digitalWrite(LED_BUILTIN, HIGH);
 }
 
+
+
 void loop() {
 
     updateAllData();
-
-    //camera.printData();
-    // 
-    // if (camera.ballVisible) {
-    //     trackBall();
-    // } else {
-    //     goTo(neutralPoints[CentreDot]);
-    // }
-    //bbox.print();
-    bbox.print();
-    //bbox.checkFieldDims();
-    setMove(70, 270,0);
-    float tmpAng = bbox.TOFout();
-    if (tmpAng > 0) setMove(70, tmpAng, 0);
+    camera.printData();
+    if (camera.ballVisible) {
+        trackBall();
+    } else {
+        goTo(neutralPoints[CentreDot]);
+    }
+   
+    if (bbox.outAngle > 0) setMove(50, bbox.outAngle, 0);
     camAngleCorrect();
     sendLayer1();
-   
-    // camera.printData();
-    
-    // camAngleCorrect();
-    // //updateKick();
-    // sendLayer1();
     // Serial.println(cmp.read());
     //  cmp.read();
     //  cmp.calibrate();
