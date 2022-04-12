@@ -17,9 +17,9 @@ void sendLayer1() {
 }
 
 void readLayer1() {
-    while (L1Serial.available() >= LAYER1_SEND_PACKET_SIZE) {
+    while (L1Serial.available() >= 14) {
         uint8_t syncByte = L1Serial.read();
-        if (syncByte == LAYER1_REC_SYNC_BYTE) {
+        if (syncByte == LAYER1_SEND_SYNC_BYTE) {
             for (int i = 0; i < 4; i++) {
                 lineData.lineAngle.b[i] = L1Serial.read();
             }
@@ -31,6 +31,19 @@ void readLayer1() {
             }
             lineData.onLine = L1Serial.read();
         }
+    }
+}
+
+void printLightData() {
+    if (lineData.onLine) {
+        Serial.println("Line Detected");
+        Serial.print("Line Angle: ");
+        Serial.print(lineData.lineAngle.val);
+        Serial.print(" Chord Length: ");
+        Serial.print(lineData.chordLength.val);
+        Serial.println();
+    } else {
+        Serial.println("Line Not Detected");
     }
 }
 

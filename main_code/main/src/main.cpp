@@ -433,12 +433,13 @@ void setup() {
 void loop() {
 
     updateAllData();
-    camera.printData();
-    if (camera.ballVisible) {
-        trackBall();
-    } else {
-        goTo(neutralPoints[CentreDot]);
-    }
+    printLightData();
+    // //camera.printData();
+    // if (camera.ballVisible) {
+    //     trackBall();
+    // } else {
+    //     goTo(neutralPoints[CentreDot]);
+    // }
    
     if (bbox.outAngle > 0) setMove(50, bbox.outAngle, 0);
     camAngleCorrect();

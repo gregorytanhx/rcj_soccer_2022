@@ -23,7 +23,7 @@ void Light::init() {
 
     // retrieve threshold from eeprom memory
 #ifdef USE_EEPROM
-    eeprom_buffer_fill();
+    //eeprom_buffer_fill();
 
     for (auto i : lightMap) {
         lightThresh.b[i * 2] = eeprom_buffered_read_byte(i + 1);
@@ -46,7 +46,7 @@ void Light::printThresh() {
 
 void Light::printLight() {
     L1DebugSerial.print("Values: ");
-    for (int i = 16; i < 32; i++) {
+    for (int i = 0; i < 32; i++) {
         L1DebugSerial.print(lightVals[i]);
         L1DebugSerial.print(", ");
     }
@@ -152,11 +152,26 @@ void Light::calibrate() {
         maxVals[i] = 0;
         minVals[i] = 1200;
     }
-    const unsigned long timeOut = 60000;
+    const unsigned long timeOut = 30000;
     unsigned long timeStart = millis();
     while ((millis() - timeStart) < timeOut) {
+        L1DebugSerial.println("Calibrating...");
+        
         read();
         if (doneReading()) {
+            
+            // L1DebugSerial.print("Min: ");
+            // for (int i = 0; i < 32; i++) {
+            //     L1DebugSerial.print(minVals[lightMap[i]]);
+            //     L1DebugSerial.print(" ");
+            // }
+            // L1DebugSerial.println();
+            // L1DebugSerial.print("Thresh: ");
+            // for (int i = 0; i < 32; i++) {
+            //     L1DebugSerial.print(lightThresh.vals[lightMap[i]]);
+            //     L1DebugSerial.print(" ");
+            // }
+            // L1DebugSerial.println();
             for (auto i : lightMap) {
                 if (lightVals[i] > maxVals[i]) {
                     maxVals[i] = lightVals[i];

@@ -33,10 +33,9 @@ int spd = 0;
 
 void sendData() {
     L1CommSerial.write(LAYER1_SEND_SYNC_BYTE);
-    L1CommSerial.write(lineData.lineAngle.b, sizeof(lineData.lineAngle.b));
-    L1CommSerial.write(lineData.initialLineAngle.b,
-                       sizeof(lineData.initialLineAngle.b));
-    L1CommSerial.write(lineData.chordLength.b, sizeof(lineData.chordLength.b));
+    L1CommSerial.write(lineData.lineAngle.b, 4);
+    L1CommSerial.write(lineData.initialLineAngle.b, 4);
+    L1CommSerial.write(lineData.chordLength.b, 4);
     L1CommSerial.write(lineData.onLine);
 }
 
@@ -87,7 +86,7 @@ void setup() {
 }
 
 void loop() {
-    // receiveData();
+    //receiveData();
     // motors.setMove(speed, angle, rotation, angSpeed);
     // motors.moveOut();
     if (calibrate) {
@@ -100,17 +99,20 @@ void loop() {
         }
 
     } else {
-        light.readRaw();
+        light.read();
 
         if (light.doneReading()) {
-            light.printLight();
+            // light.printLight();
+            // light.printThresh();
             light.getLineData(lineData);
             sendData();
             // if (lineData.onLine) {
             //     L1DebugSerial.print("Line Angle: ");
-            //     L1DebugSerial.print(lineData.lineAngle.val);
+            //     L1DebugSerial.print(lineData.initialLineAngle.val);
             //     L1DebugSerial.print("\tChord Length: ");
             //     L1DebugSerial.println(lineData.chordLength.val);
+            // } else {
+            //     L1DebugSerial.println("Line not detected");
             // }
         }
 
