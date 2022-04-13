@@ -11,6 +11,15 @@ IMU cmp(&Wire1);
 
 #define Serial L4DebugSerial
 
+
+CmpVal cmpVal;
+
+void sendData() {
+    cmpVal.val = cmp.readQuat();
+    L4CommSerial.write(IMU_SYNC_BYTE);
+    L4CommSerial.write(cmpVal.b, 4);
+}
+
 void setup() {    
     L4CommSerial.begin(STM32_BAUD);
 #ifdef DEBUG
@@ -31,6 +40,7 @@ void loop() {
         Serial.print("Quaternion: ");
         Serial.println(cmp.readQuat());
     }
+    sendData();
     
 }
 

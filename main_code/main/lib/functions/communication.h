@@ -34,6 +34,17 @@ void readLayer1() {
     }
 }
 
+float readIMU() {
+    while (IMUSerial.available() >= 5) {
+        uint8_t syncByte = IMUSerial.read();
+        if (syncByte == IMU_SYNC_BYTE) {
+            for (int i = 0; i < 4; i++) {
+                cmpVal.b[i] = IMUSerial.read();
+            }
+        }
+    }
+}
+
 void printLightData() {
     if (lineData.onLine) {
         Serial.println("Line Detected");
@@ -148,8 +159,8 @@ void updateDebug() {
 }
 
 void updateAllData() {
+    readIMU();
     readLayer1();
-    // heading = cmp.read();
     if (readTOF()) updatePosition();
     // updateDebug();
     camera.update();

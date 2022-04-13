@@ -19,6 +19,7 @@
 
 //#define SWITCH_ROLES
 
+
 LineData lineData;
 MoveData moveData(0, 0, 0, 0);
 BallData ballData;
@@ -27,6 +28,8 @@ BluetoothData btData;
 Camera camera;
 BBox bbox;
 LightBuffer lightVals;
+CmpVal cmpVal;
+
 
 float lastLineAngle = 0;
 bool lineTrack = false;

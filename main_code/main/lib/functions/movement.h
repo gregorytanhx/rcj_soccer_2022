@@ -108,7 +108,7 @@ void trackGoal(float goalAngle = -1.0) {
 }
 
 void angleCorrect(int targetAng = 0) {
-    moveData.rotation.val = cmpPID.update(cmp.readQuat() - targetAng);
+    moveData.rotation.val = cmpPID.update(cmpVal.val - targetAng);
 }
 
 void camAngleCorrect(int targetAng = 0) {

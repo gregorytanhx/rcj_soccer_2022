@@ -112,6 +112,7 @@ void normal() {
 
                 moveSpeed = 50;
             } else if (camera.ownGoalDist < 29) {
+                // robot is between goal and penalty area, move forward
                 robotAngle = 0;
                 moveSpeed = 50;
             }
@@ -144,7 +145,7 @@ void normal() {
             float error = abs(nonReflex(camera.ownGoalAngle - 180));
             moveSpeed = goalieBallPID.update(error);
             moveSpeed = constrain(moveSpeed, 30, 50);
-            if (abs(error) < 3) moveSpeed = 0;
+            if (error < 3) moveSpeed = 0;
         }
         // Serial.print("Angle: ");
         // Serial.println(robotAngle);

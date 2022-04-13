@@ -55,11 +55,13 @@
 #define L4Serial Serial5
 #define CamSerial Serial3
 #define BTSerial Serial2
+#define IMUSerial Serial4
 
 #define L1CommSerial Serial3
 #define L1DebugSerial Serial1
 #define L4CommSerial Serial2
 #define L4DebugSerial Serial1
+
 
 float deg2rad(float angle);
 float rad2deg(float angle);
@@ -99,6 +101,13 @@ typedef struct LineData {
     floatData chordLength;
     bool onLine;
 } LineData;
+
+// struct for compass data to be sent over serial
+typedef union CmpVal {
+    float val;
+    uint8_t b[4];
+} CmpVal;
+
 
 // struct for movement data to be sent from teensy to layer1
 typedef struct MoveData {

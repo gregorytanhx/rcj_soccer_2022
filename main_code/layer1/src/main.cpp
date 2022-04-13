@@ -105,14 +105,6 @@ void loop() {
             // light.printThresh();
             light.getLineData(lineData);
             sendData();
-            // if (lineData.onLine) {
-            //     L1DebugSerial.print("Line Angle: ");
-            //     L1DebugSerial.print(lineData.initialLineAngle.val);
-            //     L1DebugSerial.print("\tChord Length: ");
-            //     L1DebugSerial.println(lineData.chordLength.val);
-            // } else {
-            //     L1DebugSerial.println("Line not detected");
-            // }
         }
 
         if (lineData.onLine) {
@@ -123,10 +115,14 @@ void loop() {
                 // use PID to control angle of correction
                 float correction = lineTrackPID.update(closestAngle - angle);
                 float moveAngle = angle + correction;
+                float dist = light.chordLength > 1 ? light.chordLength - 1 : 1 - light.chordLength;
                 // L1DebugSerial.print("Reference angle: ");
                 // L1DebugSerial.print(angle);
                 // L1DebugSerial.print("Line track angle: ");
                 // L1DebugSerial.println(closestAngle);
+
+                // use chord length to adjust speed
+                speed = speed * (0.5 + dist);
                 motors.setMove(speed, moveAngle, rotation, angSpeed);
 
             } else if (lineAvoid) {
