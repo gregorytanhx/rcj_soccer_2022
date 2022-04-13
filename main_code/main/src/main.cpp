@@ -9,7 +9,7 @@ PID goalieGoalPID(2.5, 0, 1);
 void normal() {
     // regular program
     updateAllData();
-    
+
     lineAvoid = true;
     lineTrack = false;
     if (currentRole() == Role::attack || goalieCharge) {
@@ -27,7 +27,7 @@ void normal() {
             // stop goalie from charging after 3s
             goalieCharge = false;
             previouslyCharging = true;
-        } 
+        }
         // attack program
         if (ballData.captured) {
             trackGoal();
@@ -67,7 +67,7 @@ void normal() {
         // move at faster speed if goalie is charging
         if (goalieCharge) moveData.speed.val = 50;
 
-        //updateKick();
+        // updateKick();
         updateDribbler();
         camAngleCorrect();
         sendLayer1();
@@ -76,12 +76,12 @@ void normal() {
         // defence program
         lineTrack = true;
         lineAvoid = false;
-        //camera.printData(0);
-        //printLightData();
+        // camera.printData(0);
+        // printLightData();
         if (previouslyCharging) {
             lastChargeTime = millis();
             previouslyCharging = false;
-        } 
+        }
         if (millis() - lastChargeTime > 10000) {
             if (camera.ballVisible && camera.newData &&
                 abs(lastBallAngle - camera.ballAngle) > 5 &&
@@ -100,7 +100,7 @@ void normal() {
                 robotAngle = 0;
             }
         }
-        
+
         if (!lineData.onLine) {
             if (camera.ownGoalDist > 35) {
                 Serial.println("Returning to goal");
@@ -129,20 +129,20 @@ void normal() {
                 robotAngle = 0;
                 moveSpeed = 50;
             }
-        }   else if (ballData.visible && ballData.dist < 80) {
+        } else if (ballData.visible && ballData.dist < 80) {
             Serial.println("Aliging to ball");
             // if ball is visible, align to ball
             // since robot is line tracking, simply set target angle to ball
             // angle
             if (ballData.angle < 180)
                 robotAngle = 90;
-            else 
+            else
                 robotAngle = 270;
             // target ball angle is zero
             // TODO: add compass angle to ball angle when that works
             float error = abs(nonReflex(ballData.angle));
             moveSpeed = goalieBallPID.update(error);
-            
+
             moveSpeed = constrain(moveSpeed, 30, 70);
             Serial.print("Ball Angle: ");
             Serial.print(ballData.angle);
@@ -162,7 +162,7 @@ void normal() {
                 robotAngle = 270;
             // target goal angle is 180
             float error = abs(camera.ownGoalAngle - 180);
-           
+
             moveSpeed = goalieGoalPID.update(error);
             moveSpeed = constrain(moveSpeed, 30, 50);
             if (error < 3) moveSpeed = 0;
@@ -177,8 +177,6 @@ void normal() {
         camAngleCorrect();
         sendLayer1();
     }
-
-    
 }
 
 void moveInCircle() {
@@ -328,8 +326,7 @@ void robot1() {
                     goTo(Point(STRIKER_HOME_X, STRIKER_HOME_Y));
                 }
                 updateKick();
-                if (!ballData.captured)
-                    angleCorrect(heading);
+                if (!ballData.captured) angleCorrect(heading);
                 sendLayer1();
             }
             lineTrack = true;
@@ -411,7 +408,6 @@ void robot1() {
     }
 }
 
-
 void robot2() {
     // robot 2 program for SG Open technical challenge
     // cycle between 5 neutral points
@@ -422,7 +418,7 @@ void robot2() {
     lineAvoid = false;
     while (1) {
         updateAllData();
-        
+
         // stop at all neutral points except middle
         if (goTo(neutralPoints[pts[cnt]], 90)) {
             lineTrack = false;
@@ -433,7 +429,6 @@ void robot2() {
                     setMove(0, 0, 0);
                     camAngleCorrect();
                     sendLayer1();
-                    
                 }
             }
             cnt++;
@@ -450,8 +445,8 @@ void setup() {
 #else
     robotID = EEPROM.read(EEPROM_ID_ADDR);
 #endif
-    //defaultRole = robotID == 0 ? Role::attack : Role::defend;
-    defaultRole = Role::defend;
+        // defaultRole = robotID == 0 ? Role::attack : Role::defend;
+        defaultRole = Role::defend;
     pinMode(KICKER_PIN, OUTPUT);
     digitalWrite(KICKER_PIN, HIGH);
     Serial.begin(9600);
@@ -462,25 +457,24 @@ void setup() {
     // cmp.begin();
     bbox.begin();
 
-   
     pinMode(DRIBBLER_PIN, OUTPUT);
     analogWriteFrequency(DRIBBLER_PIN, 1000);
     analogWrite(DRIBBLER_PIN, DRIBBLER_LOWER_LIMIT);
-    delay(DRIBBLER_WAIT);
+    delay(3000);
     lightGateVal.begin();
 
     // pinMode(LED_BUILTIN, OUTPUT);
     // digitalWrite(LED_BUILTIN, HIGH);
 }
 
-
-
 void loop() {
-   //normal();
-    updateAllData();
-    trackGoal();
-    camAngleCorrect();
-    sendLayer1();
+    // normal();
+    dribble = true;
+    updateDribbler();
+    // updateAllData();
+    // trackGoal();
+    // camAngleCorrect();
+    // sendLayer1();
     // camera.printData();
     // printLightData();
     // // //camera.printData();
@@ -489,7 +483,7 @@ void loop() {
     // // } else {
     // //     goTo(neutralPoints[CentreDot]);
     // // }
-   
+
     // if (bbox.outAngle > 0) setMove(50, bbox.outAngle, 0);
     // camAngleCorrect();
     // sendLayer1();
@@ -506,13 +500,11 @@ void loop() {
     //         Serial.print(bt.otherData.ballData.y);
     //         Serial.println();
     //     }
-        
+
     // } else {
     //     Serial.println("Disconnected");
     // }
-    
-    
-   
+
     // front, left, back, right
     // if (readTOF()) {
     //     updatePosition();
