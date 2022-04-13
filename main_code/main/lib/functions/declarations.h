@@ -17,6 +17,8 @@
 #include <Wire.h>
 #include <movingAvg.h>
 
+//#define SWITCH_ROLES
+
 LineData lineData;
 MoveData moveData(0, 0, 0, 0);
 BallData ballData;
@@ -34,11 +36,14 @@ bool calibrate = false;
 bool doneCalibrating = false;
 bool kick = false;
 bool dribble = false;
+bool goalieAttack = false;
 bool kicked = false;
 long lastBallTime = 0;
 long lastKickTime = 0;
 long lastGateTime = 0;
+long lastBallMoveTime = 0;
 long lastDribbleTime = 0;
+
 
 int ballCnt = 0;
 float lastBallAngle;

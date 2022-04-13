@@ -15,6 +15,12 @@ float angleAverage(float angle1, float angle2) {
     return rad2deg(atan2(avgX, avgY));
 }
 
+float angleBetween(float x, float y) { return mod((y - x), 360); }
+
+float midAngleBetween(float x, float y) {
+    return mod(x + angleBetween(x, y) / 2.0, 360);
+}
+
 bool angleIsInside(float angleBoundCounterClockwise, float angleBoundClockwise,
                    float angleCheck) {
     if (angleBoundCounterClockwise < angleBoundClockwise) {

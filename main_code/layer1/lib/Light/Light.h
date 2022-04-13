@@ -30,13 +30,15 @@ class Light {
     bool doneReading();
 
     float lineAngle = 0;
+    float lineTrackAngle;
     float lastLineAngle = 0;
     float initialLineAngle = 0;
     float chordLength = 0;
     bool onLine = false;
     int lineDetected[32];
     int outSensors = 0;
-
+    float clusterStart;
+    float clusterEnd;
     // mapping from light sensor position in MUX to position in circle
     int lightMap[32] = {25, 26, 27, 28, 29, 30, 1,  0,  31, 2,  3,
                         4,  5,  6,  7,  8,  9,  10, 11, 12, 13, 14,

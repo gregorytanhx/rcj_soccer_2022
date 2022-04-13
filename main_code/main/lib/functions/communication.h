@@ -1,9 +1,9 @@
 #ifndef COMM_H
 #define COMM_H
 
+#include <communication.h>
 #include <declarations.h>
 #include <movement.h>
-#include <communication.h>
 
 void sendLayer1() {
     L1Serial.write(LAYER1_REC_SYNC_BYTE);
@@ -62,6 +62,7 @@ bool readTOF() {
 }
 
 Role currentRole() {
+#ifdef SWITCH_ROLES
     // will tell the robot if its supposed to attack or defend
     if (bt.isConnected) {
         // if role is undecided, pick default, else return the role that has
@@ -74,6 +75,9 @@ Role currentRole() {
         // if robot is only one on field, default to striker
         return Role::attack;
     }
+#else
+    return defaultRole;
+#endif
 }
 
 bool shouldSwitchRoles(BluetoothData attackerData, BluetoothData defenderData) {
@@ -145,9 +149,9 @@ void updateDebug() {
 
 void updateAllData() {
     readLayer1();
-    //heading = cmp.read();
+    // heading = cmp.read();
     if (readTOF()) updatePosition();
-    //updateDebug();
+    // updateDebug();
     camera.update();
     updateBallData();
     // if (bluetoothTimer.timeHasPassed()) updateBluetooth();

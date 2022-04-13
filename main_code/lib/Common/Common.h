@@ -65,6 +65,8 @@ float deg2rad(float angle);
 float rad2deg(float angle);
 float angleDiff(float angle1, float angle2);
 float angleAverage(float angle1, float angle2);
+float angleBetween(float x, float y) ;
+float midAngleBetween(float x, float y);
 float distance(float x, float y);
 float norm(float val, int max, int min);
 int sign(int x);

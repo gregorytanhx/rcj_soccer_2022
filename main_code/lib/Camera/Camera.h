@@ -25,7 +25,7 @@ class Camera {
     bool read();
     void process();
     void update();
-    void printData();
+    void printData(int timeOut = 0);
     float getOrientation();
 
     float ballAngle;

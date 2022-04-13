@@ -105,7 +105,7 @@ if ID == 'whitebot':
     # lab field values
     red_thresh = [(52, 74, 39, 63, 20, 40)]
     blue_thresh = [(15, 50, -10, 25, -60, -15)]
-    yellow_thresh = [(60, 90, -30, 10, 30, 70)]
+    yellow_thresh = [(50, 100, -30, 10, 20, 70)]
     green_thresh = [(50, 75, -50, -20, -5, 15)]
     white_thresh = [(70, 93, -30, 10, -10, 20)]
     black_thresh = [(10, 16, -10, 10, -5, 15)]

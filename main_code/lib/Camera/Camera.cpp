@@ -73,8 +73,8 @@ void Camera::update() {
     }
 }
 
-void Camera::printData() {
-    if (millis() - lastPrintTime > 100) {
+void Camera::printData(int timeOut) {
+    if (millis() - lastPrintTime > timeOut) {
         lastPrintTime = millis();
         String obj[] = {"Ball", "Blue", "Yellow"};
         String vals[] = {"Angle", "Dist"};

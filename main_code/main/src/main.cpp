@@ -9,6 +9,7 @@ PID goalieGoalPID(0.6, 0, 0);
 void normal() {
     // regular program
     updateAllData();
+   
     lineAvoid = true;
     lineTrack = false;
     if (currentRole() == Role::attack || goalieCharge) {
@@ -60,7 +61,7 @@ void normal() {
         // move at faster speed if goalie is charging
         if (goalieCharge) moveData.speed.val = 80;
 
-        updateKick();
+        //updateKick();
         updateDribbler();
         angleCorrect();
         sendLayer1();
@@ -69,15 +70,15 @@ void normal() {
         // defence program
         lineTrack = true;
         lineAvoid = false;
-        Serial.println("DEFENCE MODE");
+        //camera.printData(0);
+        //printLightData();
         if (camera.ballVisible && camera.newData &&
-            abs(lastBallAngle - camera.ballAngle) < 1 &&
-            abs(lastBallDist - camera.ballDist) < 20) {
-            ballCnt++;
-        } else {
-            ballCnt = 0;
-        }
-        if (ballCnt >= 10) {
+            abs(lastBallAngle - camera.ballAngle) > 5 &&
+            abs(lastBallDist - camera.ballDist) > 20) {
+            lastBallMoveTime = millis();
+        } 
+        if (millis() - lastBallMoveTime > 1000 && goalieAttack) {
+            Serial.println("Charging");
             // goalie charges to score if ball has not moved for some time
             goalieCharge = true;
             goalieChargeTimer = millis();
@@ -87,53 +88,72 @@ void normal() {
             moveSpeed = 0;
             robotAngle = 0;
         }
-        if (!lineData.onLine || camera.oppGoalDist > 75) {
-            // return to goal area if not on line or too far from goal centre
-            float goalMult, goalOffset;
-            int tempAng = camera.ownGoalAngle - 180;
-            if (tempAng >= 0) {
-                goalOffset = fmin(tempAng * 1.0, 90);
-            } else {
-                goalOffset = fmax(tempAng * 1.0, -90);
-            }
-            // add offset if goal angle is very steep
-            if (camera.ownGoalAngle < 100 || camera.ownGoalAngle > 260) {
-                goalMult = 0.3;
-            } else {
-                goalMult = 0;
-            }
+        if (!lineData.onLine) {
+            if (camera.ownGoalDist > 35) {
+                Serial.println("Returning to goal");
+                //  return to goal area if not on line or too far from goal
+                //  centre
+                float goalMult, goalOffset;
+                int tempAng = camera.ownGoalAngle - 180;
+                if (tempAng >= 0) {
+                    goalOffset = fmin(tempAng * 1.0, 90);
+                } else {
+                    goalOffset = fmax(tempAng * 1.0, -90);
+                }
+                // add offset if goal angle is very steep
+                if (camera.ownGoalAngle < 100 || camera.ownGoalAngle > 260) {
+                    goalMult = 0.3;
+                } else {
+                    goalMult = 0;
+                }
 
-            robotAngle = fmod(camera.ownGoalAngle + goalOffset * goalMult, 360);
-            moveSpeed = 70;
+                robotAngle =
+                    fmod(camera.ownGoalAngle + goalOffset * goalMult, 360);
 
-        } else if (ballData.visible && ballData.dist < 100) {
+                moveSpeed = 50;
+            } else if (camera.ownGoalDist < 29) {
+                robotAngle = 0;
+                moveSpeed = 50;
+            }
+        }   else if (ballData.visible && ballData.dist < 80) {
+            Serial.println("Aliging to ball");
             // if ball is visible, align to ball
             // since robot is line tracking, simply set target angle to ball
             // angle
-            robotAngle = ballData.angle;
+            if (ballData.angle < 180)
+                robotAngle = 90;
+            else 
+                robotAngle = 270;
             // target ball angle is zero
             // TODO: add compass angle to ball angle when that works
-            float error = abs(ballData.angle);
+            float error = abs(nonReflex(ballData.angle));
             moveSpeed = goalieBallPID.update(error);
-            moveSpeed = min(110, moveSpeed);
+            moveSpeed = constrain(moveSpeed, 30, 50);
+            if (error < 3) moveSpeed = 0;
 
         } else {
+            Serial.println("Ball not visible, returning to goal centre");
             // if ball not visible, align to goal centre
             // since robot is line tracking, simply set target angle to own goal
             // angle
-            robotAngle = camera.ownGoalAngle;
+            if (camera.ownGoalAngle < 180)
+                robotAngle = 90;
+            else
+                robotAngle = 270;
             // target goal angle is 180
             float error = abs(nonReflex(camera.ownGoalAngle - 180));
             moveSpeed = goalieBallPID.update(error);
-            moveSpeed = min(110, moveSpeed);
+            moveSpeed = constrain(moveSpeed, 30, 50);
+            if (abs(error) < 3) moveSpeed = 0;
         }
-
+        // Serial.print("Angle: ");
+        // Serial.println(robotAngle);
         setMove(moveSpeed, robotAngle, 0);
         lastBallAngle = camera.ballAngle;
         lastBallDist = camera.ballDist;
     }
 
-    angleCorrect();
+    camAngleCorrect();
     sendLayer1();
 }
 
@@ -406,7 +426,8 @@ void setup() {
 #else
     robotID = EEPROM.read(EEPROM_ID_ADDR);
 #endif
-        defaultRole = robotID == 0 ? Role::attack : Role::defend;
+    //defaultRole = robotID == 0 ? Role::attack : Role::defend;
+    defaultRole = Role::defend;
     pinMode(KICKER_PIN, OUTPUT);
     digitalWrite(KICKER_PIN, HIGH);
     Serial.begin(9600);
@@ -431,19 +452,19 @@ void setup() {
 
 
 void loop() {
-
-    updateAllData();
-    printLightData();
-    // //camera.printData();
-    // if (camera.ballVisible) {
-    //     trackBall();
-    // } else {
-    //     goTo(neutralPoints[CentreDot]);
-    // }
+    normal();
+    // updateAllData();
+    // printLightData();
+    // // //camera.printData();
+    // // if (camera.ballVisible) {
+    // //     trackBall();
+    // // } else {
+    // //     goTo(neutralPoints[CentreDot]);
+    // // }
    
-    if (bbox.outAngle > 0) setMove(50, bbox.outAngle, 0);
-    camAngleCorrect();
-    sendLayer1();
+    // if (bbox.outAngle > 0) setMove(50, bbox.outAngle, 0);
+    // camAngleCorrect();
+    // sendLayer1();
     // Serial.println(cmp.read());
     //  cmp.read();
     //  cmp.calibrate();

@@ -71,7 +71,7 @@ void setup() {
     eeprom_buffer_fill();
     robotID = eeprom_buffered_read_byte(EEPROM_ID_ADDR);
 #endif
-    light.init();
+    //light.init();
    
     motors.init(robotID);
 
@@ -86,9 +86,8 @@ void setup() {
 }
 
 void loop() {
-    //receiveData();
-    // motors.setMove(speed, angle, rotation, angSpeed);
-    // motors.moveOut();
+
+    receiveData();
     if (calibrate) {
         if (doneCalibrating) {
             light.read();
@@ -102,7 +101,7 @@ void loop() {
         light.read();
 
         if (light.doneReading()) {
-            // light.printLight();
+            //light.printLight();
             // light.printThresh();
             light.getLineData(lineData);
             sendData();
@@ -118,15 +117,17 @@ void loop() {
 
         if (lineData.onLine) {
             if (lineTrack) {
-                angle = 0;
                 // follow line
                 lineTimer.update();
                 float closestAngle = nonReflex(light.getClosestAngle(angle));
                 // use PID to control angle of correction
-                // float correction = lineTrackPID.update(closestAngle - angle);
-                // float moveAngle = angle + correction;
-
-                motors.setMove(speed, closestAngle, rotation, angSpeed);
+                float correction = lineTrackPID.update(closestAngle - angle);
+                float moveAngle = angle + correction;
+                // L1DebugSerial.print("Reference angle: ");
+                // L1DebugSerial.print(angle);
+                // L1DebugSerial.print("Line track angle: ");
+                // L1DebugSerial.println(closestAngle);
+                motors.setMove(speed, moveAngle, rotation, angSpeed);
 
             } else if (lineAvoid) {
                 // avoid line by moving in opposite direction to line
@@ -150,7 +151,7 @@ void loop() {
         } else {
             // no line detected, move according to teensy instructions
             motors.setMove(speed, angle, rotation, angSpeed);
-            // motors.setMove(0, 0, 0);
+            //motors.setMove(0, 0, 0);
             // reset last line angle
             lastLineAngle = -1;
         }

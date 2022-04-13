@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include <Common.h>
 #include <Pins.h>
+#include <Config.h>
 #include <IMU.h>
 #include <Wire.h>
 
@@ -8,26 +9,29 @@ TwoWire Wire1(PB11, PB10);
 
 IMU cmp(&Wire1);
 
-#define Serial Serial1
+#define Serial L4DebugSerial
 
 void setup() {    
     L4CommSerial.begin(STM32_BAUD);
 #ifdef DEBUG
     Serial.begin(9600);
 #endif
-    //L4DebugSerial.println("test");
-    cmp.init();
+    Serial.println("test");
+    cmp.begin();
     pinMode(STM32_LED, OUTPUT);
-    digitalWrite(STM32_LED, LOW);
+    digitalWrite(STM32_LED, HIGH);
 }
-
+long lastPrintTime = 0;
 void loop() {
-    cmp.printCalib();
-    Serial.print("Euler: ");
-    Serial.println(cmp.readEuler());
-    Serial.print("Quaternion: ");
-    Serial.println(cmp.readQuat());
-    delay(200);
+    if (millis() - lastPrintTime > 250) {
+        lastPrintTime = millis();
+        cmp.printCalib();
+        Serial.print("Euler: ");
+        Serial.println(cmp.readEuler());
+        Serial.print("Quaternion: ");
+        Serial.println(cmp.readQuat());
+    }
+    
 }
 
 
