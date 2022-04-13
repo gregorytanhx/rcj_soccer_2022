@@ -30,7 +30,8 @@ void updateKick() {
 }
 
 void updateBallData() {
-    if (readLightGate() < 70) lastGateTime = millis();
+    
+    if (readLightGate() < 40) lastGateTime = millis();
     ballData.captured = millis() - lastGateTime < 100;
     if (camera.ballVisible) {
         relBallCoords = Point(camera.ballAngle, camera.ballDist);
@@ -100,10 +101,15 @@ void trackGoal(float goalAngle = -1.0) {
     if (goalAngle < 180)
         goalOffset = fmin(goalAngle, 90);
     else
-        goalOffset = max((360 - goalAngle), -90);
+        goalOffset = max((goalAngle - 360), -90);
 
     float goalMult = 1.5;
     robotAngle = goalAngle + goalMult * goalOffset;
+
+    Serial.print("Goal Angle: ");
+    Serial.print(goalAngle);
+    Serial.print(" Move Angle: ");
+    Serial.println(robotAngle);
     setMove(60, robotAngle, 0);
 }
 
@@ -113,12 +119,15 @@ void angleCorrect(int targetAng = 0) {
 
 void camAngleCorrect(int targetAng = 0) {
     if (camera.blueVisible && camera.yellowVisible) {
+        Serial.print("Orientation: ");
+        Serial.println(camera.frontVector.getAngle());
         moveData.rotation.val = cmpPID.update(camera.frontVector.getAngle());
         // Serial.print("Correction: ");
         // Serial.println(moveData.rotation.val);
         if (moveData.speed.val == 0) moveData.angSpeed.val = 40;
-        else moveData.angSpeed.val = 10;
+        else moveData.angSpeed.val = 15;// moveData.speed.val * 0.2;
     } else {
+        Serial.println("FUCKKKKKK");
         moveData.rotation.val = 0;
     }
 }

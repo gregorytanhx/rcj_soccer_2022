@@ -3,13 +3,13 @@
 #include <localisation.h>
 #include <movement.h>
 
-PID goalieBallPID(1.9, 0, 0);
-PID goalieGoalPID(0.6, 0, 0);
+PID goalieBallPID(2.5, 0.01, 2);
+PID goalieGoalPID(2.5, 0, 1);
 
 void normal() {
     // regular program
     updateAllData();
-   
+    
     lineAvoid = true;
     lineTrack = false;
     if (currentRole() == Role::attack || goalieCharge) {
@@ -18,10 +18,16 @@ void normal() {
         } else if (goalieCharge) {
             Serial.println("GOALIE ATTACK MODE");
         }
+        if (ballData.captured) {
+            Serial.println("ball captured!");
+        }
+        Serial.print("Goalie Charge Timer: ");
+        Serial.println(millis() - goalieChargeTimer);
         if (millis() - goalieChargeTimer > 3000) {
             // stop goalie from charging after 3s
             goalieCharge = false;
-        }
+            previouslyCharging = true;
+        } 
         // attack program
         if (ballData.captured) {
             trackGoal();
@@ -59,11 +65,11 @@ void normal() {
             goTo(Point(STRIKER_HOME_X, STRIKER_HOME_Y));
         }
         // move at faster speed if goalie is charging
-        if (goalieCharge) moveData.speed.val = 80;
+        if (goalieCharge) moveData.speed.val = 50;
 
         //updateKick();
         updateDribbler();
-        angleCorrect();
+        camAngleCorrect();
         sendLayer1();
 
     } else {
@@ -72,22 +78,29 @@ void normal() {
         lineAvoid = false;
         //camera.printData(0);
         //printLightData();
-        if (camera.ballVisible && camera.newData &&
-            abs(lastBallAngle - camera.ballAngle) > 5 &&
-            abs(lastBallDist - camera.ballDist) > 20) {
-            lastBallMoveTime = millis();
+        if (previouslyCharging) {
+            lastChargeTime = millis();
+            previouslyCharging = false;
         } 
-        if (millis() - lastBallMoveTime > 1000 && goalieAttack) {
-            Serial.println("Charging");
-            // goalie charges to score if ball has not moved for some time
-            goalieCharge = true;
-            goalieChargeTimer = millis();
-            lineTrack = false;
-            // avoid moving in the wrong direction before swapping to attack
-            // mode
-            moveSpeed = 0;
-            robotAngle = 0;
+        if (millis() - lastChargeTime > 10000) {
+            if (camera.ballVisible && camera.newData &&
+                abs(lastBallAngle - camera.ballAngle) > 5 &&
+                abs(lastBallDist - camera.ballDist) > 20) {
+                lastBallMoveTime = millis();
+            }
+            if (millis() - lastBallMoveTime > 5000 && goalieAttack) {
+                Serial.println("Charging");
+                // goalie charges to score if ball has not moved for some time
+                goalieCharge = true;
+                goalieChargeTimer = millis();
+                lineTrack = false;
+                // avoid moving in the wrong direction before swapping to attack
+                // mode
+                moveSpeed = 0;
+                robotAngle = 0;
+            }
         }
+        
         if (!lineData.onLine) {
             if (camera.ownGoalDist > 35) {
                 Serial.println("Returning to goal");
@@ -129,33 +142,43 @@ void normal() {
             // TODO: add compass angle to ball angle when that works
             float error = abs(nonReflex(ballData.angle));
             moveSpeed = goalieBallPID.update(error);
-            moveSpeed = constrain(moveSpeed, 30, 50);
-            if (error < 3) moveSpeed = 0;
+            
+            moveSpeed = constrain(moveSpeed, 30, 70);
+            Serial.print("Ball Angle: ");
+            Serial.print(ballData.angle);
+            Serial.print("Error: ");
+            Serial.println(error);
+            if (error < 7) moveSpeed = 0;
 
         } else {
             Serial.println("Ball not visible, returning to goal centre");
             // if ball not visible, align to goal centre
             // since robot is line tracking, simply set target angle to own goal
             // angle
+            Serial.println(camera.ownGoalAngle);
             if (camera.ownGoalAngle < 180)
                 robotAngle = 90;
             else
                 robotAngle = 270;
             // target goal angle is 180
-            float error = abs(nonReflex(camera.ownGoalAngle - 180));
-            moveSpeed = goalieBallPID.update(error);
+            float error = abs(camera.ownGoalAngle - 180);
+           
+            moveSpeed = goalieGoalPID.update(error);
             moveSpeed = constrain(moveSpeed, 30, 50);
             if (error < 3) moveSpeed = 0;
+            Serial.print("Speed: ");
+            Serial.println(moveSpeed);
         }
         // Serial.print("Angle: ");
         // Serial.println(robotAngle);
         setMove(moveSpeed, robotAngle, 0);
         lastBallAngle = camera.ballAngle;
         lastBallDist = camera.ballDist;
+        camAngleCorrect();
+        sendLayer1();
     }
 
-    camAngleCorrect();
-    sendLayer1();
+    
 }
 
 void moveInCircle() {
@@ -453,8 +476,12 @@ void setup() {
 
 
 void loop() {
-    normal();
-    // updateAllData();
+   //normal();
+    updateAllData();
+    trackGoal();
+    camAngleCorrect();
+    sendLayer1();
+    // camera.printData();
     // printLightData();
     // // //camera.printData();
     // // if (camera.ballVisible) {

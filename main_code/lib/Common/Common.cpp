@@ -4,9 +4,9 @@ float rad2deg(float angle) { return angle * 180 / pi; }
 
 float deg2rad(float angle) { return angle * pi / 180; }
 
-float angleDiff(float angle1, float angle2) {
-    float diff = fmod(angle1 - angle2, 360);
-    return min(abs(diff), 360 - abs(diff));
+float angleDiff(float x, float y) {
+    float diff = angleBetween(x, y);
+    return fmin(diff, 360  -diff);
 }
 
 float angleAverage(float angle1, float angle2) {

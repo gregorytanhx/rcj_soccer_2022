@@ -7,14 +7,14 @@
 #include <math.h>
 #include <movingAvg.h>
 
-#define CAMERA_PACKET_SIZE 33
+#define CAMERA_PACKET_SIZE 17
 #define CAMERA_SYNC_BYTE 42
 #define CAMERA_BAUD 1000000
 
 enum Side { facingYellow, facingBlue, unset };
 
 typedef union camBuffer {
-    float vals[(CAMERA_PACKET_SIZE - 1) / 4];
+    uint16_t vals[(CAMERA_PACKET_SIZE - 1) / 2];
     uint8_t b[CAMERA_PACKET_SIZE - 1];
 } camBuffer;
 
@@ -28,26 +28,23 @@ class Camera {
     void printData(int timeOut = 0);
     float getOrientation();
 
-    float ballAngle;
-    float ballDist;
-    float blueAngle;
-    float blueDist;
-    float yellowAngle;
-    float yellowDist;
+    float ballAngle, ballDist, predBallAngle, predBallDist;
+    float blueAngle, blueDist;
+    float yellowAngle, yellowDist;
 
-    float oppGoalAngle;
-    float ownGoalDist;
-    float ownGoalAngle;
-    float oppGoalDist;
+    float oppGoalAngle, ownGoalDist;
+    float ownGoalAngle, oppGoalDist;
 
     bool oppGoalVisible = false;
     bool ownGoalVisible = false;
+    bool predBall = false;
     bool blueVisible = false;
     bool yellowVisible = false;
     bool ballVisible = false;
     bool newData = false;
 
     long lastPrintTime = 0;
+    long lastReadTime = 0;
 
     Point centreVector;
     Point frontVector;

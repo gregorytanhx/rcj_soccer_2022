@@ -238,27 +238,25 @@ void Light::getLineData(LineData& data) {
     float largestDiff = 0;
     bool previouslyOnLine = onLine;
     float closestAngle = 0;
-    float minDiff = 360;
     onLine = outSensors > 0;
     if (onLine) {
         // get line angle and chord length
-        for (int i = 0; i < outSensors; i++) {
-            for (int j = i + 1; j < outSensors; j++) {
-                float tmpDiff = angleDiff(lineDetected[i] * 360 / 32,
-                                          lineDetected[j] * 360 / 32);
+        for (int i = 0; i < outSensors - 1; i++) {
+            for (int j = 1; j < outSensors; j++) {
+                float tmpDiff = angleDiff(lineDetected[i] * (360 / 32),
+                                          lineDetected[j] * (360 / 32));
                 if (tmpDiff > largestDiff) {
-                    clusterStart = lineDetected[i] * 360 / 32;
-                    clusterEnd = lineDetected[j] * 360 / 32;
+                    clusterStart = lineDetected[i] * (360 / 32);
+                    clusterEnd = lineDetected[j] * (360 / 32);
                     largestDiff = tmpDiff;
                 }
             }
         }
         
-        chordLength = smallestAngleBetween(clusterStart, clusterEnd) / 180;
+        chordLength = angleDiff(clusterStart, clusterEnd) / 180;
         lineAngle = angleBetween(clusterStart, clusterEnd) <= 180
                       ? midAngleBetween(clusterStart, clusterEnd)
                       : midAngleBetween(clusterEnd, clusterStart);
-       
     }
     outSensors = 0;
 
@@ -275,7 +273,7 @@ void Light::getLineData(LineData& data) {
     L1DebugSerial.println();
     lineTrackAngle = closestAngle;
 }
-float getClosestAngle(float angle) {
+float Light::getClosestAngle(float angle) {
     if (angleDiff(angle, clusterStart) < angleDiff(angle, clusterEnd)) {
         return clusterStart;
     } else {

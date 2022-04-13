@@ -9,7 +9,7 @@
 #include <Camera.h>
 #include <Common.h>
 #include <EEPROM.h>
-#include <IMU.h>
+// #include <IMU.h>
 #include <PID.h>
 #include <Pins.h>
 #include <Point.h>
@@ -39,12 +39,14 @@ bool calibrate = false;
 bool doneCalibrating = false;
 bool kick = false;
 bool dribble = false;
-bool goalieAttack = false;
+bool previouslyCharging = false;
+bool goalieAttack = true;
 bool kicked = false;
 long lastBallTime = 0;
 long lastKickTime = 0;
 long lastGateTime = 0;
 long lastBallMoveTime = 0;
+long lastChargeTime = 0;
 long lastDribbleTime = 0;
 
 
@@ -57,7 +59,7 @@ int lastDist;
 int distCnt = 0;
 
 TOFBuffer tof;
-IMU cmp(&Wire1);
+// IMU cmp(&Wire1);
 float heading;
 float moveSpeed;
 float robotAngle;

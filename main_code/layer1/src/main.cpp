@@ -71,7 +71,7 @@ void setup() {
     eeprom_buffer_fill();
     robotID = eeprom_buffered_read_byte(EEPROM_ID_ADDR);
 #endif
-    //light.init();
+    light.init();
    
     motors.init(robotID);
 
@@ -104,6 +104,12 @@ void loop() {
             //light.printLight();
             // light.printThresh();
             light.getLineData(lineData);
+            if (lineData.onLine) {
+                L1DebugSerial.print("Line Angle: ");
+                L1DebugSerial.print(lineData.lineAngle.val);
+                L1DebugSerial.print("\tChord Length: ");
+                L1DebugSerial.println(lineData.chordLength.val);
+            }
             sendData();
         }
 
@@ -122,8 +128,8 @@ void loop() {
                 // L1DebugSerial.println(closestAngle);
 
                 // use chord length to adjust speed
-                speed = speed * (0.5 + dist);
-                motors.setMove(speed, moveAngle, rotation, angSpeed);
+        
+                motors.setMove(speed, closestAngle, rotation, angSpeed);
 
             } else if (lineAvoid) {
                 // avoid line by moving in opposite direction to line
@@ -147,7 +153,7 @@ void loop() {
         } else {
             // no line detected, move according to teensy instructions
             motors.setMove(speed, angle, rotation, angSpeed);
-            //motors.setMove(0, 0, 0);
+            
             // reset last line angle
             lastLineAngle = -1;
         }

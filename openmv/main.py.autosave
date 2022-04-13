@@ -327,8 +327,9 @@ def send(data):
 
     for num in data:
         num = int(round(num, 2) * 100)
-        sendData += list(struct.pack("<i", num))
-
+      
+        sendData += list(num.to_bytes(2, 'little'))
+    print()
     for num in sendData:
         try:
             uart.writechar(num)

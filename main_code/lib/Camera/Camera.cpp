@@ -4,20 +4,28 @@ void Camera::begin() { CamSerial.begin(CAMERA_BAUD); }
 
 bool Camera::read() {
     newData = false;
+    float tmpArray[8];
     while (CamSerial.available() >= CAMERA_PACKET_SIZE) {
         newData = true;
         uint8_t syncByte = CamSerial.read();
         if (syncByte == CAMERA_SYNC_BYTE) {
             for (int i = 0; i < CAMERA_PACKET_SIZE - 1; i++) {
                 buffer.b[i] = CamSerial.read();
+              
             }
         }
-        ballAngle = buffer.vals[0];
-        ballDist = buffer.vals[1];
-        blueAngle = buffer.vals[2];
-        blueDist = buffer.vals[3];
-        yellowAngle = buffer.vals[4];
-        yellowDist = buffer.vals[5];
+        for (int i = 0; i < 8; i++) {
+            tmpArray[i] = (float) buffer.vals[i] / 100;
+        }
+
+        ballAngle = tmpArray[0];
+        ballDist = tmpArray[1];
+        predBallAngle = tmpArray[2];
+        predBallDist = tmpArray[3];
+        blueAngle = tmpArray[4];
+        blueDist = tmpArray[5];
+        yellowAngle = tmpArray[6];
+        yellowDist = tmpArray[7];
     }
     return newData;
 }
@@ -26,6 +34,7 @@ void Camera::process() {
     blueVisible = blueAngle != 500;
     yellowVisible = yellowAngle != 500;
     ballVisible = ballAngle != 500;
+    predBall = predBallAngle != 500;
 
     // set side only once
     if ((blueVisible && yellowVisible) && side == unset) {
@@ -64,7 +73,6 @@ void Camera::process() {
 
     // vector pointing to front of field
     frontVector = oppGoalVec - centreVector;
-
 }
 
 void Camera::update() {
@@ -74,10 +82,9 @@ void Camera::update() {
 }
 
 void Camera::printData(int timeOut) {
-    if (millis() - lastPrintTime > timeOut) {
+    if (newData) {
         lastPrintTime = millis();
-        String obj[] = {"Ball", "Blue", "Yellow"};
-        String vals[] = {"Angle", "Dist"};
+
         if (side == facingBlue) {
             Serial.println("FACING BLUE");
         } else if (side == facingYellow) {
@@ -89,6 +96,13 @@ void Camera::printData(int timeOut) {
             Serial.print(" Ball Dist: ");
             Serial.print(ballDist);
         }
+        if (predBall) {
+            Serial.print("Predicted Ball Angle: ");
+            Serial.print(predBallAngle);
+            Serial.print(" Predicted Ball Dist: ");
+            Serial.print(predBallDist);
+        }
+        Serial.println();
         if (blueVisible) {
             Serial.print(" Blue Angle: ");
             Serial.print(blueAngle);
@@ -117,5 +131,4 @@ void Camera::printData(int timeOut) {
             Serial.println(-centreVector.y);
         }
     }
-   
 }
