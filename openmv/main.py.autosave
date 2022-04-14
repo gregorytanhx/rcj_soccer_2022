@@ -313,8 +313,6 @@ def find_objects(debug=False):
 
     if predBall:
         if debug:
-
-
             print(f"Predicted Ball: Angle: {predBall.angle} Distance: {predBall.dist}")
     else:
         predBall = obj(0, 0, 0, 0)
@@ -326,6 +324,7 @@ def send(data):
     sendData = [42]
 
     for num in data:
+        # convert from 2dp float to int
         num = int(round(num, 2) * 100)
       
         sendData += list(num.to_bytes(2, 'little'))
