@@ -83,7 +83,8 @@ Point relBallCoords(0, 0);
 Point absBallCoords(0, 0);
 
 PID coordPID(0.15, 0, 0.1);
-PID cmpPID(0.15, 0, 0.6);
+PID cmpPID(0.2, 0, 0.2);
+PID camAngPID(0.2, 0, 4.7);
 
 // initialise neutral point coordinates
 // each point is an x and y coordinate with respect to field centre
@@ -92,8 +93,8 @@ PID cmpPID(0.15, 0, 0.6);
 //                          Point(0, 660),     Point(965, -660), Point(965, 660),
 //                          Point(-965, -660), Point(-965, 660)};
 // for camera only
-Point neutralPoints[] = {Point(-550, 550),  Point(150, 550),  Point(-100, -100),
-                        Point(-550, -750), Point(200, -500), Point(0, -660),
+Point neutralPoints[] = {Point(-350, 600),  Point(200, 500),  Point(-50, -50),
+                        Point(-350, -500), Point(250, -300), Point(0, -660),
                         Point(0, 660),     Point(965, -660), Point(965, 660),
                         Point(-965, -660), Point(-965, 660)};
 
@@ -118,10 +119,10 @@ int readLightGate() {
      }
 
 void setMove(float speed, float angle, float rotation, float angSpeed = -1.0) {
-    moveData.speed.val = speed;
-    moveData.angle.val = angle;
-    moveData.rotation.val = rotation;
-    moveData.angSpeed.val = angSpeed;
+    moveData.speed.val = (int) (speed * 100);
+    moveData.angle.val = (int) (angle * 100);
+    moveData.rotation.val = (int) (rotation * 100);
+    moveData.angSpeed.val = (int) (angSpeed * 100);
 }
 
 #endif

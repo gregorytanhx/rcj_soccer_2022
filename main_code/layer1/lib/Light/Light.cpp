@@ -1,6 +1,7 @@
 #include "Light.h"
 
-void Light::init() {
+void Light::begin(uint8_t id) {
+    robotID = id;
     pinMode(mux_A1, OUTPUT);
     pinMode(mux_A2, OUTPUT);
     pinMode(mux_A3, OUTPUT);
@@ -30,9 +31,18 @@ void Light::init() {
         lightThresh.b[i * 2 + 1] = eeprom_buffered_read_byte(i + 33);
     }
 #else
-    for (int i = 0; i < 32; i++) {
-        lightThresh.vals[i] = fixedThresh[i];
+    if (robotID == 0) {
+        L1DebugSerial.println("Loading White Bot Thresh");
+        for (int i = 0; i < 32; i++) {
+            lightThresh.vals[i] = fixedThreshWhiteBot[i];
+        }
+    } else {
+        L1DebugSerial.println("Loading Black Bot Thresh");
+        for (int i = 0; i < 32; i++) {
+            lightThresh.vals[i] = fixedThreshBlackBot[i];
+        }
     }
+    
 #endif
 }
 void Light::printThresh() {
@@ -142,7 +152,6 @@ void Light::sendVals() {
 }
 
 void Light::calibrate() {
-#ifdef USE_EEPROM
 #ifdef DEBUG
     L1DebugSerial.print("Calibrating...");
 #endif
@@ -188,7 +197,7 @@ void Light::calibrate() {
     L1DebugSerial.print("Done!");
 #endif
 
-#endif
+
 
 #ifdef DEBUG
     L1DebugSerial.print("Max: ");
@@ -206,7 +215,7 @@ void Light::calibrate() {
     L1DebugSerial.print("Thresh: ");
     for (int i = 0; i < 32; i++) {
         L1DebugSerial.print(lightThresh.vals[lightMap[i]]);
-        L1DebugSerial.print(" ");
+        L1DebugSerial.print(", ");
     }
     L1DebugSerial.println();
 #endif

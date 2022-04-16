@@ -121,9 +121,9 @@ void Camera::printData(int timeOut) {
             Serial.print("Orientation: ");
             Serial.print(-frontVector.getAngle());
             Serial.print(" Angle to Centre: ");
-            Serial.print(centreVector.getAngle());
-            Serial.print(" Distance to Centre: ");
-            Serial.print(centreVector.getDistance());
+            Serial.print(nonReflex(centreVector.getAngle()));
+            Serial.print(" Distance to Centre (cm): ");
+            Serial.print(centreVector.getDistance() / 10);
             Serial.println();
             Serial.print("X: ");
             Serial.print(-centreVector.x);

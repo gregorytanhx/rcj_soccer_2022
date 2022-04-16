@@ -18,7 +18,7 @@
 class Light {
    public:
     void calibrate();
-    void init();
+    void begin(uint8_t id);
     void read();
     void readRaw();
     void printLight();
@@ -29,6 +29,7 @@ class Light {
     float getClosestAngle(float angle);
     bool doneReading();
 
+    uint8_t robotID;
     float lineAngle = 0;
     float lineTrackAngle;
     float lastLineAngle = 0;
@@ -44,10 +45,15 @@ class Light {
                         4,  5,  6,  7,  8,  9,  10, 11, 12, 13, 14,
                         15, 16, 17, 18, 19, 20, 21, 22, 23, 24};
 
-    int fixedThresh[32] = {367, 481, 459, 299, 468, 435, 418, 432,
-                           416, 399, 308, 367, 367, 459, 407, 468,
-                           459, 435, 439, 468, 435, 459, 459, 407,
-                           468, 465, 367, 459, 435, 459, 439, 468};
+    int fixedThreshWhiteBot[32] = {367, 481, 459, 299, 468, 435, 418, 432,
+                                   416, 399, 308, 367, 367, 459, 407, 468,
+                                   459, 435, 439, 468, 435, 459, 459, 407,
+                                   468, 465, 367, 459, 435, 459, 439, 468};
+
+    int fixedThreshBlackBot[32] = {282, 395, 289, 280, 252, 282, 395, 289,
+                                   408, 259, 111, 259, 111, 144, 111, 409,
+                                   111, 409, 282, 111, 289, 280, 111, 252,
+                                   289, 282, 280, 111, 252, 289, 259, 111};
 
     int muxChannel[16][4] = {
         {0, 0, 0, 0},  // channel 0

@@ -1,6 +1,6 @@
 #include "Motor.h"
 
-void Motors::init(uint8_t id) {
+void Motors::begin(uint8_t id) {
     robotID = id;
 
     pinMode(FL_DIG, OUTPUT);
@@ -40,20 +40,8 @@ void Motors::setMove(float speed, float angle, float rotation,
 void Motors::moveOut() {
     
     if (robotID == 0) {
+     
         // bot 1
-        analogWrite(FL_PWM, abs(FL_OUT));
-        digitalWriteFast(FL_DIG, FL_OUT > 0 ? HIGH : LOW);
-
-        analogWrite(FR_PWM, abs(FR_OUT));
-        digitalWriteFast(FR_DIG, FR_OUT > 0 ? LOW : HIGH);
-
-        analogWrite(BL_PWM, abs(BL_OUT*1.15));
-        digitalWriteFast(BL_DIG, BL_OUT > 0 ? LOW : HIGH);
-
-        analogWrite(BR_PWM, abs(BR_OUT));
-        digitalWriteFast(BR_DIG, BR_OUT > 0 ? HIGH : LOW);
-    } else {
-        // bot 2
         analogWrite(FL_PWM, abs(FL_OUT));
         digitalWriteFast(FL_DIG, FL_OUT > 0 ? LOW : HIGH);
 
@@ -65,6 +53,19 @@ void Motors::moveOut() {
 
         analogWrite(BR_PWM, abs(BR_OUT));
         digitalWriteFast(BR_DIG, BR_OUT > 0 ? HIGH : LOW);
+    } else {
+        // bot 2
+        analogWrite(FL_PWM, abs(FL_OUT));
+        digitalWriteFast(FL_DIG, FL_OUT > 0 ? HIGH : LOW);
+
+        analogWrite(FR_PWM, abs(FR_OUT));
+        digitalWriteFast(FR_DIG, FR_OUT > 0 ? HIGH : LOW);
+
+        analogWrite(BL_PWM, abs(BL_OUT));
+        digitalWriteFast(BL_DIG, BL_OUT > 0 ? LOW : HIGH);
+
+        analogWrite(BR_PWM, abs(BR_OUT));
+        digitalWriteFast(BR_DIG, BR_OUT > 0 ? LOW : HIGH);
     }
    
 }

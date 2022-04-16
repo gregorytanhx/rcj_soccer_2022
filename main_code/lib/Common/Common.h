@@ -40,7 +40,7 @@
 #define STM32_BAUD 250000
 
 // send: sent by layer 1, rec: received by layer 1
-#define LAYER1_REC_PACKET_SIZE 20
+#define LAYER1_REC_PACKET_SIZE 12
 #define LAYER1_SEND_PACKET_SIZE 13
 #define LAYER1_REC_SYNC_BYTE 2
 #define LAYER1_SEND_SYNC_BYTE 2
@@ -65,7 +65,8 @@
 
 
 float deg2rad(float angle);
-float rad2deg(float angle);
+float truncate(float x, int precision = 2);
+ float rad2deg(float angle);
 float angleDiff(float angle1, float angle2);
 float angleAverage(float angle1, float angle2);
 float angleBetween(float x, float y) ;
@@ -91,7 +92,7 @@ typedef union int16Data {
 } int16Data;
 
 typedef union motorBuffer {
-    float vals[4];
+    int16_t vals[4];
     uint8_t b[sizeof(vals)];
 } motorBuffer;
 
@@ -105,8 +106,8 @@ typedef struct LineData {
 
 // struct for compass data to be sent over serial
 typedef union CmpVal {
-    float val;
-    uint8_t b[4];
+    int16_t val;
+    uint8_t b[2];
 } CmpVal;
 
 

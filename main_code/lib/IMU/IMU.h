@@ -19,6 +19,8 @@
 #endif
 
 
+
+
 // class for BNO055 IMU
 class IMU {
    public:
@@ -26,6 +28,7 @@ class IMU {
     void begin();
     void printData();
     void calibrate();
+    void sendCalib();
     void displaySensorDetails();
     void displaySensorOffsets(const adafruit_bno055_offsets_t& calibData);
     void printCalib();

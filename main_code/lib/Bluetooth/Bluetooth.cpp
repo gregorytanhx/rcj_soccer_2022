@@ -23,21 +23,21 @@ void Bluetooth::ATmode() {
 void Bluetooth::send() {
     // fill buffer and send
 
-    // 2 x 4 bytes for floats
-    btBuffer.f[0] = ownData.ballData.dist;
-    btBuffer.f[1] = ownData.confidence;
+  
 
-    // 4 x 2 bytes for int16s
-    btBuffer.vals[4] = ownData.ballData.x;
-    btBuffer.vals[5] = ownData.ballData.y;
-    btBuffer.vals[6] = ownData.robotPos.x;
-    btBuffer.vals[7] = ownData.robotPos.y;
+    // 6 x 2 bytes for int16s
+    btBuffer.vals[0] = (int) (ownData.ballData.dist * 100);
+    btBuffer.vals[1] = (int) (ownData.confidence * 100);
+    btBuffer.vals[2] = ownData.ballData.x;
+    btBuffer.vals[3] = ownData.ballData.y;
+    btBuffer.vals[4] = ownData.robotPos.x;
+    btBuffer.vals[5] = ownData.robotPos.y;
 
     // 4 bytes for uint8s
-    btBuffer.b[16] = ownData.ballData.visible;
-    btBuffer.b[17] = ownData.ballData.captured;
-    btBuffer.b[18] = ownData.onField;
-    btBuffer.b[19] = ownData.role;
+    btBuffer.b[12] = ownData.ballData.visible;
+    btBuffer.b[13] = ownData.ballData.captured;
+    btBuffer.b[14] = ownData.onField;
+    btBuffer.b[15] = ownData.role;
 
     BTSerial.write(BLUETOOTH_SYNC_BYTE);
     BTSerial.write(btBuffer.b, sizeof(btBuffer.b));
@@ -56,13 +56,13 @@ void Bluetooth::receive() {
             
             }
             // obtain data from buffer
-            otherData.ballData = BallData(btBuffer.vals[4], btBuffer.vals[5],
-                                          (bool) btBuffer.b[16]);
-            otherData.ballData.dist = btBuffer.f[0];
-            otherData.robotPos = Point(btBuffer.vals[6], btBuffer.vals[7]);
-            otherData.onField = (bool) btBuffer.b[18];
-            otherData.role = static_cast <Role> (btBuffer.b[19]);
-            otherData.confidence = btBuffer.f[1];
+            otherData.ballData = BallData(btBuffer.vals[2], btBuffer.vals[3],
+                                          (bool) btBuffer.b[12]);
+            otherData.ballData.dist = (float) btBuffer.vals[0] / 100;
+            otherData.robotPos = Point(btBuffer.vals[4], btBuffer.vals[5]);
+            otherData.onField = (bool) btBuffer.b[14];
+            otherData.role = static_cast <Role> (btBuffer.b[15]);
+            otherData.confidence = (float) btBuffer.vals[1] / 100;
             timer.update();
         }
         nothingRecieved = false;

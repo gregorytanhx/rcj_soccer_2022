@@ -9,6 +9,11 @@ float angleDiff(float x, float y) {
     return fmin(diff, 360  -diff);
 }
 
+float truncate(float x, int precision ) {
+    int tmp = x * pow(10, precision);
+    return tmp / pow(10, precision);
+}
+
 float angleAverage(float angle1, float angle2) {
     float avgX = sin(deg2rad(angle1)) + sin(deg2rad(angle2));
     float avgY = cos(deg2rad(angle1)) + cos(deg2rad(angle2));

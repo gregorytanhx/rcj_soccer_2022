@@ -46,10 +46,10 @@ bool goTo(Point target, int distThresh = 40) {
     // get initial gauge for speed
     moveSpeed = constrain(tofVector.getDistance() * 0.1, 30, 50);
 
-    //bbox.print();
-    // if using coordinates, adjust angle based on confidence in position
-    // along each axis eg. if x-axis is completely blocked, move along
-    // y-axis until robot is not blocked
+    // bbox.print();
+    //  if using coordinates, adjust angle based on confidence in position
+    //  along each axis eg. if x-axis is completely blocked, move along
+    //  y-axis until robot is not blocked
 
     if (bbox.Xconfidence < 0.4) bbox.Xconfidence = 0;
     if (bbox.Yconfidence < 0.4) bbox.Yconfidence = 0;
@@ -80,30 +80,30 @@ bool goTo(Point target, int distThresh = 40) {
 
     if (camera.oppGoalVisible && camera.ownGoalVisible) {
         // go to point based on vector calculations from camera
-        Serial.print(moveAngle);
         camVector = camera.centreVector + target;
         moveAngle = camVector.getAngle();
-        //moveAngle = angleAverage(camVector.getAngle(), moveAngle);
-        // compensate for orientation
+        // moveAngle = angleAverage(camVector.getAngle(), moveAngle);
+        //  compensate for orientation
         moveAngle = nonReflex(moveAngle) - camera.frontVector.getAngle();
         moveSpeed = constrain(camVector.getDistance() * 0.1, 30, 50);
-        //dist = (camVector.getDistance() + dist) / 2 ;
+        // dist = (camVector.getDistance() + dist) / 2 ;
         dist = camVector.getDistance();
+
+        Serial.print("X: ");
+        Serial.print(-camera.centreVector.x);
+        Serial.print(" Y: ");
+        Serial.println(-camera.centreVector.y);
         // Serial.print("Camera: ");
-        // Serial.print("Angle to target: ");
+        Serial.print("Angle to target: ");
         Serial.print(" ");
-        Serial.print(camVector.getAngle());
-        
-        
+        Serial.print(moveAngle);
+
+        Serial.print(" Distance to target: ");
+        Serial.print(camVector.getDistance());
         Serial.println();
-        Serial.println(moveAngle);
-        
-        // Serial.print(" Distance to target: ");
-        // Serial.print(moveVector.getDistance());  
-        // Serial.println();
-        // Serial.print(target.getAngle());
-        // Serial.print(" ");
-        // Serial.println(target.getDistance());
+        Serial.print(target.getAngle());
+        Serial.print(" ");
+        Serial.println(target.getDistance());
     } else {
         moveSpeed = 0;
     }

@@ -22,6 +22,8 @@ void updateKick() {
             kickerTimer.update();
         }
         kicked = true;
+    } else {
+        digitalWriteFast(KICKER_PIN, HIGH);
     }
     if (kicked && kickerTimer.timeHasPassed(false)) {
         digitalWriteFast(KICKER_PIN, HIGH);
@@ -30,7 +32,6 @@ void updateKick() {
 }
 
 void updateBallData() {
-    
     if (readLightGate() < 40) lastGateTime = millis();
     ballData.captured = millis() - lastGateTime < 100;
     if (camera.ballVisible) {
@@ -46,7 +47,6 @@ void updateBallData() {
         // find ball position based on other robot's data
         // derive angle and distance of ball relative to robot based on its
         // absolute coordinates
-
         absBallCoords = Point(bt.otherData.ballData.x, bt.otherData.ballData.y);
         relBallCoords = absBallCoords - botCoords;
         ballData.angle = relBallCoords.getAngle();
@@ -54,12 +54,23 @@ void updateBallData() {
         // treat ball as visible
         ballData.visible = true;
         lastBallTime = millis();
+
+    } else if (millis() - lastBallTime < 1000 && camera.predBall) {
+        // use predicted ball if ball was last seen less than one second ago
+        relBallCoords = Point(camera.predBallAngle, camera.predBallDist);
+        absBallCoords = relBallCoords + botCoords;
+        ballData.angle = camera.predBallAngle;
+        ballData.dist = camera.predBallDist;
+        ballData.x = absBallCoords.x;
+        ballData.y = absBallCoords.y;
+        // do NOT update ball timer here
     }
-    ballData.visible = millis() - lastBallTime < 500;
+
+    ballData.visible = millis() - lastBallTime < 1000;
 }
 
 void updateLineControl() {
-    // determine how to handle line
+    // determine how to handle line when ball tracking
     if (moveData.speed.val < 80) {
         lineTrack = true;
         lineAvoid = false;
@@ -114,20 +125,26 @@ void trackGoal(float goalAngle = -1.0) {
 }
 
 void angleCorrect(int targetAng = 0) {
-    moveData.rotation.val = cmpPID.update(cmpVal.val - targetAng);
+    moveData.rotation.val = cmpPID.update(targetAng-heading);
+    if (moveData.speed.val == 0)
+        moveData.angSpeed.val = 40;
+    else
+        moveData.angSpeed.val = 15;
 }
 
 void camAngleCorrect(int targetAng = 0) {
     if (camera.blueVisible && camera.yellowVisible) {
-        Serial.print("Orientation: ");
-        Serial.println(camera.frontVector.getAngle());
-        moveData.rotation.val = cmpPID.update(camera.frontVector.getAngle());
+        // Serial.print("Orientation: ");
+        // Serial.println(camera.frontVector.getAngle());
+        moveData.rotation.val = truncate(camAngPID.update(camera.frontVector.getAngle() - targetAng));
         // Serial.print("Correction: ");
         // Serial.println(moveData.rotation.val);
-        if (moveData.speed.val == 0) moveData.angSpeed.val = 40;
-        else moveData.angSpeed.val = 15;// moveData.speed.val * 0.2;
+        if (moveData.speed.val == 0)
+            moveData.angSpeed.val = 40;
+        else
+            moveData.angSpeed.val = 15;
     } else {
-        Serial.println("FUCKKKKKK");
+        // Serial.println("FUCKKKKKK");
         moveData.rotation.val = 0;
     }
 }

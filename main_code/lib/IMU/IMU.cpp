@@ -1,8 +1,6 @@
 #include "IMU.h"
 
-IMU::IMU(TwoWire* theWire) {
-    bno = Adafruit_BNO055(55, 0x29, theWire);
-}
+IMU::IMU(TwoWire* theWire) { bno = Adafruit_BNO055(55, 0x29, theWire); }
 
 float IMU::readEuler() {
     imu::Vector<3> euler = bno.getVector(Adafruit_BNO055::VECTOR_EULER);
@@ -20,41 +18,31 @@ float IMU::read() {
     return heading;
 }
 
+void IMU::sendCalib() {
+    uint8_t system, gyro, accel, mag = 0;
+    bno.getCalibration(&system, &gyro, &accel, &mag);
+    Serial2.write(IMU_SYNC_BYTE);
+    Serial2.write(system);
+    Serial2.write(gyro);
+    Serial2.write(accel);
+    Serial2.write(mag);
+}
+
 void IMU::begin() {
     if (!bno.begin(Adafruit_BNO055::OPERATION_MODE_IMUPLUS)) {
-#ifdef DEBUG
         Serial.println("No BNO055 detected");
-#endif
-        while (1)
-            ;
+        while (1);
     }
 
-  
     uint8_t system, gyro, accel, mag = 0;
-    //loadCalib();
+    // loadCalib();
     delay(1000);
     bno.setExtCrystalUse(true);
     delay(100);
-    while (gyro != 3) {
+    while (gyro != 3 || accel != 3) {
         bno.getCalibration(&system, &gyro, &accel, &mag);
-        bno.getEvent(&event);
-#ifdef DEBUG
-        Serial.println("Uncalibrated!");
-        Serial.print("X: ");
-        Serial.print(event.orientation.x, 4);
-        Serial.print("\tY: ");
-        Serial.print(event.orientation.y, 4);
-        Serial.print("\tZ: ");
-        Serial.print(event.orientation.z, 4);
-
-        /* Optional: Display calibration status */
+        sendCalib();
         printCalib();
-
-        /* New line for the next sample */
-        Serial.println("");
-#endif
-        /* Wait the specified delay before requesting new data */
-        delay(100);
     }
 
     eulerOffset = readEuler();

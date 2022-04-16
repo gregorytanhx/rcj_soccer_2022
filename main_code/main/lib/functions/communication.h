@@ -7,13 +7,13 @@
 
 void sendLayer1() {
     L1Serial.write(LAYER1_REC_SYNC_BYTE);
-    L1Serial.write(moveData.speed.b, 4);
-    L1Serial.write(moveData.angle.b, 4);
-    L1Serial.write(moveData.rotation.b, 4);
-    L1Serial.write(moveData.angSpeed.b, 4);
-    L1Serial.write(lineTrack);
-    L1Serial.write(lineAvoid);
-    L1Serial.write(calibrate);
+    L1Serial.write(moveData.speed.b, 2);
+    L1Serial.write(moveData.angle.b, 2);
+    L1Serial.write(moveData.rotation.b, 2);
+    L1Serial.write(moveData.angSpeed.b, 2);
+    L1Serial.write((uint8_t)lineTrack);
+    L1Serial.write((uint8_t)lineAvoid);
+    L1Serial.write((uint8_t)calibrate);
 }
 
 void readLayer1() {
@@ -34,15 +34,41 @@ void readLayer1() {
     }
 }
 
-float readIMU() {
-    while (IMUSerial.available() >= 5) {
+void calibIMU() {
+    uint8_t sys, gyro, accel, mag = 0;
+    while (gyro != 3 || accel != 3) {
+        while (IMUSerial.available() >= 5) {
+            uint8_t syncByte = IMUSerial.read();
+            if (syncByte == IMU_SYNC_BYTE) {
+                sys = IMUSerial.read();
+                gyro = IMUSerial.read();
+                accel = IMUSerial.read();
+                mag = IMUSerial.read();
+            }
+        }
+        Serial.println();
+        Serial.print("Calibration: Sys=");
+        Serial.print(sys);
+        Serial.print(" Gyro=");
+        Serial.print(gyro);
+        Serial.print(" Accel=");
+        Serial.print(accel);
+        Serial.print(" Mag=");
+        Serial.println(mag);
+        Serial.println("--");
+    }
+}
+
+void readIMU() {
+    while (IMUSerial.available() >= 3) {
         uint8_t syncByte = IMUSerial.read();
         if (syncByte == IMU_SYNC_BYTE) {
-            for (int i = 0; i < 4; i++) {
+            for (int i = 0; i < 2; i++) {
                 cmpVal.b[i] = IMUSerial.read();
             }
         }
     }
+    heading = (float) cmpVal.val / 100;
 }
 
 void printLightData() {

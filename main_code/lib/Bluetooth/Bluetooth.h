@@ -29,9 +29,8 @@
 
 // union to serialise and deserialise bluetooth data
 typedef union BTBuffer {
-    float f[2];
-    int16_t vals[8];
-    uint8_t b[20];
+    int16_t vals[6];
+    uint8_t b[16];
 } BTBuffer;
 
 

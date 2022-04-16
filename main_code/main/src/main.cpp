@@ -76,8 +76,9 @@ void normal() {
         // defence program
         lineTrack = true;
         lineAvoid = false;
-        // camera.printData(0);
+        camera.printData();
         // printLightData();
+        goalieAttack = false;
         if (previouslyCharging) {
             lastChargeTime = millis();
             previouslyCharging = false;
@@ -129,7 +130,7 @@ void normal() {
                 robotAngle = 0;
                 moveSpeed = 50;
             }
-        } else if (ballData.visible && ballData.dist < 80) {
+        } else if (ballData.visible && ballData.dist < 80 && abs(camera.ownGoalAngle-180) < 39) {
             Serial.println("Aliging to ball");
             // if ball is visible, align to ball
             // since robot is line tracking, simply set target angle to ball
@@ -143,15 +144,15 @@ void normal() {
             float error = abs(nonReflex(ballData.angle));
             moveSpeed = goalieBallPID.update(error);
 
-            moveSpeed = constrain(moveSpeed, 30, 70);
+            moveSpeed = constrain(moveSpeed, 30, 60);
             Serial.print("Ball Angle: ");
             Serial.print(ballData.angle);
             Serial.print("Error: ");
             Serial.println(error);
-            if (error < 7) moveSpeed = 0;
+            if (error < 5) moveSpeed = 0;
 
         } else {
-            Serial.println("Ball not visible, returning to goal centre");
+            Serial.println("Returning to goal centre");
             // if ball not visible, align to goal centre
             // since robot is line tracking, simply set target angle to own goal
             // angle
@@ -174,6 +175,9 @@ void normal() {
         setMove(moveSpeed, robotAngle, 0);
         lastBallAngle = camera.ballAngle;
         lastBallDist = camera.ballDist;
+        Serial.print("Angle: ");
+        Serial.print(robotAngle);
+
         camAngleCorrect();
         sendLayer1();
     }
@@ -189,7 +193,7 @@ void moveInCircle() {
             dir %= 360;
         }
         setMove(50, dir, 0);
-        angleCorrect();
+        // angleCorrect();
         sendLayer1();
     }
 }
@@ -412,15 +416,23 @@ void robot2() {
     // robot 2 program for SG Open technical challenge
     // cycle between 5 neutral points
 
-    points pts[5] = {TopLeftDot, TopRightDot, CentreDot, BottomLeftDot,
-                     BottomRightDot};
+    // points pts[] = {BottomLeftDot,  TopLeftDot,  CentreDot,
+    //                 BottomRightDot, TopRightDot, CentreDot};
+    points pts[] = {TopLeftDot, TopRightDot, CentreDot, BottomLeftDot,
+                    BottomRightDot};
     int cnt = 0;
     lineAvoid = false;
+    int distThresh;
     while (1) {
         updateAllData();
+        // camera.printData();
+        //  stop at all neutral points except middle
+        if (pts[cnt] == CentreDot) {
+            distThresh = 200;
+        } else
+            distThresh = 90;
 
-        // stop at all neutral points except middle
-        if (goTo(neutralPoints[pts[cnt]], 90)) {
+        if (goTo(neutralPoints[pts[cnt]], distThresh)) {
             lineTrack = false;
             if (pts[cnt] != CentreDot) {
                 long timer = millis();
@@ -435,7 +447,7 @@ void robot2() {
         }
         camAngleCorrect();
         sendLayer1();
-        cnt %= 5;
+        cnt %= 6;
     }
 }
 
@@ -446,12 +458,13 @@ void setup() {
     robotID = EEPROM.read(EEPROM_ID_ADDR);
 #endif
         // defaultRole = robotID == 0 ? Role::attack : Role::defend;
-        defaultRole = Role::defend;
+   
     pinMode(KICKER_PIN, OUTPUT);
     digitalWrite(KICKER_PIN, HIGH);
     Serial.begin(9600);
     L1Serial.begin(STM32_BAUD);
     L4Serial.begin(STM32_BAUD);
+    IMUSerial.begin(STM32_BAUD);
     camera.begin();
     bt.begin();
     // cmp.begin();
@@ -462,15 +475,29 @@ void setup() {
     analogWrite(DRIBBLER_PIN, DRIBBLER_LOWER_LIMIT);
     delay(3000);
     lightGateVal.begin();
-
-    // pinMode(LED_BUILTIN, OUTPUT);
-    // digitalWrite(LED_BUILTIN, HIGH);
+    // calibIMU();
+    //  pinMode(LED_BUILTIN, OUTPUT);
+    //  digitalWrite(LED_BUILTIN, HIGH);
 }
 
 void loop() {
     // normal();
-    dribble = true;
-    updateDribbler();
+    // readIMU();
+    // updateAllData();
+    // setMove(50, 0, 0);
+    // camAngleCorrect();
+    // sendLayer1();
+    // defaultRole = Role::defend;
+    // normal();
+
+    updateAllData();
+    setMove(50,0,0);
+    camAngleCorrect();
+    sendLayer1();
+    // Serial.println(cmpVal.val);
+
+    // dribble = true;
+    // updateDribbler();
     // updateAllData();
     // trackGoal();
     // camAngleCorrect();
