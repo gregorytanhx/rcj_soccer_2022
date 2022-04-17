@@ -56,7 +56,7 @@ void Motors::moveOut() {
     } else {
         // bot 2
         analogWrite(FL_PWM, abs(FL_OUT));
-        digitalWriteFast(FL_DIG, FL_OUT > 0 ? HIGH : LOW);
+        digitalWriteFast(FL_DIG, FL_OUT > 0 ? LOW : HIGH);
 
         analogWrite(FR_PWM, abs(FR_OUT));
         digitalWriteFast(FR_DIG, FR_OUT > 0 ? HIGH : LOW);

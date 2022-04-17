@@ -15,6 +15,11 @@ float rotation = 0;
 float angSpeed = -1.0;
 LineData lineData;
 
+typedef union motorBuffer {
+    float vals[4];
+    uint8_t b[sizeof(vals)];
+} motorBuffer;
+
 // buffer for receiving data from teensy
 motorBuffer buffer;
 
@@ -41,44 +46,31 @@ void sendData() {
 
 void receiveData() {
     // receive teensy data
-    while (L1CommSerial.available() >= LAYER1_REC_PACKET_SIZE) {
+    while (L1CommSerial.available() >= 20) {
         uint8_t syncByte = L1CommSerial.read();
-        
-        if (syncByte == LAYER1_REC_SYNC_BYTE) {
-            
+        if (syncByte == LAYER1_SYNC_BYTE_START) {
             // exclude last 3 bytes
-            for (int i = 0; i < LAYER1_REC_PACKET_SIZE - 4; i++) {
+            for (int i = 0; i < 16; i++) {
                 buffer.b[i] = L1CommSerial.read();
             }
-            lineTrack = (bool)L1CommSerial.read();
-            lineAvoid = (bool)L1CommSerial.read();
-            calibrate = (bool)L1CommSerial.read();
-            speed = (float) buffer.vals[0] / 100;
-            angle = (float) buffer.vals[1] / 100;
-            rotation = (float) buffer.vals[2] / 100;
-            angSpeed = (float) buffer.vals[3] / 100;
-            
+            uint8_t tmp1 = (bool)L1CommSerial.read();
+            uint8_t tmp2 = (bool)L1CommSerial.read();
+            uint8_t syncByte2 = L1CommSerial.read();
+            if (syncByte2 == LAYER1_SYNC_BYTE_END) {
+                speed = buffer.vals[0];
+                angle = buffer.vals[1];
+                rotation = buffer.vals[2];
+                angSpeed = buffer.vals[3];
+                lineTrack = tmp1;
+                lineAvoid = tmp2;
+            }
         }
     }
-    L1DebugSerial.print(speed);
-    L1DebugSerial.print(" ");
-    L1DebugSerial.print(angle);
-    L1DebugSerial.print(" ");
-    L1DebugSerial.print(rotation);
-    L1DebugSerial.print(" ");
-    L1DebugSerial.print(angSpeed);
-    L1DebugSerial.print(" ");
-    L1DebugSerial.print(lineTrack);
-    L1DebugSerial.print(" ");
-    L1DebugSerial.print(lineAvoid);
-    L1DebugSerial.print(" ");
-    L1DebugSerial.print(calibrate);
-    L1DebugSerial.println(" ");
 }
 int maxVals[32];
 
 // handle line avoidance directly through stm32
-
+// #define SET_ID
 void setup() {
 #ifdef SET_ID
     robotID = ID;
@@ -86,7 +78,8 @@ void setup() {
     eeprom_buffer_flush();
 #else
     eeprom_buffer_fill();
-    robotID = eeprom_buffered_read_byte(EEPROM_ID_ADDR);
+    robotID = eeprom_buffered_read_byte(0);
+    L1DebugSerial.println(robotID);
 #endif
     light.begin(robotID);
     motors.begin(robotID);
@@ -104,9 +97,7 @@ void setup() {
 void loop() {
     receiveData();
     calibrate = false;
-    
- 
-   
+
     if (calibrate) {
         if (doneCalibrating) {
             light.read();
@@ -118,9 +109,8 @@ void loop() {
 
     } else {
         light.read();
-        // MUX B ON BOT 2 IS FUCKED
         if (light.doneReading()) {
-            //light.printLight();
+            // light.printLight();
             // light.printThresh();
             light.getLineData(lineData);
             // if (lineData.onLine) {
@@ -133,18 +123,15 @@ void loop() {
         }
 
         if (lineData.onLine) {
-
             if (lineTrack) {
                 // follow line
                 lineTimer.update();
-                float closestAngle =
-                nonReflex(light.getClosestAngle(angle));
+                float closestAngle = nonReflex(light.getClosestAngle(angle));
                 // use PID to control angle of correction
-                float correction = lineTrackPID.update(closestAngle -
-                angle); float moveAngle = angle + correction; float dist
-                = light.chordLength > 1 ? light.chordLength - 1
-                                                   : 1 -
-                                                   light.chordLength;
+                float correction = lineTrackPID.update(closestAngle - angle);
+                float moveAngle = angle + correction;
+                float dist = light.chordLength > 1 ? light.chordLength - 1
+                                                   : 1 - light.chordLength;
                 // L1DebugSerial.print("Reference angle: ");
                 // L1DebugSerial.print(angle);
                 // L1DebugSerial.print("Line track angle: ");
@@ -156,8 +143,7 @@ void loop() {
 
             } else if (lineAvoid) {
                 // avoid line by moving in opposite direction to line
-                float moveAngle = fmod(lineData.lineAngle.val + 180,
-                360);
+                float moveAngle = fmod(lineData.lineAngle.val + 180, 360);
 
                 motors.setMove(fmax(60 * lineData.chordLength.val, 30),
                                moveAngle, rotation, angSpeed);
@@ -181,7 +167,7 @@ void loop() {
             // reset last line angle
             lastLineAngle = -1;
         }
-        
+
         motors.moveOut();
     }
 }

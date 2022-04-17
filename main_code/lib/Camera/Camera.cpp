@@ -11,7 +11,6 @@ bool Camera::read() {
         if (syncByte == CAMERA_SYNC_BYTE) {
             for (int i = 0; i < CAMERA_PACKET_SIZE - 1; i++) {
                 buffer.b[i] = CamSerial.read();
-              
             }
         }
         for (int i = 0; i < 8; i++) {

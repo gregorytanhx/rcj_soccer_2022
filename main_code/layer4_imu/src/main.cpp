@@ -27,14 +27,15 @@ void setup() {
     Serial.println("test");
     delay(3000);
     cmp.begin();
-    pinMode(STM32_LED, OUTPUT);
-    digitalWrite(STM32_LED, HIGH);
+    // pinMode(STM32_LED, OUTPUT);
+    // digitalWrite(STM32_LED, HIGH);
 }
 long lastPrintTime = 0;
 void loop() {    
     sendData();
-    Serial.println(cmp.readQuat());
-    Serial.println(Serial2.read());
+    // Serial.println(cmp.readQuat());
+  
 }
+
 
 

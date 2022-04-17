@@ -14,20 +14,31 @@ void updateDribbler() {
         analogWrite(DRIBBLER_PIN, DRIBBLER_LOWER_LIMIT);
     }
 }
-
+long kickTime = 0;
+long kickInterval = 0;
+bool stopKick = false;
 void updateKick() {
     if (kick) {
-        digitalWriteFast(KICKER_PIN, LOW);
         if (!kicked) {
-            kickerTimer.update();
+            digitalWriteFast(KICKER_PIN, LOW);
+            kickTime = millis();
+            kicked = true;
+            Serial.println("kicked");
+        } else {
+            if (millis() - kickTime > 100) {
+                digitalWriteFast(KICKER_PIN, HIGH);
+                Serial.println("stopped kicking");
+                stopKick = true;
+            }
+
+            if (stopKick && millis() - kickTime > 2000) {
+                kicked = false;
+                Serial.println("kicking again");
+                stopKick = false;
+            }
         }
-        kicked = true;
     } else {
         digitalWriteFast(KICKER_PIN, HIGH);
-    }
-    if (kicked && kickerTimer.timeHasPassed(false)) {
-        digitalWriteFast(KICKER_PIN, HIGH);
-        kicked = false;
     }
 }
 
@@ -55,7 +66,7 @@ void updateBallData() {
         ballData.visible = true;
         lastBallTime = millis();
 
-    } else if (millis() - lastBallTime < 1000 && camera.predBall) {
+    } else if (millis() - lastBallTime < 3000 && camera.predBall) {
         // use predicted ball if ball was last seen less than one second ago
         relBallCoords = Point(camera.predBallAngle, camera.predBallDist);
         absBallCoords = relBallCoords + botCoords;
@@ -66,7 +77,7 @@ void updateBallData() {
         // do NOT update ball timer here
     }
 
-    ballData.visible = millis() - lastBallTime < 1000;
+    ballData.visible = millis() - lastBallTime < 3000;
 }
 
 void updateLineControl() {
@@ -89,18 +100,28 @@ void updateLineControl() {
 
 void trackBall() {
     float ballOffset;
-    ballData.dist -= 5;
+    ballData.dist -= 9;
     if (ballData.angle < 180)
         ballOffset = fmin(ballData.angle * 1.0, 90);
     else
         ballOffset = max((ballData.angle - 360) * 1.0, -90);
 
-    float factor = 1 - ballData.dist / 80;
-    float ballMult = fmin(1, 0.2 * exp(factor * 3.6));
-    robotAngle = ballData.angle + ballMult * ballOffset;
-    Serial.print(camera.ballAngle);
+    // float factor = 1 - ballData.dist / 80;
+    // float ballMult = fmin(1, 0.015 * exp(factor * 3.6));
+    // robotAngle = ballData.angle + ballMult * ballOffset;
+
+    if (ballData.dist > 35)
+        robotAngle = ballData.angle + ballOffset * 0.35;
+    else if (ballData.dist > 20)
+        robotAngle = ballData.angle + ballOffset * 0.7;
+    else
+        robotAngle = ballData.angle + ballOffset * 0.95;
+        // ball directly next to robot
+
+    Serial.print("Ball Angle: ");
+    Serial.print(ballData.angle);
     Serial.print(" Ball Dist: ");
-    Serial.print(camera.ballDist);
+    Serial.print(ballData.dist);
     Serial.print(" Move Angle: ");
     Serial.println(robotAngle);
     setMove(50, robotAngle, 0);
@@ -125,7 +146,7 @@ void trackGoal(float goalAngle = -1.0) {
 }
 
 void angleCorrect(int targetAng = 0) {
-    moveData.rotation.val = cmpPID.update(targetAng-heading);
+    moveData.rotation.val = cmpPID.update(targetAng - heading);
     if (moveData.speed.val == 0)
         moveData.angSpeed.val = 40;
     else
@@ -136,7 +157,8 @@ void camAngleCorrect(int targetAng = 0) {
     if (camera.blueVisible && camera.yellowVisible) {
         // Serial.print("Orientation: ");
         // Serial.println(camera.frontVector.getAngle());
-        moveData.rotation.val = truncate(camAngPID.update(camera.frontVector.getAngle() - targetAng));
+        moveData.rotation.val =
+            camAngPID.update(camera.frontVector.getAngle() - targetAng);
         // Serial.print("Correction: ");
         // Serial.println(moveData.rotation.val);
         if (moveData.speed.val == 0)

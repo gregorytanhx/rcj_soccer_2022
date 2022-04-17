@@ -5,15 +5,19 @@
 #include <declarations.h>
 #include <movement.h>
 
+
 void sendLayer1() {
-    L1Serial.write(LAYER1_REC_SYNC_BYTE);
-    L1Serial.write(moveData.speed.b, 2);
-    L1Serial.write(moveData.angle.b, 2);
-    L1Serial.write(moveData.rotation.b, 2);
-    L1Serial.write(moveData.angSpeed.b, 2);
+    // use start and end sync bytes to minimise errors
+    L1Serial.write(LAYER1_SYNC_BYTE_START);
+    L1Serial.write(moveData.speed.b, 4);
+    L1Serial.write(moveData.angle.b, 4);
+    L1Serial.write(moveData.rotation.b, 4);
+    L1Serial.write(moveData.angSpeed.b, 4);
     L1Serial.write((uint8_t)lineTrack);
     L1Serial.write((uint8_t)lineAvoid);
-    L1Serial.write((uint8_t)calibrate);
+    L1Serial.write(LAYER1_SYNC_BYTE_END);
+    L1Serial.flush();
+   
 }
 
 void readLayer1() {

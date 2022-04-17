@@ -67,10 +67,9 @@ kf = KalmanFilter(F=F, B=B, H=H, Q=Q, R=R)
 
 
 sensor.reset()
-
 sensor.set_pixformat(sensor.RGB565)
 sensor.set_framesize(sensor.QVGA)
-sensor.skip_frames(time=1000)
+sensor.skip_frames(time = 2000)
 
 curr_gain = sensor.get_gain_db()
 sensor.set_auto_gain(False, gain_db=15)
@@ -95,11 +94,12 @@ sensor.skip_frames(time=1000)
 clock = time.clock()
 uart = UART(1, 1000000)
 
-ID = 'whitebot'
+#ID = 'whitebot'
+ID = 'blackbot'
 
 if ID == 'whitebot':
-    centreY = 145
-    centreX = 160
+    centreY = 127
+    centreX = 152
 
     # LAB thresholds
     # lab field values
@@ -112,13 +112,13 @@ if ID == 'whitebot':
 
 else:
     centreY = 135
-    centreX = 156
+    centreX = 145
 
     # LAB thresholds
     # lab field values
-    red_thresh = [(50, 75, 23, 70, 40, 76)]
-    blue_thresh = [(40, 59, -20, 20, -60, -20)]
-    yellow_thresh = [(70, 90, -10, 10, 50, 80)]
+    red_thresh = [(55, 80, 35, 55, 0, 20)]
+    blue_thresh = [(25, 55, -30, 10, -60, -35)]
+    yellow_thresh = [(60, 90, -30, 10, 20, 60)]
     green_thresh = [(50, 75, -50, -20, -5, 15)]
     white_thresh = [(70, 93, -30, 10, -10, 20)]
     black_thresh = [(10, 16, -10, 10, -5, 15)]
@@ -263,12 +263,11 @@ def find_objects(debug=False):
             debugPredX = centreX + distanceUnmapper(predX)
             debugPredY = centreY - distanceUnmapper(predY)
 
-            try:
-                predRect = (int(debugPredX - predH / 2), int(debugPredY - predW / 2), int(predW), int(predH))
-                img.draw_rectangle(predRect, color = (0, 255, 255))
-                img.draw_cross(int(debugPredX), int(debugPredY), color = (0, 255, 255))
-            except:
-                pass
+
+            predRect = (int(debugPredX - predH / 2), int(debugPredY - predW / 2), int(predW), int(predH))
+            img.draw_rectangle(predRect, color = (0, 255, 255))
+            img.draw_cross(int(debugPredX), int(debugPredY), color = (0, 255, 255))
+
 
         # ball not detected but was recently seen
 
@@ -303,8 +302,8 @@ def find_objects(debug=False):
         yellow.centralise()
         yellow.process()
         #print(f"Yellow pixel dist: {yellow.x} ")
-        if debug:
-            print(f"Yellow Goal: Angle: {yellow.angle} Distance: {yellow.dist} Pixel Distance: {yellow.unmappedDist}")
+        #if debug:
+            #print(f"Yellow Goal: Angle: {yellow.angle} Distance: {yellow.dist} Pixel Distance: {yellow.unmappedDist}")
     else:
         yellow = obj(0, 0, 0, 0)
 
@@ -313,8 +312,8 @@ def find_objects(debug=False):
         blue.process()
         #print(f"blue pixel dist: {blue.y} ")
 
-        if debug:
-            print(f"Blue Goal: Angle: {blue.angle} Distance: {blue.dist} Pixel Distance: {blue.unmappedDist}")
+        #if debug:
+            #print(f"Blue Goal: Angle: {blue.angle} Distance: {blue.dist} Pixel Distance: {blue.unmappedDist}")
     else:
         blue = obj(0, 0, 0, 0)
         #if debug:
@@ -353,7 +352,7 @@ def send(data):
             pass
 
 while(True):
-    debug = False
+    debug = True
     clock.tick()
     img = sensor.snapshot()
 

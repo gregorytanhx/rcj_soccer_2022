@@ -78,7 +78,6 @@ void normal() {
         lineAvoid = false;
         camera.printData();
         // printLightData();
-        goalieAttack = false;
         if (previouslyCharging) {
             lastChargeTime = millis();
             previouslyCharging = false;
@@ -130,7 +129,8 @@ void normal() {
                 robotAngle = 0;
                 moveSpeed = 50;
             }
-        } else if (ballData.visible && ballData.dist < 80 && abs(camera.ownGoalAngle-180) < 39) {
+        } else if (ballData.visible && ballData.dist < 80 &&
+                   abs(camera.ownGoalAngle - 180) < 39) {
             Serial.println("Aliging to ball");
             // if ball is visible, align to ball
             // since robot is line tracking, simply set target angle to ball
@@ -144,7 +144,7 @@ void normal() {
             float error = abs(nonReflex(ballData.angle));
             moveSpeed = goalieBallPID.update(error);
 
-            moveSpeed = constrain(moveSpeed, 30, 60);
+            moveSpeed = constrain(moveSpeed, 40, 70);
             Serial.print("Ball Angle: ");
             Serial.print(ballData.angle);
             Serial.print("Error: ");
@@ -458,8 +458,8 @@ void setup() {
     robotID = EEPROM.read(EEPROM_ID_ADDR);
 #endif
         // defaultRole = robotID == 0 ? Role::attack : Role::defend;
-   
-    pinMode(KICKER_PIN, OUTPUT);
+
+        pinMode(KICKER_PIN, OUTPUT);
     digitalWrite(KICKER_PIN, HIGH);
     Serial.begin(9600);
     L1Serial.begin(STM32_BAUD);
@@ -471,112 +471,35 @@ void setup() {
     bbox.begin();
 
     pinMode(DRIBBLER_PIN, OUTPUT);
+    analogWriteResolution(8);
     analogWriteFrequency(DRIBBLER_PIN, 1000);
     analogWrite(DRIBBLER_PIN, DRIBBLER_LOWER_LIMIT);
-    delay(3000);
+    delay(4000);
     lightGateVal.begin();
     // calibIMU();
-    //  pinMode(LED_BUILTIN, OUTPUT);
-    //  digitalWrite(LED_BUILTIN, HIGH);
+    pinMode(LED_BUILTIN, OUTPUT);
+    digitalWrite(LED_BUILTIN, HIGH);
+    delay(100);
+    digitalWrite(LED_BUILTIN, LOW);
 }
 
 void loop() {
-    // normal();
-    // readIMU();
-    // updateAllData();
-    // setMove(50, 0, 0);
-    // camAngleCorrect();
-    // sendLayer1();
-    // defaultRole = Role::defend;
-    // normal();
-
     updateAllData();
-    setMove(50,0,0);
+    camera.printData();
+    if (camera.ballVisible) {
+        trackBall();
+        if (ballData.captured) {
+            kick = true;
+        } else {
+            kick = false;
+        }
+    } else {
+        goTo(neutralPoints[CentreDot], 90);
+    }
+
+    if (bbox.outAngle > 0) setMove(50, bbox.outAngle, 0);
+    
     camAngleCorrect();
     sendLayer1();
-    // Serial.println(cmpVal.val);
-
-    // dribble = true;
-    // updateDribbler();
-    // updateAllData();
-    // trackGoal();
-    // camAngleCorrect();
-    // sendLayer1();
-    // camera.printData();
-    // printLightData();
-    // // //camera.printData();
-    // // if (camera.ballVisible) {
-    // //     trackBall();
-    // // } else {
-    // //     goTo(neutralPoints[CentreDot]);
-    // // }
-
-    // if (bbox.outAngle > 0) setMove(50, bbox.outAngle, 0);
-    // camAngleCorrect();
-    // sendLayer1();
-    // Serial.println(cmp.read());
-    //  cmp.read();
-    //  cmp.calibrate();
-    //  TODO: Test TOF localisation
-    // updateBluetooth();
-    // if (bt.isConnected) {
-    //     if (bt.newData) {
-    //         Serial.print("Ball X: ");
-    //         Serial.print(bt.otherData.ballData.x);
-    //         Serial.print(" Ball Y: ");
-    //         Serial.print(bt.otherData.ballData.y);
-    //         Serial.println();
-    //     }
-
-    // } else {
-    //     Serial.println("Disconnected");
-    // }
-
-    // front, left, back, right
-    // if (readTOF()) {
-    //     updatePosition();
-    //     updateDebug();
-    //     bbox.printTOF();
-    //     // bbox.checkFieldDims();
-    //     //  String dir[4] = {"Front", "Left", "Back", "Right"};
-    //     //  for (int i = 0; i < 4; i++) {
-    //     //      Serial.print(dir[i] + "Raw : ");
-    //     //      Serial.print(tof.vals[i]);
-    //     //      Serial.print("  ");
-    //     //  }
-    //     Serial.println();
-    // }
-
-    // goTo(neutralPoints[CentreDot]);
-    //  angleCorrect();
-    //  sendLayer1();
-    //  bbox.print();
-
-    // // controlDribbler();
-    // cmp.printCalib();
-    // Serial.print("Euler: ");
-    // Serial.println(cmp.readEuler());
-    // Serial.print("Quaternion: ");
-    // Serial.println(cmp.readQuat());
-
-    // readLayer1();
-    // if (lineData.onLine) {
-    //     Serial.println("Line Detected");
-    //     Serial.print("Angle: ");
-    //     Serial.print(lineData.lineAngle.val);
-    //     Serial.print(" Chord Length: ");
-    //     Serial.println(lineData.chordLength.val);
-    // }
-
-    // camera.update();
-
-    // heading = cmp.read();
-    // readLayer4();
-    // updatePosition();
-
-    // if (bluetoothTimer.timeHasPassed()) {
-    //     updateBluetooth();
-    // }
-
-    // updateBallData();
+     
 }

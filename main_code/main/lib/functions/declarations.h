@@ -84,7 +84,7 @@ Point absBallCoords(0, 0);
 
 PID coordPID(0.15, 0, 0.1);
 PID cmpPID(0.2, 0, 0.2);
-PID camAngPID(0.2, 0, 4.7);
+PID camAngPID(0.1, 0, 2);
 
 // initialise neutral point coordinates
 // each point is an x and y coordinate with respect to field centre
@@ -119,10 +119,10 @@ int readLightGate() {
      }
 
 void setMove(float speed, float angle, float rotation, float angSpeed = -1.0) {
-    moveData.speed.val = (int) (speed * 100);
-    moveData.angle.val = (int) (angle * 100);
-    moveData.rotation.val = (int) (rotation * 100);
-    moveData.angSpeed.val = (int) (angSpeed * 100);
+    moveData.speed.val = speed;
+    moveData.angle.val = angle;
+    moveData.rotation.val = rotation;
+    moveData.angSpeed.val = angSpeed;
 }
 
 #endif

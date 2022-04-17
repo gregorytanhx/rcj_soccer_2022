@@ -40,9 +40,10 @@
 #define STM32_BAUD 250000
 
 // send: sent by layer 1, rec: received by layer 1
-#define LAYER1_REC_PACKET_SIZE 12
+#define LAYER1_REC_PACKET_SIZE 20
 #define LAYER1_SEND_PACKET_SIZE 13
-#define LAYER1_REC_SYNC_BYTE 2
+#define LAYER1_SYNC_BYTE_START 2
+#define LAYER1_SYNC_BYTE_END 5
 #define LAYER1_SEND_SYNC_BYTE 2
 #define LAYER4_PACKET_SIZE 9
 #define LIGHT_PACKET_SIZE 65
@@ -91,10 +92,6 @@ typedef union int16Data {
     uint8_t b[2];
 } int16Data;
 
-typedef union motorBuffer {
-    int16_t vals[4];
-    uint8_t b[sizeof(vals)];
-} motorBuffer;
 
 // struct for line data to be sent over serial
 typedef struct LineData {
@@ -118,7 +115,8 @@ typedef struct MoveData {
     floatData rotation;
     floatData angSpeed;
 
-    MoveData(float moveSpeed, float moveAngle, float moveRotation, float angSpd) {
+    MoveData(float moveSpeed, float moveAngle, float moveRotation,
+             float angSpd) {
         speed.val = moveSpeed;
         angle.val = moveAngle;
         rotation.val = moveRotation;
