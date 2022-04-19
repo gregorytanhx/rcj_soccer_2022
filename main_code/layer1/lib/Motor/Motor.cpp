@@ -42,17 +42,17 @@ void Motors::moveOut() {
     if (robotID == 0) {
      
         // bot 1
-        analogWrite(FL_PWM, abs(FL_OUT));
+        analogWrite(FL_PWM, abs(0));
         digitalWriteFast(FL_DIG, FL_OUT > 0 ? LOW : HIGH);
 
         analogWrite(FR_PWM, abs(FR_OUT));
-        digitalWriteFast(FR_DIG, FR_OUT > 0 ? LOW : HIGH);
+        digitalWriteFast(FR_DIG, FR_OUT > 0 ? HIGH : LOW);
 
         analogWrite(BL_PWM, abs(BL_OUT));
-        digitalWriteFast(BL_DIG, BL_OUT > 0 ? HIGH : LOW);
+        digitalWriteFast(BL_DIG, BL_OUT > 0 ? LOW : HIGH);
 
         analogWrite(BR_PWM, abs(BR_OUT));
-        digitalWriteFast(BR_DIG, BR_OUT > 0 ? HIGH : LOW);
+        digitalWriteFast(BR_DIG, BR_OUT > 0 ? LOW : HIGH);
     } else {
         // bot 2
         analogWrite(FL_PWM, abs(FL_OUT));

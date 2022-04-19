@@ -25,12 +25,13 @@ void updateKick() {
             kicked = true;
             Serial.println("kicked");
         } else {
+            // solenoid sticks out for 100ms
             if (millis() - kickTime > 100) {
                 digitalWriteFast(KICKER_PIN, HIGH);
                 Serial.println("stopped kicking");
                 stopKick = true;
             }
-
+            // if kicker is on, kick every 2 seconds
             if (stopKick && millis() - kickTime > 2000) {
                 kicked = false;
                 Serial.println("kicking again");
@@ -90,38 +91,41 @@ void updateLineControl() {
         lineAvoid = true;
     }
     if (lineData.onLine &&
-        abs(moveData.angle.val - lineData.initialLineAngle.val > 90)) {
+        abs(moveData.angle.val - lineData.initialLineAngle.val) > 90) {
         // stop line tracking if desired angle of movement is opposite of the
         // line
         lineTrack = false;
-        lineAvoid = true;
+        lineAvoid = false;
     }
 }
 
 void trackBall() {
     float ballOffset;
-    ballData.dist -= 9;
+    ballData.dist = max(ballData.dist - 9, 0);
     if (ballData.angle < 180)
-        ballOffset = fmin(ballData.angle * 1.0, 90);
+        ballOffset = fmin(ballData.angle, 90);
     else
-        ballOffset = max((ballData.angle - 360) * 1.0, -90);
+        ballOffset = max((ballData.angle - 360), -90);
 
-    // float factor = 1 - ballData.dist / 80;
-    // float ballMult = fmin(1, 0.015 * exp(factor * 3.6));
-    // robotAngle = ballData.angle + ballMult * ballOffset;
+    float factor = 1 - ballData.dist / 80;
+    float ballMult = fmin(1, 0.032 * exp(factor * 4.6));
 
-    if (ballData.dist > 35)
-        robotAngle = ballData.angle + ballOffset * 0.35;
-    else if (ballData.dist > 20)
-        robotAngle = ballData.angle + ballOffset * 0.7;
-    else
-        robotAngle = ballData.angle + ballOffset * 0.95;
-        // ball directly next to robot
+    robotAngle = ballData.angle + ballMult * ballOffset;
+
+    // if (ballData.dist > 35)
+    //     robotAngle = ballData.angle + ballOffset * 0.35;
+    // else if (ballData.dist > 20)
+    //     robotAngle = ballData.angle + ballOffset * 0.7;
+    // else
+    //     robotAngle = ballData.angle + ballOffset * 0.95;
+    // ball directly next to robot
 
     Serial.print("Ball Angle: ");
     Serial.print(ballData.angle);
     Serial.print(" Ball Dist: ");
     Serial.print(ballData.dist);
+    Serial.print(" Ball Offset: ");
+    Serial.println(ballOffset);
     Serial.print(" Move Angle: ");
     Serial.println(robotAngle);
     setMove(50, robotAngle, 0);
@@ -146,12 +150,14 @@ void trackGoal(float goalAngle = -1.0) {
 }
 
 void angleCorrect(int targetAng = 0) {
-    moveData.rotation.val = cmpPID.update(targetAng - heading);
+    moveData.rotation.val = cmpPID.update(-targetAng + heading);
     if (moveData.speed.val == 0)
-        moveData.angSpeed.val = 40;
+        moveData.angSpeed.val = 30;
     else
         moveData.angSpeed.val = 15;
 }
+
+
 
 void camAngleCorrect(int targetAng = 0) {
     if (camera.blueVisible && camera.yellowVisible) {

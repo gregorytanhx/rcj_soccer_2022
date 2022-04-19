@@ -70,11 +70,11 @@ void receiveData() {
 int maxVals[32];
 
 // handle line avoidance directly through stm32
-// #define SET_ID
+//#define SET_ID
 void setup() {
 #ifdef SET_ID
     robotID = ID;
-    eeprom_buffered_write_byte(0, 0);
+    eeprom_buffered_write_byte(0, 1);
     eeprom_buffer_flush();
 #else
     eeprom_buffer_fill();
@@ -89,9 +89,6 @@ void setup() {
     // lineTimer.update();
     pinMode(STM32_LED, OUTPUT);
     digitalWrite(STM32_LED, HIGH);
-    for (int i = 0; i < 32; i++) {
-        maxVals[i] = 0;
-    }
 }
 
 void loop() {
@@ -110,7 +107,7 @@ void loop() {
     } else {
         light.read();
         if (light.doneReading()) {
-            // light.printLight();
+           
             // light.printThresh();
             light.getLineData(lineData);
             // if (lineData.onLine) {

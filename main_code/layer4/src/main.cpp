@@ -7,6 +7,7 @@
 #include <vl53l1_error_codes.h>
 #include <vl53l1x_class.h>
 
+#define Serial L4DebugSerial
 TwoWire Wire1(PB11, PB10);
 
 int shutPins[4] = {SHUT_1, SHUT_2, SHUT_3, SHUT_4};
@@ -73,6 +74,40 @@ void sendVals() {
     L4CommSerial.write(buffer.b, sizeof(buffer.b));
 }
 
+void i2cScanner() {
+    byte error, address;  // variable for error and I2C address
+    int nDevices;
+
+    Serial.println("Scanning...");
+
+    nDevices = 0;
+    for (address = 1; address < 127; address++) {
+        // The i2c_scanner uses the return value of
+        // the Write.endTransmisstion to see if
+        // a device did acknowledge to the address.
+        Wire1.beginTransmission(address);
+        error = Wire1.endTransmission();
+
+        if (error == 0) {
+            Serial.print("I2C device found at address 0x");
+            if (address < 16) Serial.print("0");
+            Serial.print(address, HEX);
+            Serial.println("  !");
+            nDevices++;
+        } else if (error == 4) {
+            Serial.print("Unknown error at address 0x");
+            if (address < 16) Serial.print("0");
+            Serial.println(address, HEX);
+        }
+    }
+    if (nDevices == 0)
+        Serial.println("No I2C devices found\n");
+    else
+        Serial.println("done\n");
+
+    delay(5000);  // wait 5
+}
+
 void setup() {
     pinMode(STM32_LED, OUTPUT);
     digitalWrite(STM32_LED, LOW);
@@ -83,12 +118,13 @@ void setup() {
     Wire1.begin();
     Wire1.setClock(400000);
     init_sensors();
+    digitalWrite(STM32_LED, HIGH);
+   
 }
 
 void loop() {
-    read_sensors();
-
-    if (tofCnt == 4){
+    // i2cScanner();
+    if (tofCnt == 4) {
         // for (int i = 0; i < 4; i++) {
         //     L4DebugSerial.print(buffer.vals[i]);
         //     L4DebugSerial.print(" ");
@@ -96,4 +132,5 @@ void loop() {
         // L4DebugSerial.println();
         sendVals();
     }
+    read_sensors();
 }

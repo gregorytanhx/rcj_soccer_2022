@@ -35,16 +35,16 @@ void IMU::begin() {
     }
 
     uint8_t system, gyro, accel, mag = 0;
-    // loadCalib();
+    loadCalib();
     delay(1000);
-    bno.setExtCrystalUse(true);
+    bno.setExtCrystalUse(false);
     delay(100);
-    while (gyro != 3 || accel != 3) {
-        bno.getCalibration(&system, &gyro, &accel, &mag);
-        sendCalib();
+   
+   
+    while (!bno.isFullyCalibrated()) {
         printCalib();
+        sendCalib();
     }
-
     eulerOffset = readEuler();
     quatOffset = readQuat();
 }

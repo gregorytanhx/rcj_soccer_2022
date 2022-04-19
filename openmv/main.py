@@ -117,7 +117,7 @@ else:
     # LAB thresholds
     # lab field values
     red_thresh = [(55, 80, 35, 55, 0, 20)]
-    blue_thresh = [(25, 55, -30, 10, -60, -35)]
+    blue_thresh = [(25, 50, -5, 20, -60, -35)]
     yellow_thresh = [(60, 90, -30, 10, 20, 60)]
     green_thresh = [(50, 75, -50, -20, -5, 15)]
     white_thresh = [(70, 93, -30, 10, -10, 20)]
@@ -352,7 +352,7 @@ def send(data):
             pass
 
 while(True):
-    debug = True
+    debug = False
     clock.tick()
     img = sensor.snapshot()
 

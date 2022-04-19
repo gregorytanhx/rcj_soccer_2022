@@ -56,7 +56,7 @@ void Light::printThresh() {
 
 void Light::printLight() {
     L1DebugSerial.print("Values: ");
-    for (int i = 0; i < 32; i++) {
+    for (int i = 16; i < 32; i++) {
         L1DebugSerial.print(lightVals[i]);
         L1DebugSerial.print(", ");
     }
@@ -65,7 +65,7 @@ void Light::printLight() {
 
 void Light::readRaw() {
     // no mapping
-    if (micros() - readTimer >= 70) {
+    if (micros() - readTimer >= 100) {
         bool out = false;
         // read from first MUX
         int idx = lightCnt;
@@ -102,7 +102,7 @@ void Light::readRaw() {
 }
 void Light::read() {
     // non blocking light read
-    if (micros() - readTimer >= 70) {
+    if (micros() - readTimer >= 100) {
         bool out = false;
         // read from first MUX
         int idx = lightMap[lightCnt];

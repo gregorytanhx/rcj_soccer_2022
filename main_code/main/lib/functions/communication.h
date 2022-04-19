@@ -75,6 +75,11 @@ void readIMU() {
     heading = (float) cmpVal.val / 100;
 }
 
+void printIMU() {
+    Serial.print("Heading: ");
+    Serial.println(heading);
+}
+
 void printLightData() {
     if (lineData.onLine) {
         Serial.println("Line Detected");
