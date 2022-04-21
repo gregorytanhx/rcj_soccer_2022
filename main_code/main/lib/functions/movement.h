@@ -44,7 +44,7 @@ void updateKick() {
 }
 
 void updateBallData() {
-    if (readLightGate() < 40) lastGateTime = millis();
+    if (readLightGate() < 50) lastGateTime = millis();
     ballData.captured = millis() - lastGateTime < 100;
     if (camera.ballVisible) {
         relBallCoords = Point(camera.ballAngle, camera.ballDist);
@@ -100,17 +100,25 @@ void updateLineControl() {
 }
 
 void trackBall() {
-    float ballOffset;
-    ballData.dist = max(ballData.dist - 9, 0);
+    float ballOffset, ballMult;
+    ballData.dist = max(ballData.dist - 11, 0);
     if (ballData.angle < 180)
-        ballOffset = fmin(ballData.angle, 90);
+        ballOffset = fmin(ballData.angle * 1.2, 90);
     else
-        ballOffset = max((ballData.angle - 360), -90);
+        ballOffset = max((ballData.angle - 360) * 1.2, -90);
 
-    float factor = 1 - ballData.dist / 80;
-    float ballMult = fmin(1, 0.032 * exp(factor * 4.6));
+    float factor = 1 - ballData.dist / 90;
+    ballMult = fmin(1.2, 0.04 * exp(factor * 3.6));
 
     robotAngle = ballData.angle + ballMult * ballOffset;
+
+    // if (ballData.angle >= 90 && ballData.angle <= 270) {
+    //     ballMult = 1 + exp((float)(20 - ballData.dist) / 15);
+    // }
+    // else {
+    //     ballMult = 1.0 + 10 / ballData.dist;
+    // }
+    // robotAngle = nonReflex(ballData.angle) * ballMult;
 
     // if (ballData.dist > 35)
     //     robotAngle = ballData.angle + ballOffset * 0.35;
@@ -127,7 +135,7 @@ void trackBall() {
     Serial.print(" Ball Offset: ");
     Serial.println(ballOffset);
     Serial.print(" Move Angle: ");
-    Serial.println(robotAngle);
+    Serial.println(mod(robotAngle+360, 360));
     setMove(50, robotAngle, 0);
 }
 
@@ -149,15 +157,14 @@ void trackGoal(float goalAngle = -1.0) {
     setMove(60, robotAngle, 0);
 }
 
-void angleCorrect(int targetAng = 0) {
-    moveData.rotation.val = cmpPID.update(-targetAng + heading);
+void angleCorrect(int target = 0) {
+    Serial.println(-heading + target);
+    moveData.rotation.val = cmpPID.update(-heading + target);
     if (moveData.speed.val == 0)
         moveData.angSpeed.val = 30;
     else
         moveData.angSpeed.val = 15;
 }
-
-
 
 void camAngleCorrect(int targetAng = 0) {
     if (camera.blueVisible && camera.yellowVisible) {

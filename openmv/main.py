@@ -111,12 +111,12 @@ if ID == 'whitebot':
     black_thresh = [(10, 16, -10, 10, -5, 15)]
 
 else:
-    centreY = 135
-    centreX = 145
+    centreY = 130
+    centreX = 150
 
     # LAB thresholds
     # lab field values
-    red_thresh = [(55, 80, 35, 55, 0, 20)]
+    red_thresh = [(50, 70, 35, 55, 0, 20)]
     blue_thresh = [(25, 50, -5, 20, -60, -35)]
     yellow_thresh = [(60, 90, -30, 10, 20, 60)]
     green_thresh = [(50, 75, -50, -20, -5, 15)]
@@ -187,6 +187,7 @@ class obj:
         self.angle = 500
         self.dist = 500
         self.unmappedDist = 0
+        self.confidence = 0
 
     def centralise(self):
         self.x -= centreX
@@ -223,8 +224,11 @@ def track_obj(thresh, pixel_thresh, area_thresh, color = (255, 255, 255), debug=
     found_blob = None
     max_area = 0
     box = None
+    # more blobs means more things blocking the goal
+    num_blobs = 0
     blobs = img.find_blobs(thresh, merge=merge, roi = roi, x_stride = stride, y_stride = stride, pixels_threshold=pixel_thresh, area_threshold=area_thresh, margin = margin)
     for blob in blobs:
+        num_blobs += 1
         if blob.area() > max_area:
             found_blob = blob
             max_area = blob.area()
@@ -233,6 +237,7 @@ def track_obj(thresh, pixel_thresh, area_thresh, color = (255, 255, 255), debug=
     if debug and found_obj:
         img.draw_rectangle(found_blob.rect(), color = color)
         img.draw_cross(found_blob.cx(), found_blob.cy(), color = color)
+        found_obj.confidence = 1/num_blobs
 
     return found_obj
 
@@ -352,7 +357,7 @@ def send(data):
             pass
 
 while(True):
-    debug = False
+    debug = True
     clock.tick()
     img = sensor.snapshot()
 

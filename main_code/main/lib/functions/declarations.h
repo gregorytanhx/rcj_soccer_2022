@@ -19,7 +19,6 @@
 
 //#define SWITCH_ROLES
 
-
 LineData lineData;
 MoveData moveData(0, 0, 0, 0);
 BallData ballData;
@@ -29,7 +28,6 @@ Camera camera;
 BBox bbox;
 LightBuffer lightVals;
 CmpVal cmpVal;
-
 
 float lastLineAngle = 0;
 bool lineTrack = false;
@@ -48,7 +46,6 @@ long lastGateTime = 0;
 long lastBallMoveTime = 0;
 long lastChargeTime = 0;
 long lastDribbleTime = 0;
-
 
 int ballCnt = 0;
 float lastBallAngle;
@@ -74,6 +71,7 @@ movingAvg lightGateVal(10);
 bool roleSwitching = false;
 bool movingSideways = false;
 bool onField = true;
+bool previouslyCaptured = false;
 Role role = Role::undecided;
 Role defaultRole;
 uint8_t robotID;
@@ -83,20 +81,26 @@ Point relBallCoords(0, 0);
 Point absBallCoords(0, 0);
 
 PID coordPID(0.15, 0, 0.1);
-PID cmpPID(0.2, 0, 0.2);
+PID cmpPID(0.15, 0, 0.2);
 PID camAngPID(0.1, 0, 2);
 
 // initialise neutral point coordinates
 // each point is an x and y coordinate with respect to field centre
 // Point neutralPoints[] = {Point(-370, 550),  Point(350, 520),  Point(0, 0),
 //                          Point(-350, -400), Point(370, -400), Point(0, -660),
-//                          Point(0, 660),     Point(965, -660), Point(965, 660),
-//                          Point(-965, -660), Point(-965, 660)};
+//                          Point(0, 660),     Point(965, -660), Point(965,
+//                          660), Point(-965, -660), Point(-965, 660)};
 // for camera only
-Point neutralPoints[] = {Point(-350, 600),  Point(200, 500),  Point(-50, -50),
-                        Point(-350, -500), Point(250, -300), Point(0, -660),
-                        Point(0, 660),     Point(965, -660), Point(965, 660),
-                        Point(-965, -660), Point(-965, 660)};
+// Point neutralPoints[] = {Point(-350, 600),  Point(200, 500),  Point(-50,
+// -50),
+//                         Point(-350, -500), Point(250, -300), Point(0, -660),
+//                         Point(0, 660),     Point(965, -660), Point(965, 660),
+//                         Point(-965, -660), Point(-965, 660)};
+// for TOF only
+Point neutralPoints[] = {Point(-280, 350),  Point(280, 320),  Point(50, 0),
+                         Point(-270, -400), Point(260, -380), Point(-500, 0),
+                         Point(500, 0),     Point(965, -0), Point(965, 660),
+                         Point(-965, -660), Point(-965, 660)};
 
 // enum for neutral points
 enum points {
@@ -113,10 +117,7 @@ enum points {
     BottomRightCorner
 };
 
-int readLightGate() {
-    return lightGateVal.reading(analogRead(LIGHT_GATE_PIN));
-    
-     }
+int readLightGate() { return lightGateVal.reading(analogRead(LIGHT_GATE_PIN)); }
 
 void setMove(float speed, float angle, float rotation, float angSpeed = -1.0) {
     moveData.speed.val = speed;

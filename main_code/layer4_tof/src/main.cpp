@@ -118,7 +118,7 @@ void setup() {
     Wire1.begin();
     Wire1.setClock(400000);
     init_sensors();
-    digitalWrite(STM32_LED, HIGH);
+    //digitalWrite(STM32_LED, HIGH);
    
 }
 

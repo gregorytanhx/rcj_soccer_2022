@@ -31,53 +31,84 @@ void updatePosition() {
 
 bool pointOnLine(Point tmp) { return abs(tmp.x) >= 960; }
 
-bool goTo(Point target, int distThresh = 40) {
+bool goTo(Point target, int distThresh = 50) {
     // Point target: vector pointing from centre of field to point on field
 
     // Use cam by default if both goals are visible
     // otherwise use a combination of camera and TOF coords
-    Point camVector, tofVector;
+    Point camVector, tofVector, pointVector;
     float moveSpeed, moveAngle, dist;
 
     // else {
     // go to point based on robot's coordinates
-    tofVector = target - botCoords;
-    dist = tofVector.getDistance();
-    // get initial gauge for speed
-    moveSpeed = constrain(tofVector.getDistance() * 0.1, 30, 50);
-
+    pointVector = target - botCoords;
     // bbox.print();
     //  if using coordinates, adjust angle based on confidence in position
     //  along each axis eg. if x-axis is completely blocked, move along
     //  y-axis until robot is not blocked
 
-    if (bbox.Xconfidence < 0.4) bbox.Xconfidence = 0;
-    if (bbox.Yconfidence < 0.4) bbox.Yconfidence = 0;
-
     // adjust x/y ratio based on confidence to produce new weighted angle
-    float x_axis = sin(deg2rad(tofVector.getAngle())) * bbox.Xconfidence;
-    float y_axis = cos(deg2rad(tofVector.getAngle())) * bbox.Yconfidence;
-    moveAngle = polarAngle(y_axis, x_axis);
+    pointVector.x *= bbox.Xconfidence;
+    pointVector.y *= bbox.Yconfidence;
+    moveAngle = pointVector.getAngle();
 
-    float Xspeed = abs(moveSpeed * sin(deg2rad(moveAngle)));
-    float Yspeed = abs(moveSpeed * cos(deg2rad(moveAngle)));
-
-    if (abs(tofVector.getDistance() * sin(deg2rad(moveAngle))) < 30) {
-        Xspeed = 0;
-    }
-    if (abs(tofVector.getDistance() * cos(deg2rad(moveAngle))) < 30) {
-        Yspeed = 0;
-    }
-
-    moveSpeed = constrain(sqrt(Xspeed * Xspeed + Yspeed * Yspeed), 30, 50);
-    // Serial.print("TOF: ");
-    // Serial.print(" Angle to target: ");
-    // Serial.print(moveAngle);
-    // Serial.print(" Distance to target: ");
-    // Serial.print(tofVector.getDistance());
+    moveSpeed = constrain(pointVector.getDistance() * 0.2, 30, 50);
+    Serial.print("TOF: ");
+    Serial.print(" Angle to target: ");
+    Serial.print(moveAngle);
+    Serial.print(" Distance to target: ");
+    Serial.println(pointVector.getDistance());
 
     // Serial.println();
+    // CAMERA CONFIDENCE CAN BE BASED ON NUMBER OF SEPERATE BLOBS DETECTED
 
+    setMove(moveSpeed, moveAngle, 0);
+    if (pointVector.getDistance() <= distThresh) {
+        setMove(0, 0, 0);
+        if (bbox.Xconfidence >= 0.9 && bbox.Yconfidence >= 0.9) distCnt++;
+    } else {
+        distCnt = 0;
+    }
+    return distCnt >= 100;
+}
+
+bool TOFtoPoint(int FBdist, int LRdist, int FB, int LR, int distThresh = 80) {
+    // calc vector needed to reach desired tof readings (uses only 1 vertical
+    // and 1 horizontal tof)
+    int tmpX, tmpY;
+    if (FB == 0)
+        tmpY = bbox.tofVals[FB] - FBdist;
+    else
+        tmpY = FBdist - bbox.tofVals[FB];
+    if (LR == 1)
+        tmpX = tof.vals[LR] - LRdist;
+    else
+        tmpX = LRdist - bbox.tofVals[LR];
+
+    Point moveVector(tmpX, tmpY);
+    float moveSpeed = constrain(moveVector.getDistance() * 0.2, 30, 50);
+    float moveAngle = moveVector.getAngle();
+    setMove(moveSpeed, moveAngle, 0);
+    Serial.print("fb ");
+    Serial.print(FB);
+    Serial.print(" lr ");
+    Serial.println(LR);
+    Serial.print(tmpX);
+    Serial.print(" ");
+    Serial.print(tmpY);
+    Serial.print(" ");
+    Serial.print(moveVector.getAngle());
+    Serial.print(" ");
+    Serial.println(moveVector.getDistance());
+    if (moveVector.getDistance() < distThresh) {
+        setMove(0, 0, 0);
+    }
+    return moveVector.getDistance() < distThresh;
+}
+
+bool CamToPoint(Point target, int distThresh = 90) {
+    Point camVector;
+    float moveSpeed, moveAngle, dist;
     if (camera.oppGoalVisible && camera.ownGoalVisible) {
         // go to point based on vector calculations from camera
         camVector = camera.centreVector + target;
@@ -117,5 +148,4 @@ bool goTo(Point target, int distThresh = 40) {
     }
     return distCnt >= 100;
 }
-
 #endif

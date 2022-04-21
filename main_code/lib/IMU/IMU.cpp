@@ -40,7 +40,6 @@ void IMU::begin() {
     bno.setExtCrystalUse(false);
     delay(100);
    
-   
     while (!bno.isFullyCalibrated()) {
         printCalib();
         sendCalib();

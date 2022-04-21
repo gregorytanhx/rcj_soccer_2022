@@ -66,6 +66,15 @@ void receiveData() {
             }
         }
     }
+    // L1DebugSerial.print(speed);
+    // L1DebugSerial.print(" ");
+    // L1DebugSerial.print(angle);
+    // L1DebugSerial.print(" ");
+    // L1DebugSerial.print(rotation);
+    // L1DebugSerial.print(" ");
+    // L1DebugSerial.print(angSpeed);
+    // L1DebugSerial.print(" ");
+    // L1DebugSerial.println();
 }
 int maxVals[32];
 

@@ -63,12 +63,12 @@ void BBox::update(TOFBuffer &tof, LineData &lineData, float heading,
         float lineAngle = nonReflex(lineData.lineAngle.val + heading);
         if (angleIsInside(85, 95, lineAngle)) {
             // right edge of field
-            x = FIELD_WIDTH - 250;
+            x = FIELD_WIDTH / 2 - 250;
             Xconfidence = 1;
         } else if (angleIsInside(-85, -95, lineAngle)) {
             // left edge of field
             Xconfidence = 1;
-            x = -FIELD_WIDTH + 250;
+            x = -FIELD_WIDTH /2 + 250;
         } else if (angleIsInside(-5, 5, lineAngle)) {
             // at the top corners
             Yconfidence = 1;
@@ -111,6 +111,8 @@ void BBox::checkFieldDims() {
     }
     Serial.println();
 }
+
+
 
 void BBox::processTOFout() {
     tofOutCnt = 0;
