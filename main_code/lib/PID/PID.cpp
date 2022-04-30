@@ -13,7 +13,7 @@ double PID::update(double error) {
     elapsedTime = (double)(millis() - lastTime) / 1000;
 
     proportional = error;
-    integral += error * elapsedTime;
+    integral = 0.95*integral +  error;
     if (abs(integral) > abs(integralLimit)) {
         integral = integralLimit;
     }

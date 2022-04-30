@@ -14,6 +14,7 @@ void BBox::update(TOFBuffer &tof, LineData &lineData, float heading,
     flagCnt = 0;
     for (int i = 0; i < 4; i++) {
         // update moving average for each TOF
+         //tof.vals[i] = cos(deg2rad(heading)) * tof.vals[i];  // correct for angle
         tofVals[i] = tofAvg[i].reading(tof.vals[i]);
         if (tof.vals[i] < 150) {
             tofFlag[i] = 1;
@@ -119,7 +120,7 @@ void BBox::processTOFout() {
 
     for (int i = 0; i < 4; i++) {
         if (tofFlag[i] == 1) continue;
-        if (tofVals[i] < 350) {
+        if (tofVals[i] < 320) {
             tofOut[tofOutCnt] = i;
             tofOutCnt++;
         }

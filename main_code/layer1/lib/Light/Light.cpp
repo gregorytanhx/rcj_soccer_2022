@@ -42,7 +42,7 @@ void Light::begin(uint8_t id) {
             lightThresh.vals[i] = fixedThreshBlackBot[i];
         }
     }
-    
+
 #endif
 }
 void Light::printThresh() {
@@ -56,11 +56,12 @@ void Light::printThresh() {
 
 void Light::printLight() {
     L1DebugSerial.print("Values: ");
-    for (int i = 16; i < 32; i++) {
+    for (int i = 0; i < 32; i++) {
         L1DebugSerial.print(lightVals[i]);
         L1DebugSerial.print(", ");
     }
     L1DebugSerial.println();
+  
 }
 
 void Light::readRaw() {
@@ -102,7 +103,7 @@ void Light::readRaw() {
 }
 void Light::read() {
     // non blocking light read
-    if (micros() - readTimer >= 100) {
+    if (micros() - readTimer >= 70) {
         bool out = false;
         // read from first MUX
         int idx = lightMap[lightCnt];
@@ -140,6 +141,7 @@ void Light::read() {
 
 bool Light::doneReading() {
     // all sensors have been read once lightCnt goes back to 0
+    
     return lightCnt == 0;
 }
 
@@ -197,8 +199,6 @@ void Light::calibrate() {
     L1DebugSerial.print("Done!");
 #endif
 
-
-
 #ifdef DEBUG
     L1DebugSerial.print("Max: ");
     for (int i = 0; i < 32; i++) {
@@ -249,23 +249,38 @@ void Light::getLineData(LineData& data) {
     float closestAngle = 0;
     onLine = outSensors > 0;
     if (onLine) {
+        // for (int i = 0; i < outSensors; i++) {
+        //     int tmp = lineDetected[i];
+        //     L1DebugSerial.print(tmp);
+        //     L1DebugSerial.print(": ");
+        //     L1DebugSerial.print(lightVals[tmp]);
+        //     L1DebugSerial.print(": ");
+        //     L1DebugSerial.print(lightThresh.vals[tmp]);
+        //     L1DebugSerial.print(", ");
+           
+        // }
+        // L1DebugSerial.println();
         // get line angle and chord length
-        for (int i = 0; i < outSensors - 1; i++) {
-            for (int j = 1; j < outSensors; j++) {
-                float tmpDiff = angleDiff(lineDetected[i] * (360 / 32),
-                                          lineDetected[j] * (360 / 32));
-                if (tmpDiff > largestDiff) {
-                    clusterStart = lineDetected[i] * (360 / 32);
-                    clusterEnd = lineDetected[j] * (360 / 32);
-                    largestDiff = tmpDiff;
+        if (outSensors == 1) {
+            onLine = false;
+        } else {
+            for (int i = 0; i < outSensors - 1; i++) {
+                for (int j = 1; j < outSensors; j++) {
+                    float tmpDiff = angleDiff(lineDetected[i] * (360 / 32),
+                                              lineDetected[j] * (360 / 32));
+                    if (tmpDiff > largestDiff) {
+                        clusterStart = lineDetected[i] * (360 / 32);
+                        clusterEnd = lineDetected[j] * (360 / 32);
+                        largestDiff = tmpDiff;
+                    }
                 }
             }
+
+            chordLength = angleDiff(clusterStart, clusterEnd) / 180;
+            lineAngle = angleBetween(clusterStart, clusterEnd) <= 180
+                            ? midAngleBetween(clusterStart, clusterEnd)
+                            : midAngleBetween(clusterEnd, clusterStart);
         }
-        
-        chordLength = angleDiff(clusterStart, clusterEnd) / 180;
-        lineAngle = angleBetween(clusterStart, clusterEnd) <= 180
-                      ? midAngleBetween(clusterStart, clusterEnd)
-                      : midAngleBetween(clusterEnd, clusterStart);
     }
     outSensors = 0;
 
@@ -278,8 +293,6 @@ void Light::getLineData(LineData& data) {
     if (onLine && !previouslyOnLine) {
         data.initialLineAngle.val = lineAngle;
     }
-
-    L1DebugSerial.println();
     lineTrackAngle = closestAngle;
 }
 float Light::getClosestAngle(float angle) {

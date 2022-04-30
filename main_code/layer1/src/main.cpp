@@ -42,6 +42,7 @@ void sendData() {
     L1CommSerial.write(lineData.initialLineAngle.b, 4);
     L1CommSerial.write(lineData.chordLength.b, 4);
     L1CommSerial.write(lineData.onLine);
+    L1CommSerial.flush();
 }
 
 void receiveData() {
@@ -98,11 +99,17 @@ void setup() {
     // lineTimer.update();
     pinMode(STM32_LED, OUTPUT);
     digitalWrite(STM32_LED, HIGH);
+    // pinMode(PB10, OUTPUT);
+    // pinMode(PB11, OUTPUT);
 }
 
 void loop() {
     receiveData();
+
     calibrate = false;
+    lineAvoid = false;
+    lineTrack = false;
+    //L1CommSerial.write(5);
 
     if (calibrate) {
         if (doneCalibrating) {
@@ -116,8 +123,10 @@ void loop() {
     } else {
         light.read();
         if (light.doneReading()) {
-           
+            
+            //light.printLight();
             // light.printThresh();
+
             light.getLineData(lineData);
             // if (lineData.onLine) {
             //     L1DebugSerial.print("Line Angle: ");
@@ -126,9 +135,18 @@ void loop() {
             //     L1DebugSerial.println(lineData.chordLength.val);
             // }
             sendData();
+            
         }
 
         if (lineData.onLine) {
+            if (lastLineAngle >= 0 &&
+                abs(lastLineAngle - lineData.lineAngle.val) >= 90) {
+                // prevent line angle from changing
+                lineData.lineAngle.val = lastLineAngle;
+                // allow chord length to keep increasing as robot
+                // goes over centre of line
+                lineData.chordLength.val = 2 - lineData.chordLength.val;
+            }
             if (lineTrack) {
                 // follow line
                 lineTimer.update();
@@ -150,6 +168,10 @@ void loop() {
             } else if (lineAvoid) {
                 // avoid line by moving in opposite direction to line
                 float moveAngle = fmod(lineData.lineAngle.val + 180, 360);
+                // L1DebugSerial.print("Line Angle: ");
+                //     L1DebugSerial.print(lineData.lineAngle.val);
+                //     L1DebugSerial.print("\tChord Length: ");
+                //     L1DebugSerial.println(lineData.chordLength.val);
 
                 motors.setMove(fmax(60 * lineData.chordLength.val, 30),
                                moveAngle, rotation, angSpeed);
@@ -157,14 +179,7 @@ void loop() {
                 // ignore line
                 motors.setMove(speed, angle, rotation, angSpeed);
             }
-            if (lastLineAngle >= 0 &&
-                abs(lastLineAngle - lineData.lineAngle.val) >= 90) {
-                // prevent line angle from changing
-                lineData.lineAngle.val = lastLineAngle;
-                // allow chord length to keep increasing as robot
-                // goes over centre of line
-                lineData.chordLength.val = 2 - lineData.chordLength.val;
-            }
+
             lastLineAngle = lineData.lineAngle.val;
         } else {
             // no line detected, move according to teensy instructions

@@ -5,7 +5,6 @@
 #include <declarations.h>
 #include <movement.h>
 
-
 void sendLayer1() {
     // use start and end sync bytes to minimise errors
     L1Serial.write(LAYER1_SYNC_BYTE_START);
@@ -17,11 +16,12 @@ void sendLayer1() {
     L1Serial.write((uint8_t)lineAvoid);
     L1Serial.write(LAYER1_SYNC_BYTE_END);
     L1Serial.flush();
-   
 }
 
 void readLayer1() {
+
     while (L1Serial.available() >= 14) {
+        
         uint8_t syncByte = L1Serial.read();
         if (syncByte == LAYER1_SEND_SYNC_BYTE) {
             for (int i = 0; i < 4; i++) {
@@ -72,7 +72,7 @@ void readIMU() {
             }
         }
     }
-    heading = (float) cmpVal.val / 100;
+    heading = (float)cmpVal.val / 100;
 }
 
 void printIMU() {
@@ -129,7 +129,11 @@ Role currentRole() {
 bool shouldSwitchRoles(BluetoothData attackerData, BluetoothData defenderData) {
     // switch roles if goalie has ball or ball is much closer to goalie or
     // striker went out out field
-    return 0;
+    return (defenderData.ballData.angle < 40 ||
+            defenderData.ballData.angle > 320) &&
+           (attackerData.ballData.angle > 90 ||
+            attackerData.ballData.angle < 270) &&
+           defenderData.ballData.dist < 30 && attackerData.ballData.dist > 60;
 }
 
 void updateRole() {
@@ -156,6 +160,7 @@ void updateRole() {
         if (shouldSwitchRoles(attackerData, defenderData)) {
             role = role == Role::attack ? Role::defend : Role::attack;
         }
+        
     } else {
         // Robot ID 0 is always the the opposite of the other robot
         role = bt.otherData.role == Role::attack ? Role::defend : Role::attack;
@@ -171,25 +176,17 @@ void updateRole() {
 }
 
 void updateBluetooth() {
-    ballData.x = 60;
-    ballData.y = 40;
-    ballData.visible = true;
-    botCoords.x = 250;
-    botCoords.y = 0;
-    role = Role::attack;
-    onField = true;
-    btData = BluetoothData(ballData, botCoords, role, onField);
+    btData = BluetoothData(ballData, botCoords, role);
     bt.update(btData);
     if (bt.isConnected && roleSwitching) {
         updateRole();
     } else if (bt.previouslyConnected) {
-        role = Role::defend;
-    }
+        // if other robot disconnects, become striker by default
+        role = Role::attack;
+    } 
 }
 
 void updateDebug() {
-    ballData.angle = 0;
-    ballData.dist = 0;
     bt.updateDebug(bbox, ballData);
 }
 
@@ -200,7 +197,7 @@ void updateAllData() {
     // updateDebug();
     camera.update();
     updateBallData();
-    // if (bluetoothTimer.timeHasPassed()) updateBluetooth();
+    updateBluetooth();
 }
 
 #endif

@@ -6,10 +6,21 @@
 void updatePosition() {
     // TODO: combine camera data with TOF data
     // TODO: use light sensors to confirm robot's position along x-axis
-    bbox.update(tof, lineData, moveData.rotation.val, camera);
+    bbox.update(tof, lineData, heading, camera);
     botCoords.x = bbox.x;
     botCoords.y = bbox.y;
     bbox.processTOFout();
+}
+
+void slowDown() {
+    bool tmp = false;
+    for (int i = 0; i < 4; i++) {
+        if (bbox.tofFlag[i] == 0 && bbox.tofVals[i] < 500) tmp = true;
+    }
+    if (tmp)
+        runningSpeed = 50;
+    else
+        runningSpeed = 70;
 }
 
 // bool reachedPoint(Point target, int dist = 30) {
@@ -37,7 +48,7 @@ bool goTo(Point target, int distThresh = 50) {
     // Use cam by default if both goals are visible
     // otherwise use a combination of camera and TOF coords
     Point camVector, tofVector, pointVector;
-    float moveSpeed, moveAngle, dist;
+    float moveSpeed, moveAngle, dist, Xspeed, Yspeed;
 
     // else {
     // go to point based on robot's coordinates
@@ -52,24 +63,31 @@ bool goTo(Point target, int distThresh = 50) {
     pointVector.y *= bbox.Yconfidence;
     moveAngle = pointVector.getAngle();
 
-    moveSpeed = constrain(pointVector.getDistance() * 0.2, 30, 50);
+    Xspeed = constrain(0.2 * abs(pointVector.x), 15, 35);
+    Yspeed = constrain(0.2 * abs(pointVector.y), 15, 35);
+    if (abs(pointVector.x) < distThresh / 2) Xspeed = 0;
+    if (abs(pointVector.y) < distThresh / 2) Yspeed = 0;
+    moveSpeed = min(45, Xspeed + Yspeed);
+    if (moveSpeed > 0) moveSpeed = max(moveSpeed, 27);
     Serial.print("TOF: ");
     Serial.print(" Angle to target: ");
     Serial.print(moveAngle);
     Serial.print(" Distance to target: ");
-    Serial.println(pointVector.getDistance());
+    Serial.print(pointVector.getDistance());
+    Serial.print(" Speed: ");
+    Serial.println(moveSpeed);
 
     // Serial.println();
     // CAMERA CONFIDENCE CAN BE BASED ON NUMBER OF SEPERATE BLOBS DETECTED
 
     setMove(moveSpeed, moveAngle, 0);
-    if (pointVector.getDistance() <= distThresh) {
-        setMove(0, 0, 0);
-        if (bbox.Xconfidence >= 0.9 && bbox.Yconfidence >= 0.9) distCnt++;
+    if (pointVector.getDistance() <= distThresh && moveSpeed == 0 ) {
+        distCnt++;
+        
     } else {
         distCnt = 0;
     }
-    return distCnt >= 100;
+    return distCnt >= 500;
 }
 
 bool TOFtoPoint(int FBdist, int LRdist, int FB, int LR, int distThresh = 80) {

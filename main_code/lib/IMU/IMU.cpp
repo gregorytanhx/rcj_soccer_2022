@@ -39,10 +39,13 @@ void IMU::begin() {
     delay(1000);
     bno.setExtCrystalUse(false);
     delay(100);
+ 
    
-    while (!bno.isFullyCalibrated()) {
+    while (gyro !=3 ) {
+        bno.getCalibration(&system, &gyro, &accel, &mag);
+
         printCalib();
-        sendCalib();
+    
     }
     eulerOffset = readEuler();
     quatOffset = readQuat();

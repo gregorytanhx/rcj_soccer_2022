@@ -13,9 +13,9 @@
 #define BLUETOOTH_BAUD 115200
 #define BLUETOOTH_SYNC_BYTE 71
 #define BLUETOOTH_PACKET_SIZE 21
-#define BLUETOOTH_LOST_COMMUNICATION_TIME 3000
+#define BLUETOOTH_LOST_COMMUNICATION_TIME 2000
 // robots ping each other every 200 ms
-#define BLUETOOTH_UPDATE_TIME 200
+#define BLUETOOTH_UPDATE_TIME 100
 
 #define DEBUG_SYNC_BYTE 1
 // size of received data
@@ -29,8 +29,8 @@
 
 // union to serialise and deserialise bluetooth data
 typedef union BTBuffer {
-    int16_t vals[6];
-    uint8_t b[16];
+    uint16_t vals[7];
+    uint8_t b[17];
 } BTBuffer;
 
 
@@ -39,21 +39,20 @@ typedef struct BluetoothData {
     BallData ballData;
     Point robotPos;
     Role role;
-    bool onField;
     float confidence;  // confidence of robot position
 
     BluetoothData() {
         ballData = BallData();
         role = Role::attack;
-        onField = true;
         robotPos = Point();
     }
 
-    BluetoothData(BallData ballData, Point robotPos, Role role, bool onField)
-        : ballData(ballData),
-          robotPos(robotPos),
-          role(role),
-          onField(onField) {}
+    BluetoothData(BallData b, Point r, Role Role) {
+        ballData = b;
+        robotPos = r;
+        role = Role;
+    }
+        
 } BluetoothData;
 
 enum DebugMode {
@@ -112,6 +111,7 @@ class Bluetooth {
     void begin();
     void initAT();
     void ATmode();
+    void printData();
     void update(BluetoothData data);    
     void send();
     void receive();

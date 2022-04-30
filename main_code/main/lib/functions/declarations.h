@@ -57,6 +57,7 @@ int distCnt = 0;
 
 TOFBuffer tof;
 // IMU cmp(&Wire1);
+int runningSpeed;
 float heading;
 float moveSpeed;
 float robotAngle;
@@ -81,7 +82,7 @@ Point relBallCoords(0, 0);
 Point absBallCoords(0, 0);
 
 PID coordPID(0.15, 0, 0.1);
-PID cmpPID(0.15, 0, 0.2);
+PID cmpPID(0.35, 0, 0.1);
 PID camAngPID(0.1, 0, 2);
 
 // initialise neutral point coordinates
@@ -91,14 +92,13 @@ PID camAngPID(0.1, 0, 2);
 //                          Point(0, 660),     Point(965, -660), Point(965,
 //                          660), Point(-965, -660), Point(-965, 660)};
 // for camera only
-// Point neutralPoints[] = {Point(-350, 600),  Point(200, 500),  Point(-50,
-// -50),
-//                         Point(-350, -500), Point(250, -300), Point(0, -660),
-//                         Point(0, 660),     Point(965, -660), Point(965, 660),
-//                         Point(-965, -660), Point(-965, 660)};
+// Point neutralPoints[] = {Point(-135, ),  Point(200, 500),  Point(0, -100),
+//                          Point(-350, -500), Point(250, -300), Point(0, -660),
+//                          Point(0, 660),     Point(965, -660), Point(965, 660),
+//                          Point(-965, -660), Point(-965, 660)};
 // for TOF only
-Point neutralPoints[] = {Point(-280, 350),  Point(280, 320),  Point(50, 0),
-                         Point(-270, -400), Point(260, -380), Point(-500, 0),
+Point neutralPoints[] = {Point(-260, 350),  Point(280, 370),  Point(50, 0),
+                         Point(-270, -300), Point(295, -390), Point(-500, 0),
                          Point(500, 0),     Point(965, -0), Point(965, 660),
                          Point(-965, -660), Point(-965, 660)};
 

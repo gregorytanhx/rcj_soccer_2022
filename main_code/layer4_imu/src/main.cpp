@@ -71,13 +71,12 @@ void setup() {
     delay(3000);
     cmp.begin();
     pinMode(STM32_LED, OUTPUT);
-    digitalWrite(STM32_LED, HIGH);
-    delay(1000);
-    digitalWrite(STM32_LED, LOW);
 }
 long lastPrintTime = 0;
 void loop() {
+    // i2cScanner();
+    
     //cmp.calibrate();
     sendData();
-    //Serial.println(cmp.readQuat());
+    Serial.println(cmp.readQuat());
 }

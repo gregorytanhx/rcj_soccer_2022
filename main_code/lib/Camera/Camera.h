@@ -50,7 +50,7 @@ class Camera {
     Point frontVector;
     Point oppGoalVec;
     Point ownGoalVec;
-    Side side = facingYellow;  // face yellow goal by default
+    Side side = unset;  // face yellow goal by default
     camBuffer buffer;
 };
 

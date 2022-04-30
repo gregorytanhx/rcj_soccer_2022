@@ -19,13 +19,10 @@ typedef struct BallData {
         visible = false;
         captured = false;
     }
-    BallData(int16_t X, int16_t Y, bool Visible){
-        x = X;
-        y = Y;
+    BallData(float Angle, float Dist, bool Visible){
+        angle = Angle;
+        dist = Dist;
         visible = Visible;
-        Point tmp(x, y);
-        angle = tmp.getAngle();
-        dist = tmp.getDistance();
     }
     
 } BallData;

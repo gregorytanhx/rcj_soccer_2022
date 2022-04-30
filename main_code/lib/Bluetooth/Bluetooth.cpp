@@ -1,12 +1,12 @@
 #include "Bluetooth.h"
 
-void Bluetooth::begin() { 
+void Bluetooth::begin() {
     BTSerial.begin(BLUETOOTH_BAUD);
     pinMode(BT_EN_PIN, OUTPUT);
     digitalWrite(BT_EN_PIN, LOW);
 }
 
-void Bluetooth::initAT() { 
+void Bluetooth::initAT() {
     BTSerial.begin(BLUETOOTH_BAUD);
     pinMode(BT_EN_PIN, OUTPUT);
     digitalWrite(BT_EN_PIN, HIGH);
@@ -23,21 +23,21 @@ void Bluetooth::ATmode() {
 void Bluetooth::send() {
     // fill buffer and send
 
-  
-
     // 6 x 2 bytes for int16s
-    btBuffer.vals[0] = (int) (ownData.ballData.dist * 100);
-    btBuffer.vals[1] = (int) (ownData.confidence * 100);
-    btBuffer.vals[2] = ownData.ballData.x;
-    btBuffer.vals[3] = ownData.ballData.y;
-    btBuffer.vals[4] = ownData.robotPos.x;
-    btBuffer.vals[5] = ownData.robotPos.y;
+    btBuffer.vals[0] = (int)(ownData.confidence * 100);
+    btBuffer.vals[1] = (int)(ownData.ballData.angle * 100);
+    btBuffer.vals[2] = (int)(ownData.ballData.dist * 100);
+    
+    btBuffer.vals[3] = ownData.ballData.x;
+    btBuffer.vals[4] = ownData.ballData.y;
+    btBuffer.vals[5] = ownData.robotPos.x;
+    btBuffer.vals[6] = ownData.robotPos.y;
+    
 
     // 4 bytes for uint8s
-    btBuffer.b[12] = ownData.ballData.visible;
-    btBuffer.b[13] = ownData.ballData.captured;
-    btBuffer.b[14] = ownData.onField;
-    btBuffer.b[15] = ownData.role;
+    btBuffer.b[14] = ownData.ballData.visible;
+    btBuffer.b[15] = ownData.ballData.captured;
+    btBuffer.b[16] = ownData.role;
 
     BTSerial.write(BLUETOOTH_SYNC_BYTE);
     BTSerial.write(btBuffer.b, sizeof(btBuffer.b));
@@ -53,16 +53,18 @@ void Bluetooth::receive() {
             // read into buffer
             for (int i = 0; i < sizeof(btBuffer.b); i++) {
                 btBuffer.b[i] = BTSerial.read();
-            
             }
+
+            
             // obtain data from buffer
-            otherData.ballData = BallData(btBuffer.vals[2], btBuffer.vals[3],
-                                          (bool) btBuffer.b[12]);
-            otherData.ballData.dist = (float) btBuffer.vals[0] / 100;
-            otherData.robotPos = Point(btBuffer.vals[4], btBuffer.vals[5]);
-            otherData.onField = (bool) btBuffer.b[14];
-            otherData.role = static_cast <Role> (btBuffer.b[15]);
-            otherData.confidence = (float) btBuffer.vals[1] / 100;
+            otherData.ballData = BallData(
+                (float) btBuffer.vals[1] / 100, (float) btBuffer.vals[2] / 100, (bool)btBuffer.b[14]);
+            otherData.ballData.x = btBuffer.vals[3] ;
+            otherData.ballData.y = btBuffer.vals[4] ;
+            otherData.ballData.captured = btBuffer.b[15];
+            otherData.robotPos = Point(btBuffer.vals[5], btBuffer.vals[6]);
+            otherData.role = static_cast<Role>(btBuffer.b[16]);
+            otherData.confidence = (float)btBuffer.vals[0] / 100;
             timer.update();
         }
         nothingRecieved = false;
@@ -75,6 +77,24 @@ void Bluetooth::receive() {
     } else {
         otherData = BluetoothData();
     }
+}
+
+void Bluetooth::printData() {
+    Serial.println("Other Data");
+    Serial.print("Ball Angle: ");
+    Serial.print(otherData.ballData.angle);
+    Serial.print(" Ball Dist: ");
+    Serial.print(otherData.ballData.dist);
+    Serial.print(" Ball X : ");
+    Serial.print(otherData.ballData.x);
+    Serial.print(" Ball Y: ");
+    Serial.print(otherData.ballData.y);
+    Serial.print(" X Pos: ");
+    Serial.print(otherData.robotPos.x);
+    Serial.print(" Y Pos: ");
+    Serial.print(otherData.robotPos.y);
+
+    Serial.println();
 }
 
 void Bluetooth::update(BluetoothData data) {

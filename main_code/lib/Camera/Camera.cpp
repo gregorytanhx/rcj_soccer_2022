@@ -1,6 +1,22 @@
 #include "Camera.h"
 
-void Camera::begin() { CamSerial.begin(CAMERA_BAUD); }
+void Camera::begin() { 
+    CamSerial.begin(CAMERA_BAUD);
+    // while (side == unset) {
+    //     read();
+    //     // set side only once
+    //     if ((blueVisible && yellowVisible)) {
+    //         if ((blueAngle < 90 || blueAngle > 270) &&
+    //             (yellowAngle > 90 || yellowAngle < 270)) {
+    //             side = facingBlue;
+    //         } else if ((yellowAngle < 90 || yellowAngle > 270) &&
+    //                    (blueAngle > 90 || blueAngle < 270)) {
+    //             side = facingYellow;
+    //         }
+    //     }
+    // }
+    
+}
 
 bool Camera::read() {
     newData = false;
@@ -34,17 +50,6 @@ void Camera::process() {
     yellowVisible = yellowAngle != 500;
     ballVisible = ballAngle != 500;
     predBall = predBallAngle != 500;
-
-    // set side only once
-    if ((blueVisible && yellowVisible) && side == unset) {
-        if ((blueAngle < 90 || blueAngle > 270) &&
-            (yellowAngle > 90 || yellowAngle < 270)) {
-            side = facingBlue;
-        } else if ((yellowAngle < 90 || yellowAngle > 270) &&
-                   (blueAngle > 90 || blueAngle < 270)) {
-            side = facingYellow;
-        }
-    }
 
     if (side == facingBlue) {
         ownGoalAngle = yellowAngle;

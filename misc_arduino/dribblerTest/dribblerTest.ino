@@ -1,4 +1,4 @@
-#define DRIBBLER_PIN 1
+#define DRIBBLER_PIN 18
 #define DRIBBLER_WAIT 3000
 
 void setup() {
@@ -8,7 +8,7 @@ void setup() {
   
   analogWriteFrequency(DRIBBLER_PIN, 1000);
   analogWrite(DRIBBLER_PIN, 32);
-  delay(4000);
+  delay(3000);
   
 
   pinMode(LED_BUILTIN, OUTPUT);
