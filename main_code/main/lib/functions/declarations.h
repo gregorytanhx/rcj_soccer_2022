@@ -46,6 +46,7 @@ long lastGateTime = 0;
 long lastBallMoveTime = 0;
 long lastChargeTime = 0;
 long lastDribbleTime = 0;
+long lastSwitchTime = 0;
 
 int ballCnt = 0;
 float lastBallAngle;
@@ -82,7 +83,7 @@ Point relBallCoords(0, 0);
 Point absBallCoords(0, 0);
 
 PID coordPID(0.15, 0, 0.1);
-PID cmpPID(0.35, 0, 0.1);
+PID cmpPID(0.1, 0.15, 1.5);
 PID camAngPID(0.1, 0, 2);
 
 // initialise neutral point coordinates

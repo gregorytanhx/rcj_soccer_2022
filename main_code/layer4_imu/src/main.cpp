@@ -76,7 +76,7 @@ long lastPrintTime = 0;
 void loop() {
     // i2cScanner();
     
-    //cmp.calibrate();
+    // cmp.calibrate();
     sendData();
-    Serial.println(cmp.readQuat());
+    //Serial.println(cmp.readQuat());
 }

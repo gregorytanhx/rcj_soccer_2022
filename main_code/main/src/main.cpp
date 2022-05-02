@@ -7,7 +7,6 @@ PID goalieBallPID(3.5, 0.01, 2);
 PID goalieGoalPID(2.5, 0, 1);
 
 void striker() {
-    updateAllData();
     slowDown();
     bbox.printTOF();
     bool goalCorrect = true;
@@ -91,12 +90,9 @@ void striker() {
 }
 
 void goalie() {
-    updateAllData();
     // defence program
     lineTrack = true;
     lineAvoid = false;
-    printLightData();
-    // goalieAttack = true;
 
     if (previouslyCharging) {
         lastChargeTime = millis();
@@ -214,16 +210,14 @@ void goalie() {
 
 void normal() {
     // regular program
+    updateAllData();
     goalieAttack = false;
     lineAvoid = true;
     lineTrack = false;
-    if (currentRole() == Role::attack || goalieCharge) {
+    if (currentRole() == Role::attack) {
         if (currentRole() == Role::attack) {
             Serial.println("ATTACK MODE");
-        } else if (goalieCharge) {
-            Serial.println("GOALIE ATTACK MODE");
-        }
-        Serial.print("Goalie Charge Timer: ");
+        } 
         Serial.println(millis() - goalieChargeTimer);
         if (millis() - goalieChargeTimer > 5000) {
             // stop goalie from charging after a while
@@ -240,15 +234,17 @@ void normal() {
 
 void moveInCircle() {
     MyTimer circleTimer(5);
-    int dir = 0;
+    int dir = 360;
 
     while (true) {
+        readIMU();
         if (circleTimer.timeHasPassed()) {
             dir++;
+            //if (dir == 0) dir = 360;
             dir %= 360;
         }
         setMove(50, dir, 0);
-        // angleCorrect();
+        angleCorrect();
         sendLayer1();
     }
 }
@@ -533,13 +529,14 @@ void robot2() {
     }
 }
 long time;
+//#define SET_ID
 void setup() {
 #ifdef SET_ID
-    eeprom_buffered_write_byte(EEPROM_ID_ADDR, ID)
+    EEPROM.write(EEPROM_ID_ADDR, 0);
 #else
     robotID = EEPROM.read(EEPROM_ID_ADDR);
 #endif
-        defaultRole = robotID == 0 ? Role::defend : Role::defend;
+    defaultRole = robotID == 0 ? Role::defend : Role::attack;
     // defaultRole = Role ::defend;
     pinMode(KICKER_PIN, OUTPUT);
     digitalWrite(KICKER_PIN, HIGH);
@@ -563,9 +560,9 @@ void setup() {
     // time = millis();
     // calibIMU();
     pinMode(LED_BUILTIN, OUTPUT);
-    // while (IMUSerial.available() == 0) {
-    //     delay(1);
-    // }
+    while (IMUSerial.available() == 0) {
+        delay(1);
+    }
     // while (millis() - time < 3000) {
     //     delay(1);
     // }
@@ -576,109 +573,14 @@ void setup() {
 }
 
 void loop() {
-    // float error = camera.yellowAngle
-    //  setMove(0,0, )
-    //  sendLayer1();
-    // updateAllData();
-    // Serial.print("Opp goal dist: ");
-    // Serial.println(camera.oppGoalDist);
+    normal();
+    // striker();
 
-    // TODO: SPEED CONTROL BASE ON ROBOT MOVEMENT ANGLE
-    //striker();
-
-    // printLightData();
-    // normal();
-    //  updateAllData();
-    // bbox.printTOF();
-
-    // bbox.print();
-    //robot2();
-    updateAllData();
+    // printIMU();
+    
     // bt.printData();
     // readLayer1();
     //printLightData();
     // sendLayer1();
-   
-    // updateAllData();
-    // printLightData();
 
-   
-    // normal();
-    //  lineAvoid = false;
-    // robot1();
-    //  updateAllData();
-    //  updateAllData();
-    //  bbox.printTOF();
-
-    // printIMU();
-    // bbox.printTOF();
-    // Serial.println(camera.oppGoalDist);
-
-    // updateAllData();
-    // printIMU();
-
-    // striker();
-    // updateAllData();
-    // bbox.printTOF();
-    // setMove(50,0,0);
-    // sendLayer1();
-    // normal();
-
-    // Serial.println(readLightGate());
-
-    // setMove(50,0,0);
-    // sendLayer1();
-    // striker();
-
-    // lineTrack = true;
-    // updateAllData();
-    // goTo(Point(-500, 0));
-    // angleCorrect();
-    // sendLayer1();
-    // Serial.print("TURNED");
-    // while (lineData.onLine) {
-    //     Serial.println("FUCk");
-    //     updateAllData();
-    //     setMove(50, 0, 0);
-    //     angleCorrect(90);
-    //     sendLayer1();
-    // }
-    // lineTrack = true;
-
-    // while (readLightGate() > 50) {
-    //     updateAllData();
-    //     setMove(30, 0, 0);
-    //     angleCorrect(90);
-    //     sendLayer1();
-    // }
-    // setMove(0, 0, -60, 20);
-    // sendLayer1();
-
-    // normal();
-
-    // updateAllData();
-    // //printLightData();
-    // //camera.printData();
-    // if (camera.ballVisible) {
-    //     trackBall();
-    //     if (ballData.captured) {
-    //         setMove(50,0,0);
-    //         if (camera.oppGoalDist < 50) {
-    //             kick = true;
-    //         }
-    //     } else {
-    //         kick = false;
-    //     }
-    // } else {
-    //     goTo(neutralPoints[CentreDot], 90);
-    // }
-
-    // if (bbox.outAngle > 0) {
-    //     Serial.println("OUT");
-    //     setMove(50, bbox.outAngle, 0);
-    // }
-    // //updateLineControl();
-    // updateKick();
-    // angleCorrect();
-    // sendLayer1();
 }

@@ -92,8 +92,8 @@ sensor.skip_frames(time=1000)
 clock = time.clock()
 uart = UART(1, 1000000)
 
-#ID = 'whitebot'
-ID = 'blackbot'
+ID = 'whitebot'
+#ID = 'blackbot'
 
 if ID == 'blackbot':
     centreY = 116
@@ -355,7 +355,7 @@ def send(data):
             pass
 
 while(True):
-    debug = True
+    debug = False
     clock.tick()
     img = sensor.snapshot()
 

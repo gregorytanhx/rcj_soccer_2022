@@ -35,6 +35,8 @@ bool doneCalibrating = false;
 
 uint8_t robotID;
 int spd = 0;
+int cnt = 0;
+long lastRecvTime;
 
 void sendData() {
     L1CommSerial.write(LAYER1_SEND_SYNC_BYTE);
@@ -48,6 +50,8 @@ void sendData() {
 void receiveData() {
     // receive teensy data
     while (L1CommSerial.available() >= 20) {
+        // L1DebugSerial.println(micros() - lastRecvTime);
+        // lastRecvTime = micros();
         uint8_t syncByte = L1CommSerial.read();
         if (syncByte == LAYER1_SYNC_BYTE_START) {
             // exclude last 3 bytes
@@ -67,6 +71,7 @@ void receiveData() {
             }
         }
     }
+
     // L1DebugSerial.print(speed);
     // L1DebugSerial.print(" ");
     // L1DebugSerial.print(angle);
@@ -74,6 +79,10 @@ void receiveData() {
     // L1DebugSerial.print(rotation);
     // L1DebugSerial.print(" ");
     // L1DebugSerial.print(angSpeed);
+    // L1DebugSerial.print(" ");
+    //     L1DebugSerial.print(lineTrack);
+    // L1DebugSerial.print(" ");
+    // L1DebugSerial.print(lineAvoid);
     // L1DebugSerial.print(" ");
     // L1DebugSerial.println();
 }
@@ -84,7 +93,7 @@ int maxVals[32];
 void setup() {
 #ifdef SET_ID
     robotID = ID;
-    eeprom_buffered_write_byte(0, 1);
+    eeprom_buffered_write_byte(0, 0);
     eeprom_buffer_flush();
 #else
     eeprom_buffer_fill();
@@ -101,15 +110,16 @@ void setup() {
     digitalWrite(STM32_LED, HIGH);
     // pinMode(PB10, OUTPUT);
     // pinMode(PB11, OUTPUT);
+    
 }
 
-void loop() {
-    receiveData();
 
+
+void loop() {
+
+    receiveData();
+   
     calibrate = false;
-    lineAvoid = false;
-    lineTrack = false;
-    //L1CommSerial.write(5);
 
     if (calibrate) {
         if (doneCalibrating) {

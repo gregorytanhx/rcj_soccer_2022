@@ -99,7 +99,7 @@ void Bluetooth::printData() {
 
 void Bluetooth::update(BluetoothData data) {
     ownData = data;
-    if (millis() - lastSendTime > 100) {
+    if (millis() - lastSendTime > 20) {
         send();
         lastSendTime = millis();
     }

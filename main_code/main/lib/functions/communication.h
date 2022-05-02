@@ -19,9 +19,7 @@ void sendLayer1() {
 }
 
 void readLayer1() {
-
     while (L1Serial.available() >= 14) {
-        
         uint8_t syncByte = L1Serial.read();
         if (syncByte == LAYER1_SEND_SYNC_BYTE) {
             for (int i = 0; i < 4; i++) {
@@ -108,22 +106,19 @@ bool readTOF() {
 }
 
 Role currentRole() {
-#ifdef SWITCH_ROLES
     // will tell the robot if its supposed to attack or defend
     if (bt.isConnected) {
         // if role is undecided, pick default, else return the role that has
         // been previously assigned
-        return Role::undecided ? defaultRole : role;
+        return role == Role::undecided ? defaultRole : role;
     } else if (bt.previouslyConnected) {
         // robot will come back in as goalie
+       
         return Role::defend;
     } else {
         // if robot is only one on field, default to striker
         return Role::attack;
     }
-#else
-    return defaultRole;
-#endif
 }
 
 bool shouldSwitchRoles(BluetoothData attackerData, BluetoothData defenderData) {
@@ -131,9 +126,9 @@ bool shouldSwitchRoles(BluetoothData attackerData, BluetoothData defenderData) {
     // striker went out out field
     return (defenderData.ballData.angle < 40 ||
             defenderData.ballData.angle > 320) &&
-           (attackerData.ballData.angle > 90 ||
+           (attackerData.ballData.angle > 90 &&
             attackerData.ballData.angle < 270) &&
-           defenderData.ballData.dist < 30 && attackerData.ballData.dist > 60;
+           defenderData.ballData.dist < 30;
 }
 
 void updateRole() {
@@ -150,17 +145,36 @@ void updateRole() {
                 bt.otherData.role == Role::attack ? Role::defend : Role::attack;
         }
     } else if (robotID == 1) {
-        // Robot ID 1 (default defender) decides on role
-
+        // Robot ID 0 (default striker) decides on role
+        Serial.println("HERE");
         BluetoothData attackerData =
             role == Role::attack ? btData : bt.otherData;
         BluetoothData defenderData =
             role == Role::defend ? btData : bt.otherData;
+        if (role == Role::attack) {
+            Serial.println("ATTACK");
+        } else if (role == Role::defend) {
+            Serial.println("DEFENCE");
+        }
+        Serial.print("Goalie ball angle: ");
+        Serial.print(defenderData.ballData.angle);
+        Serial.print(" Striker ball angle: ");
+        Serial.print(attackerData.ballData.angle);
+        Serial.print(" Goalie ball dist: ");
+        Serial.print(defenderData.ballData.dist);
+        Serial.print(" Striker ball dist: ");
+        Serial.print(attackerData.ballData.dist);
 
         if (shouldSwitchRoles(attackerData, defenderData)) {
+            Serial.println("FUUU");
+        }
+        if (shouldSwitchRoles(attackerData, defenderData) &&
+            millis() - lastSwitchTime > 2000) {
+            Serial.println("SWITCH");
+            lastSwitchTime = millis();
             role = role == Role::attack ? Role::defend : Role::attack;
         }
-        
+
     } else {
         // Robot ID 0 is always the the opposite of the other robot
         role = bt.otherData.role == Role::attack ? Role::defend : Role::attack;
@@ -176,6 +190,7 @@ void updateRole() {
 }
 
 void updateBluetooth() {
+    roleSwitching = true;
     btData = BluetoothData(ballData, botCoords, role);
     bt.update(btData);
     if (bt.isConnected && roleSwitching) {
@@ -183,12 +198,10 @@ void updateBluetooth() {
     } else if (bt.previouslyConnected) {
         // if other robot disconnects, become striker by default
         role = Role::attack;
-    } 
+    }
 }
 
-void updateDebug() {
-    bt.updateDebug(bbox, ballData);
-}
+void updateDebug() { bt.updateDebug(bbox, ballData); }
 
 void updateAllData() {
     readIMU();

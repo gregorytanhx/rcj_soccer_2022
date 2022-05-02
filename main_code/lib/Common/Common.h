@@ -34,7 +34,7 @@
 
 #define GOALIE_LEEWAY_DIST 5
 
-#define STM32_BAUD 250000
+#define STM32_BAUD 1000000
 
 // send: sent by layer 1, rec: received by layer 1
 #define LAYER1_REC_PACKET_SIZE 20

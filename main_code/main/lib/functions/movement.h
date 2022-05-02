@@ -80,7 +80,7 @@ void updateBallData() {
         // treat ball as visible
         ballData.visible = true;
         lastBallTime = millis();
-        Serial.println("USING BALL DATA FROM OTHER BOT");
+        Serial.println("Using ball data from other bot");
         Serial.print("Ball Angle: ");
         Serial.print(ballData.angle);
         Serial.print(" Ball Dist: ");
@@ -92,7 +92,7 @@ void updateBallData() {
 
 void updateLineControl() {
     // determine how to handle line when ball tracking
-    if (moveData.speed.val < 80) {
+    if (moveData.speed.val < 70) {
         lineTrack = true;
         lineAvoid = false;
     } else {
@@ -202,7 +202,7 @@ void camAngleCorrect(int targetAng = 0) {
         if (moveData.speed.val == 0)
             moveData.angSpeed.val = 40;
         else
-            moveData.angSpeed.val = 15;
+            moveData.angSpeed.val = 20;
     } else {
         // Serial.println("FUCKKKKKK");
         moveData.rotation.val = 0;
