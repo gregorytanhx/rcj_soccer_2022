@@ -81,6 +81,7 @@ uint8_t robotID;
 Point botCoords(0, 0);
 Point relBallCoords(0, 0);
 Point absBallCoords(0, 0);
+Point sidewaysCoordinate(0,0);
 
 PID coordPID(0.15, 0, 0.1);
 PID cmpPID(0.1, 0.15, 1.5);

@@ -106,19 +106,25 @@ bool readTOF() {
 }
 
 Role currentRole() {
-    // will tell the robot if its supposed to attack or defend
-    if (bt.isConnected) {
-        // if role is undecided, pick default, else return the role that has
-        // been previously assigned
-        return role == Role::undecided ? defaultRole : role;
-    } else if (bt.previouslyConnected) {
-        // robot will come back in as goalie
-       
-        return Role::defend;
+    if (roleSwitching) {
+        // will tell the robot if its supposed to attack or defend
+        if (bt.isConnected) {
+            // if role is undecided, pick default, else return the role that has
+            // been previously assigned
+            return role == Role::undecided ? defaultRole : role;
+        } else if (bt.previouslyConnected) {
+            // robot will come back in as goalie
+
+            return Role::defend;
+        } else {
+            // if robot is only one on field, default to striker
+            return Role::attack;
+        }
     } else {
-        // if robot is only one on field, default to striker
-        return Role::attack;
+        return defaultRole;
     }
+    
+    
 }
 
 bool shouldSwitchRoles(BluetoothData attackerData, BluetoothData defenderData) {
@@ -183,14 +189,14 @@ void updateRole() {
     if (role != previousRole && previousRole == Role::attack) {
         // If switched to defender, move to the side to prevent collision
         movingSideways = true;
-        Point sidewaysCoordinate = Point(40 * sign(botCoords.x), botCoords.y);
+        sidewaysCoordinate = Point(400 * sign(botCoords.x), botCoords.y);
     } else {
         movingSideways = false;
     }
 }
 
 void updateBluetooth() {
-    roleSwitching = true;
+ 
     btData = BluetoothData(ballData, botCoords, role);
     bt.update(btData);
     if (bt.isConnected && roleSwitching) {
