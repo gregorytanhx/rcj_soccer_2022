@@ -116,25 +116,18 @@ void trackBall() {
     else
         ballOffset = max((ballData.angle - 360) * 1.1, -90);
 
-    float factor = 1 - ballData.dist / 80;
-    ballMult = fmin(1.3, 0.02 * exp(factor * 4.2));
+    // float factor = 1 - ballData.dist / 80;
+    // ballMult = fmin(1.3, 0.02 * exp(factor * 4.2));
 
-    robotAngle = ballData.angle + ballMult * ballOffset;
+    // robotAngle = ballData.angle + ballMult * ballOffset;
 
-    // if (ballData.angle >= 90 && ballData.angle <= 270) {
-    //     ballMult = 1 + exp((float)(20 - ballData.dist) / 15);
-    // }
-    // else {
-    //     ballMult = 1.0 + 10 / ballData.dist;
-    // }
-    // robotAngle = nonReflex(ballData.angle) * ballMult;
 
     if (ballData.dist > 35)
         robotAngle = ballData.angle + ballOffset * 0.35;
     else if (ballData.dist > 20)
         robotAngle = ballData.angle + ballOffset * 0.7;
     else
-        robotAngle = ballData.angle + ballOffset * 0.9;
+        robotAngle = ballData.angle + ballOffset * 0.85;
     // ball directly next to robot
 
     // Serial.print("Ball Angle: ");
@@ -145,6 +138,7 @@ void trackBall() {
     // Serial.println(ballOffset);
     // Serial.print(" Move Angle: ");
     // Serial.println(mod(robotAngle + 360, 360));
+   
     setMove(runningSpeed, robotAngle, 0);
 }
 
@@ -224,10 +218,7 @@ void camAngleCorrect(int targetAng = 0) {
             camAngPID.update(camera.frontVector.getAngle() - targetAng);
         // Serial.print("Correction: ");
         // Serial.println(moveData.rotation.val);
-        if (moveData.speed.val == 0)
-            moveData.angSpeed.val = 40;
-        else
-            moveData.angSpeed.val = 20;
+         moveData.angSpeed.val = 20;
     } else {
         // Serial.println("FUCKKKKKK");
         moveData.rotation.val = 0;

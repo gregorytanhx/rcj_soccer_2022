@@ -7,7 +7,7 @@
 class PID {
    public:
     PID(){};
-    PID(double kp, double ki, double kd, double limit = 0);
+    PID(double kp, double ki, double kd, double mult = 1);
     double update(double error);
     void resetIntegral();
 
@@ -22,7 +22,7 @@ class PID {
     double proportional;
     double integral;
     double derivative;
-    double integralLimit;
+    double integralMult;
 };
 
 #endif

@@ -18,10 +18,9 @@ int tofCnt = 4;
 TOFBuffer buffer;
 
 // front, right, back, left
-SFEVL53L1X sensors[] = { SFEVL53L1X(Wire1, SHUT_1, INT_1),
-                         SFEVL53L1X(Wire1, SHUT_2, INT_2),
-                         SFEVL53L1X(Wire1, SHUT_3, INT_3), 
-                         SFEVL53L1X(Wire1, SHUT_4, INT_4) };
+SFEVL53L1X sensors[] = {
+    SFEVL53L1X(Wire1, SHUT_1, INT_1), SFEVL53L1X(Wire1, SHUT_2, INT_2),
+    SFEVL53L1X(Wire1, SHUT_3, INT_3), SFEVL53L1X(Wire1, SHUT_4, INT_4)};
 
 void init_sensors() {
     // Shut down all sensors
@@ -43,28 +42,19 @@ void init_sensors() {
         sensors[i].setIntermeasurementPeriod(33);
         delay(10);
     }
+    for (int i = 0; i < 4; i++) {
+        sensors[i].startRanging();
+    }
 }
 
 void read_sensors() {
-    // measure again once all sensors have been read
-    if (tofCnt == 4) {
-        for (int i = 0; i < 4; i++) {
-            // Write configuration bytes to initiate
-            // measurement
+    for (int i = 0; i < 4; i++) {
+        // get measurement once ranging is done
+        if (sensors[i].checkForDataReady()) {
+            buffer.vals[i] = sensors[i].getDistance();
+            sensors[i].clearInterrupt();
+            sensors[i].stopRanging();
             sensors[i].startRanging();
-            tofCnt = 0;
-            doneMeasuring[i] = false;
-        }
-    } else {
-        for (int i = 0; i < 4; i++) {
-            // get measurement once ranging is done
-            if (!doneMeasuring[i] && sensors[i].checkForDataReady()) {
-                buffer.vals[i] = sensors[i].getDistance();
-                sensors[i].clearInterrupt();
-                sensors[i].stopRanging();
-                doneMeasuring[i] = true;
-                tofCnt++;
-            }
         }
     }
 }
@@ -118,20 +108,20 @@ void setup() {
     Wire1.begin();
     Wire1.setClock(400000);
     init_sensors();
-    //digitalWrite(STM32_LED, HIGH);
-   
+    // digitalWrite(STM32_LED, HIGH);
 }
 
 void loop() {
-    //i2cScanner();
-    // L4DebugSerial.println(tofCnt);
-    if (tofCnt == 4) {
-        // for (int i = 0; i < 4; i++) {
-        //     L4DebugSerial.print(buffer.vals[i]);
-        //     L4DebugSerial.print(" ");
-        // }
-        // L4DebugSerial.println();
-        sendVals();
-    }
+    // i2cScanner();
+    //  L4DebugSerial.println(tofCnt);
+    // 
+    // for (int i = 0; i < 4; i++) {
+    //     L4DebugSerial.print(buffer.vals[i]);
+    //     L4DebugSerial.print(" ");
+    // }
+    // L4DebugSerial.println();
+
+    
     read_sensors();
+    sendVals();
 }

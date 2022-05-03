@@ -159,16 +159,12 @@ void loop() {
                                                    : 1 - light.chordLength;
 
                 // use chord length to adjust speed
-                motors.setMove(speed, closestAngle, rotation, angSpeed);
+                motors.setMove(speed, moveAngle, rotation, angSpeed);
 
             } else if (lineAvoid) {
                 // avoid line by moving in opposite direction to line
                 float moveAngle = fmod(lineData.lineAngle.val + 180, 360);
-                // L1DebugSerial.print("Line Angle: ");
-                //     L1DebugSerial.print(lineData.lineAngle.val);
-                //     L1DebugSerial.print("\tChord Length: ");
-                //     L1DebugSerial.println(lineData.chordLength.val);
-
+                // L1DebugSerial.println("Line Avoid");
                 motors.setMove(fmax(70 * lineData.chordLength.val, 50),
                                moveAngle, rotation, angSpeed);
             } else {

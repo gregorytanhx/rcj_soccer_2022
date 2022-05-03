@@ -97,8 +97,9 @@ ID = 'whitebot'
 
 if ID == 'blackbot':
     centreY = 116
-    centreX = 148
-
+    centreX = 148  
+    ROI = (0, 0, 320, 240)
+ 
     # LAB thresholds
     # lab field values
     red_thresh = [(55, 75, 30, 53, 15, 40)]
@@ -111,6 +112,7 @@ if ID == 'blackbot':
 else:
     centreY = 132
     centreX = 147
+    ROI = (0, 0, 297, 240)
 
     # LAB thresholds
     # lab field values
@@ -125,18 +127,7 @@ dT = 0
 ballFound = False
 notFoundCount = 0
 
-#def distanceMapper(pixel):
-    ## use polynomial regression to map pixel distance to centimetre distance
-    #polarity = pixel / abs(pixel) if pixel != 0 else 1
-    ## use absolute value since polynomial equation is different for negative numbers
-    #pixel = abs(pixel)
 
-    #return (-4.9389970963 +
-           #(1.854090469) * pixel +
-           #(-0.1025514398) * pixel**2 +
-           #(0.0022392798) * pixel**3  +
-           #(-0.0000200405) * pixel**4 +
-           #(0.0000000639) * pixel**5 ) * polarity
 
 def distanceMapper(pixel):
     # use polynomial regression to map pixel distance to centimetre distance
@@ -151,21 +142,9 @@ def distanceMapper(pixel):
            (-0.0000275141) * pixel**4 +
            (0.0000001031) * pixel**5 ) * polarity
 
-#def distanceUnmapper(real):
-    ## use polynomial regression to map centimetre distance back to pixel distance
-    #polarity = real / abs(real)
-    ## use absolute value since polynomial equation is different for negative numbers
-    #real = abs(real)
-    #return ((3.908817542) +
-           #(5.7246680984) * real +
-           #(-0.1117511243) * real**2 +
-           #(0.0011296842) * real**3  +
-           #(-0.0000055712) * real**4 +
-           #(0.0000000106) * real**5 ) * polarity
-
 def distanceUnmapper(real):
     # use polynomial regression to map centimetre distance back to pixel distance
-    polarity = real / abs(real)
+    polarity = real / abs(real) if real != 0 else 1
     # use absolute value since polynomial equation is different for negative numbers
     real = abs(real)
     return (-4.92497614 +
@@ -217,14 +196,14 @@ def track_field(thresh, pixel_thresh, area_thresh, color = (255, 255, 255), debu
         img.draw_cross(X, Y, color = color)
 
 
-def track_obj(thresh, pixel_thresh, area_thresh, color = (255, 255, 255), debug=False, roi = (0, 0, 340, 240), stride = 1, margin = 5, merge = False):
+def track_obj(thresh, pixel_thresh, area_thresh, color = (255, 255, 255), debug=False, stride = 1, margin = 5, merge = False):
     found_obj = None
     found_blob = None
     max_area = 0
     box = None
     # more blobs means more things blocking the goal
     num_blobs = 0
-    blobs = img.find_blobs(thresh, merge=merge, roi = roi, x_stride = stride, y_stride = stride, pixels_threshold=pixel_thresh, area_threshold=area_thresh, margin = margin)
+    blobs = img.find_blobs(thresh, merge=merge, roi = ROI, x_stride = stride, y_stride = stride, pixels_threshold=pixel_thresh, area_threshold=area_thresh, margin = margin)
     for blob in blobs:
         num_blobs += 1
         if blob.area() > max_area:

@@ -17,8 +17,10 @@ void slowDown() {
     for (int i = 0; i < 4; i++) {
         if (bbox.tofFlag[i] == 0 && bbox.tofVals[i] < 600) tmp = true;
     }
+    if (bbox.Xconfidence < 0.8 || abs(botCoords.x) > 280) tmp = true;
+
     if (tmp)
-        runningSpeed = 45;
+        runningSpeed = 50;
     else
         runningSpeed = 70;
     // Serial.print("SPEED: ");
