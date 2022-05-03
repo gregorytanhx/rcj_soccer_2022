@@ -123,8 +123,8 @@ void setup() {
 }
 
 void loop() {
-    // i2cScanner();
-    //L4DebugSerial.println(tofCnt);
+    //i2cScanner();
+    // L4DebugSerial.println(tofCnt);
     if (tofCnt == 4) {
         // for (int i = 0; i < 4; i++) {
         //     L4DebugSerial.print(buffer.vals[i]);

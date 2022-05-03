@@ -1,6 +1,6 @@
 #include "Camera.h"
 
-void Camera::begin() { 
+void Camera::begin() {
     CamSerial.begin(CAMERA_BAUD);
     // while (side == unset) {
     //     read();
@@ -15,7 +15,6 @@ void Camera::begin() {
     //         }
     //     }
     // }
-    
 }
 
 bool Camera::read() {
@@ -30,7 +29,7 @@ bool Camera::read() {
             }
         }
         for (int i = 0; i < 8; i++) {
-            tmpArray[i] = (float) buffer.vals[i] / 100;
+            tmpArray[i] = (float)buffer.vals[i] / 100;
         }
 
         ballAngle = tmpArray[0];
@@ -86,53 +85,64 @@ void Camera::update() {
 }
 
 void Camera::printData(int timeOut) {
-    if (newData) {
-        lastPrintTime = millis();
+    lastPrintTime = millis();
 
-        if (side == facingBlue) {
-            Serial.println("FACING BLUE");
-        } else if (side == facingYellow) {
-            Serial.println("FACING YELLOW");
-        }
-        if (ballVisible) {
-            Serial.print("Ball Angle: ");
-            Serial.print(ballAngle);
-            Serial.print(" Ball Dist: ");
-            Serial.print(ballDist);
-        }
-        if (predBall) {
-            Serial.print("Predicted Ball Angle: ");
-            Serial.print(predBallAngle);
-            Serial.print(" Predicted Ball Dist: ");
-            Serial.print(predBallDist);
-        }
-        Serial.println();
-        if (blueVisible) {
-            Serial.print(" Blue Angle: ");
-            Serial.print(blueAngle);
-            Serial.print(" Blue Dist: ");
-            Serial.print(blueDist);
-        }
-        if (yellowVisible) {
-            Serial.print(" Yellow Angle: ");
-            Serial.print(yellowAngle);
-            Serial.print(" Yellow Dist: ");
-            Serial.print(yellowDist);
-        }
-        Serial.println();
+    if (side == facingBlue) {
+        Serial.println("FACING BLUE");
+    } else if (side == facingYellow) {
+        Serial.println("FACING YELLOW");
+    }
+    if (ballVisible) {
+        Serial.print("Ball Angle: ");
+        Serial.print(ballAngle);
+        Serial.print(" Ball Dist: ");
+        Serial.print(ballDist);
+    }
+    if (predBall) {
+        Serial.print("Predicted Ball Angle: ");
+        Serial.print(predBallAngle);
+        Serial.print(" Predicted Ball Dist: ");
+        Serial.print(predBallDist);
+    }
+    Serial.println();
+    if (blueVisible) {
+        Serial.print(" Blue Angle: ");
+        Serial.print(blueAngle);
+        Serial.print(" Blue Dist: ");
+        Serial.print(blueDist);
+    }
+    if (yellowVisible) {
+        Serial.print(" Yellow Angle: ");
+        Serial.print(yellowAngle);
+        Serial.print(" Yellow Dist: ");
+        Serial.print(yellowDist);
+    }
+    Serial.println();
+     if (oppGoalVisible) {
+        Serial.print(" Opp Angle: ");
+        Serial.print(oppGoalAngle);
+        Serial.print(" Opp Dist: ");
+        Serial.print(oppGoalDist);
+    }
+    if (ownGoalVisible) {
+        Serial.print(" Own Angle: ");
+        Serial.print(ownGoalAngle);
+        Serial.print(" Own Dist: ");
+        Serial.print(ownGoalDist);
+    }
+    Serial.println();
 
-        if (blueVisible && yellowVisible) {
-            Serial.print("Orientation: ");
-            Serial.print(-frontVector.getAngle());
-            Serial.print(" Angle to Centre: ");
-            Serial.print(nonReflex(centreVector.getAngle()));
-            Serial.print(" Distance to Centre (cm): ");
-            Serial.print(centreVector.getDistance() / 10);
-            Serial.println();
-            Serial.print("X: ");
-            Serial.print(-centreVector.x);
-            Serial.print(" Y: ");
-            Serial.println(-centreVector.y);
-        }
+    if (blueVisible && yellowVisible) {
+        Serial.print("Orientation: ");
+        Serial.print(-frontVector.getAngle());
+        Serial.print(" Angle to Centre: ");
+        Serial.print(nonReflex(centreVector.getAngle()));
+        Serial.print(" Distance to Centre (cm): ");
+        Serial.print(centreVector.getDistance() / 10);
+        Serial.println();
+        Serial.print("X: ");
+        Serial.print(-centreVector.x);
+        Serial.print(" Y: ");
+        Serial.println(-centreVector.y);
     }
 }

@@ -110,15 +110,11 @@ void setup() {
     digitalWrite(STM32_LED, HIGH);
     // pinMode(PB10, OUTPUT);
     // pinMode(PB11, OUTPUT);
-    
 }
 
-
-
 void loop() {
-
     receiveData();
-   
+
     calibrate = false;
 
     if (calibrate) {
@@ -133,19 +129,8 @@ void loop() {
     } else {
         light.read();
         if (light.doneReading()) {
-            
-            //light.printLight();
-            // light.printThresh();
-
             light.getLineData(lineData);
-            // if (lineData.onLine) {
-            //     L1DebugSerial.print("Line Angle: ");
-            //     L1DebugSerial.print(lineData.lineAngle.val);
-            //     L1DebugSerial.print("\tChord Length: ");
-            //     L1DebugSerial.println(lineData.chordLength.val);
-            // }
             sendData();
-            
         }
 
         if (lineData.onLine) {
@@ -157,6 +142,12 @@ void loop() {
                 // goes over centre of line
                 lineData.chordLength.val = 2 - lineData.chordLength.val;
             }
+
+            // L1DebugSerial.print("Line Angle: ");
+            // L1DebugSerial.print(lineData.lineAngle.val);
+            // L1DebugSerial.print("\tChord Length: ");
+            // L1DebugSerial.println(lineData.chordLength.val);
+
             if (lineTrack) {
                 // follow line
                 lineTimer.update();
@@ -166,13 +157,8 @@ void loop() {
                 float moveAngle = angle + correction;
                 float dist = light.chordLength > 1 ? light.chordLength - 1
                                                    : 1 - light.chordLength;
-                // L1DebugSerial.print("Reference angle: ");
-                // L1DebugSerial.print(angle);
-                // L1DebugSerial.print("Line track angle: ");
-                // L1DebugSerial.println(closestAngle);
 
                 // use chord length to adjust speed
-
                 motors.setMove(speed, closestAngle, rotation, angSpeed);
 
             } else if (lineAvoid) {
@@ -183,7 +169,7 @@ void loop() {
                 //     L1DebugSerial.print("\tChord Length: ");
                 //     L1DebugSerial.println(lineData.chordLength.val);
 
-                motors.setMove(fmax(60 * lineData.chordLength.val, 30),
+                motors.setMove(fmax(70 * lineData.chordLength.val, 50),
                                moveAngle, rotation, angSpeed);
             } else {
                 // ignore line

@@ -29,9 +29,20 @@ void IMU::sendCalib() {
 }
 
 void IMU::begin() {
-    if (!bno.begin(Adafruit_BNO055::OPERATION_MODE_IMUPLUS)) {
-        Serial.println("No BNO055 detected");
-        while (1);
+    bool useMag = false;
+    if (useMag) {
+        if (!bno.begin(Adafruit_BNO055::OPERATION_MODE_NODF)) {
+            Serial.println("No BNO055 detected");
+            while (1)
+                ;
+        }
+
+    } else {
+        if (!bno.begin(Adafruit_BNO055::OPERATION_MODE_IMUPLUS)) {
+            Serial.println("No BNO055 detected");
+            while (1)
+                ;
+        }
     }
 
     uint8_t system, gyro, accel, mag = 0;
@@ -39,14 +50,18 @@ void IMU::begin() {
     delay(1000);
     bno.setExtCrystalUse(false);
     delay(100);
- 
-   
-    while (gyro !=3 ) {
-        bno.getCalibration(&system, &gyro, &accel, &mag);
-
-        printCalib();
-    
+    if (useMag) {
+        while (gyro != 3 || mag != 3) {
+            bno.getCalibration(&system, &gyro, &accel, &mag);
+            printCalib();
+        }
+    } else {
+        while (gyro != 3) {
+            bno.getCalibration(&system, &gyro, &accel, &mag);
+            printCalib();
+        }
     }
+
     eulerOffset = readEuler();
     quatOffset = readQuat();
 }

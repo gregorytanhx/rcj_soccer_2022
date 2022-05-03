@@ -30,6 +30,7 @@ LightBuffer lightVals;
 CmpVal cmpVal;
 
 float lastLineAngle = 0;
+bool usingDribbler = true;
 bool lineTrack = false;
 bool lineAvoid = true;
 bool hasBall = false;
@@ -47,6 +48,8 @@ long lastBallMoveTime = 0;
 long lastChargeTime = 0;
 long lastDribbleTime = 0;
 long lastSwitchTime = 0;
+long dribblerOnTime = 0;
+long lastLineTime = 0;
 
 int ballCnt = 0;
 float lastBallAngle;
@@ -84,7 +87,7 @@ Point absBallCoords(0, 0);
 Point sidewaysCoordinate(0,0);
 
 PID coordPID(0.15, 0, 0.1);
-PID cmpPID(0.1, 0.15, 1.5);
+PID cmpPID(0.07, 0.1, 1);
 PID camAngPID(0.1, 0, 2);
 
 // initialise neutral point coordinates

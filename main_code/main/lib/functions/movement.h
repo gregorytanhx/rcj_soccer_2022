@@ -23,12 +23,12 @@ void updateKick() {
             digitalWriteFast(KICKER_PIN, LOW);
             kickTime = millis();
             kicked = true;
-            Serial.println("kicked");
+            // Serial.println("kicked");
         } else {
             // solenoid sticks out for 100ms
             if (millis() - kickTime > 100) {
                 digitalWriteFast(KICKER_PIN, HIGH);
-                Serial.println("stopped kicking");
+                // Serial.println("stopped kicking");
                 stopKick = true;
             }
             // if kicker is on, kick every 2 seconds
@@ -44,8 +44,8 @@ void updateKick() {
 }
 
 void updateBallData() {
-    if (readLightGate() < 25) lastGateTime = millis();
-    ballData.captured = millis() - lastGateTime < 100;
+    if (readLightGate() <= 30) lastGateTime = millis();
+    ballData.captured = millis() - lastGateTime < 200;
     if (camera.ballVisible) {
         ballData.angle = camera.ballAngle;
         ballData.dist = camera.ballDist;
@@ -112,18 +112,14 @@ void trackBall() {
     float ballOffset, ballMult;
     ballData.dist = max(ballData.dist - 8, 0);
     if (ballData.angle < 180)
-        ballOffset = fmin(ballData.angle * 1.2, 90);
+        ballOffset = fmin(ballData.angle * 1.1, 90);
     else
-        ballOffset = max((ballData.angle - 360) * 1.2, -90);
+        ballOffset = max((ballData.angle - 360) * 1.1, -90);
 
     float factor = 1 - ballData.dist / 80;
-    ballMult = fmin(1.3, 0.02 * exp(factor * 4.8));
+    ballMult = fmin(1.3, 0.02 * exp(factor * 4.2));
 
     robotAngle = ballData.angle + ballMult * ballOffset;
-    if (abs(nonReflex(ballData.angle)) < 25) {
-        robotAngle = ballData.angle * 1.1;
-        if (ballData.dist < 20) robotAngle = 0;
-    }
 
     // if (ballData.angle >= 90 && ballData.angle <= 270) {
     //     ballMult = 1 + exp((float)(20 - ballData.dist) / 15);
@@ -133,27 +129,29 @@ void trackBall() {
     // }
     // robotAngle = nonReflex(ballData.angle) * ballMult;
 
-    // if (ballData.dist > 35)
-    //     robotAngle = ballData.angle + ballOffset * 0.35;
-    // else if (ballData.dist > 20)
-    //     robotAngle = ballData.angle + ballOffset * 0.7;
-    // else
-    //     robotAngle = ballData.angle + ballOffset * 0.95;
+    if (ballData.dist > 35)
+        robotAngle = ballData.angle + ballOffset * 0.35;
+    else if (ballData.dist > 20)
+        robotAngle = ballData.angle + ballOffset * 0.7;
+    else
+        robotAngle = ballData.angle + ballOffset * 0.9;
     // ball directly next to robot
 
-    Serial.print("Ball Angle: ");
-    Serial.print(ballData.angle);
-    Serial.print(" Ball Dist: ");
-    Serial.print(ballData.dist);
-    Serial.print(" Ball Offset: ");
-    Serial.println(ballOffset);
-    Serial.print(" Move Angle: ");
-    Serial.println(mod(robotAngle + 360, 360));
+    // Serial.print("Ball Angle: ");
+    // Serial.print(ballData.angle);
+    // Serial.print(" Ball Dist: ");
+    // Serial.print(ballData.dist);
+    // Serial.print(" Ball Offset: ");
+    // Serial.println(ballOffset);
+    // Serial.print(" Move Angle: ");
+    // Serial.println(mod(robotAngle + 360, 360));
     setMove(runningSpeed, robotAngle, 0);
 }
 
 void trackGoal(float goalAngle = -1.0) {
-    if (goalAngle == -1.0) goalAngle = camera.oppGoalAngle;
+    if (goalAngle == -1.0) {
+       goalAngle = mod(camera.oppGoalAngle - 10 + 360, 360);
+    }
     float goalOffset;
     if (goalAngle < 180)
         goalOffset = fmin(goalAngle, 90);
@@ -163,11 +161,11 @@ void trackGoal(float goalAngle = -1.0) {
     float goalMult = 1.2;
     robotAngle = goalAngle + goalMult * goalOffset;
 
-    Serial.print("Goal Angle: ");
-    Serial.print(goalAngle);
-    Serial.print(" Move Angle: ");
-    Serial.println(robotAngle);
-    setMove(60, robotAngle, 0);
+    // Serial.print("Goal Angle: ");
+    // Serial.print(goalAngle);
+    // Serial.print(" Move Angle: ");
+    // Serial.println(robotAngle);
+    setMove(runningSpeed, robotAngle, 0);
 }
 
 void angleCorrect(int target = 0) {
@@ -176,6 +174,33 @@ void angleCorrect(int target = 0) {
         moveData.angSpeed.val = 30;
     else
         moveData.angSpeed.val = 15;
+}
+
+void avoidLine() {
+    lineAvoid = true;
+    if (lineData.onLine) {
+        lastLineTime = millis();
+        if (bbox.outAngle > 0) {
+            lineAvoid = false;
+            
+            Serial.print("OUT");
+            Serial.print(" Angle: ");
+            Serial.println(bbox.outAngle);
+            setMove(runningSpeed, bbox.outAngle, 0);
+        } else {
+            lineAvoid = true;
+        }
+    }
+    if (millis() - lastLineTime < 500) {
+        if (bbox.outAngle > 0) {
+            lineAvoid = false;
+
+            Serial.print("OUT");
+            Serial.print(" Angle: ");
+            Serial.println(bbox.outAngle);
+            setMove(runningSpeed, bbox.outAngle, 0);
+        }
+    }
 }
 
 void aimGoal() {

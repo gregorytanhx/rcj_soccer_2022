@@ -355,7 +355,7 @@ def send(data):
             pass
 
 while(True):
-    debug = False
+    debug = True
     clock.tick()
     img = sensor.snapshot()
 

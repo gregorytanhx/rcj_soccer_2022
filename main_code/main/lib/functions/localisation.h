@@ -15,12 +15,14 @@ void updatePosition() {
 void slowDown() {
     bool tmp = false;
     for (int i = 0; i < 4; i++) {
-        if (bbox.tofFlag[i] == 0 && bbox.tofVals[i] < 500) tmp = true;
+        if (bbox.tofFlag[i] == 0 && bbox.tofVals[i] < 600) tmp = true;
     }
     if (tmp)
-        runningSpeed = 50;
+        runningSpeed = 45;
     else
         runningSpeed = 70;
+    // Serial.print("SPEED: ");
+    // Serial.println(runningSpeed);
 }
 
 // bool reachedPoint(Point target, int dist = 30) {
@@ -69,13 +71,13 @@ bool goTo(Point target, int distThresh = 50) {
     if (abs(pointVector.y) < distThresh / 2) Yspeed = 0;
     moveSpeed = min(45, Xspeed + Yspeed);
     if (moveSpeed > 0) moveSpeed = max(moveSpeed, 27);
-    Serial.print("TOF: ");
-    Serial.print(" Angle to target: ");
-    Serial.print(moveAngle);
-    Serial.print(" Distance to target: ");
-    Serial.print(pointVector.getDistance());
-    Serial.print(" Speed: ");
-    Serial.println(moveSpeed);
+    // Serial.print("TOF: ");
+    // Serial.print(" Angle to target: ");
+    // Serial.print(moveAngle);
+    // Serial.print(" Distance to target: ");
+    // Serial.print(pointVector.getDistance());
+    // Serial.print(" Speed: ");
+    // Serial.println(moveSpeed);
 
     // Serial.println();
     // CAMERA CONFIDENCE CAN BE BASED ON NUMBER OF SEPERATE BLOBS DETECTED
