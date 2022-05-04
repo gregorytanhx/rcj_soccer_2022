@@ -7,7 +7,6 @@ PID goalieBallPID(3.5, 0.01, 2);
 PID goalieGoalPID(2.5, 0, 1);
 
 void striker() {
-    updateAllData();
 
     slowDown();
     bool goalCorrect = false;
@@ -17,7 +16,7 @@ void striker() {
     } else if (ballData.captured) {
         if (usingDribbler) {
             if (camera.oppGoalVisible) {
-                camera.printData();
+                // camera.printData();
                 Serial.println("TRACKING GOAL");
                 Serial.print("Goal Angle: ");
                 Serial.print(camera.oppGoalAngle);
@@ -30,13 +29,7 @@ void striker() {
                 if (camera.oppGoalDist <= 52 &&
                     (camera.oppGoalAngle < 25 || camera.oppGoalAngle > 335) &&
                     (robotAngle < 40 || robotAngle > 320)) {
-                    Serial.println("FUCKKKLKK");
-                    Serial.print("Goal Angle: ");
-                    Serial.print(camera.oppGoalAngle);
-                    Serial.print(" Goal Dist: ");
-                    Serial.print(camera.oppGoalDist);
-                    Serial.println();
-                    camera.printData();
+                    
                     // kick every 1.5s
                     if (millis() - lastKickTime > 1500) {
                         dribble = false;
@@ -67,7 +60,7 @@ void striker() {
 
         // Serial.println("ball captured!");
     } else if (camera.ballVisible) {
-        // Serial.println("Tracking Ball");
+        Serial.println("Tracking Ball");
         trackBall();
         if ((camera.ballAngle < 60 || camera.ballAngle > 300) &&
             camera.ballDist < 60) {
@@ -83,23 +76,28 @@ void striker() {
         if (millis() - dribblerOnTime > 1000) {
             dribble = false;
         }
-        goTo(neutralPoints[CentreDot], 90);
+        // goTo(neutralPoints[CentreDot], 90);
+        setMove(0,0,0);
         Serial.println("RETURNING TO CENTRE");
     }
 
     int distThresh = 42;
+    // camera.printData(0);
     // avoid fully entering penalty area
-    if (abs(nonReflex(camera.oppGoalAngle)) < 30 &&
-        camera.oppGoalDist <= distThresh) {
-        lineAvoid = false;
-        Serial.println("returning to centre!");
-        goTo(neutralPoints[CentreDot], 90);
-    } else {
-        lineAvoid = true;
-    }
+    // if (abs(nonReflex(camera.oppGoalAngle)) < 30 &&
+    //     camera.oppGoalDist <= distThresh) {
+    //     lineAvoid = false;
+    //     camera.printData(0);
+    //     Serial.println(camera.oppGoalAngle);
+    //     Serial.println(camera.oppGoalDist);
+    //     Serial.println("returning to centre!");
+    //     goTo(neutralPoints[CentreDot], 90);
+    // } else {
+    //     lineAvoid = true;
+    // }
 
     // tof out detection
-    avoidLine();
+    // avoidLine();
     // if (camera.oppGoalDist < 50 || camera.ownGoalDist < 50) {
     //     lineAvoid = false;
     // }
@@ -118,11 +116,11 @@ void striker() {
     } else {
         angleCorrect();
     }
-    sendLayer1();
+   
 }
 
 void goalie() {
-    updateAllData();
+   
     // defence program
     lineTrack = true;
     lineAvoid = false;
@@ -256,7 +254,7 @@ void goalie() {
     Serial.println(robotAngle);
 
     angleCorrect();
-    sendLayer1();
+   
 }
 
 void normal() {
@@ -265,6 +263,8 @@ void normal() {
     goalieAttack = false;
     lineAvoid = true;
     lineTrack = false;
+    updateAllData();
+    printIMU();
     if (currentRole() == Role::attack) {
         // attack program
         // Serial.println("ATTACK");
@@ -275,12 +275,19 @@ void normal() {
         // Serial.println("DEFENCE");
         goalie();
     }
+    lineAvoid = false;
+    Serial.print("SPEED: ");
+    Serial.print(moveData.speed.val);
+    Serial.print(" ANGLE: ");
+    Serial.print(moveData.angle.val);
+    Serial.println();
+    sendLayer1();
 }
 
 void moveInCircle() {
     MyTimer circleTimer(5);
     int dir = 360;
-
+    lineAvoid = false;
     while (true) {
         readIMU();
         if (circleTimer.timeHasPassed()) {
@@ -321,214 +328,6 @@ void turnToAng(int angle) {
         }
 
         sendLayer1();
-    }
-}
-
-void robot1() {
-    // this shit damn cancer
-    // robot 1 program for SG Open technical challenge
-    // challenge 2: score ball into goal that it is closest to then go to other
-    // spot
-    // challenge 3: ball is randomly positioned on either side of field, score
-    // ball into any goal
-
-    bool firstTime = true;
-    bool challenge3 = false;
-    bool scoringBlue = false;
-    long kickTime = 0;
-    long timer = 0;
-    int lr, fb;
-    int side = 0;  // 0 for side away from wall, 1 for side next to wall
-
-    while (1) {
-        if (!challenge3) {
-            bool botPosFound = false;
-            bool ballPosFound = false;
-            bool posFound = false;
-            int leftCnt, rightCnt = 0;
-
-            // always face yellow
-            int c3cnt = 0;
-            int blueCnt = 0;
-            int yellowCnt = 0;
-            while ((ballPosFound == false || posFound == false) &&
-                   challenge3 == false) {
-                updateAllData();
-                camera.printData();
-                if (!posFound) {
-                    bbox.printTOF();
-                    Serial.print(bbox.tofVals[1]);
-                    Serial.print(" ");
-                    Serial.println(bbox.tofVals[3]);
-                    if (tof.vals[3] < 200 && tof.vals[1] > 600) {
-                        leftCnt++;
-
-                    } else if (tof.vals[1] < 200 && tof.vals[3] > 600) {
-                        rightCnt++;
-                    }
-                    if (leftCnt >= 10) {
-                        side = 1;
-                        posFound = true;
-                        Serial.println("SIDE NEXT TO WALL");
-                    } else if (rightCnt >= 10) {
-                        side = 0;
-                        posFound = true;
-                        Serial.println("SIDE AWAY FROM WALL");
-                    }
-                }
-                Serial.print(ballPosFound);
-                Serial.print(" ");
-                Serial.println(posFound);
-
-                if (ballData.visible && !ballPosFound) {
-                    Serial.println("BALL POS NOT FOUND");
-                    if (camera.blueVisible &&
-                        abs(camera.blueAngle - ballData.angle) < 90) {
-                        blueCnt++;
-
-                    } else if (camera.yellowVisible &&
-                               abs(camera.yellowAngle - ballData.angle) < 90) {
-                        yellowCnt++;
-                    } else {
-                        c3cnt = 0;
-                        blueCnt = 0;
-                        yellowCnt = 0;
-                    }
-                    Serial.println(c3cnt);
-                    if (yellowCnt >= 10) {
-                        ballPosFound = true;
-                        scoringBlue = false;
-                        Serial.println("BALL CLOSER TO YELLOW");
-                    } else if (blueCnt >= 10) {
-                        ballPosFound = true;
-                        scoringBlue = true;
-                        Serial.println("BALL CLOSER TO BLUE");
-                    }
-                }
-                if (!ballData.visible) {
-                    c3cnt++;
-                } else {
-                    c3cnt = 0;
-                }
-                if (c3cnt >= 10) {
-                    ballPosFound = true;
-                    challenge3 = true;
-                    Serial.println("CHALLENGE 3");
-                }
-            }
-        }
-    }
-
-    firstTime = false;
-    lineTrack = true;
-    fb = scoringBlue ? 2 : 0;
-    lr = side == 1 ? 3 : 1;
-
-    if (!challenge3) {
-        while (!TOFtoPoint(450, 170, fb, lr)) {
-            Serial.println(scoringBlue);
-            updateAllData();
-            angleCorrect();
-            sendLayer1();
-        }
-
-        setMove(0, 0, 0);
-        sendLayer1();
-
-        int sign = side == 1 ? 1 : -1;
-
-        // side next to wall in lab
-        turnToAng(90 * sign);
-        Serial.print("TURNED");
-        if (scoringBlue) {
-            if (side == 1)
-                lr = 1;
-            else
-                lr = 3;
-        } else {
-            if (side == 1)
-                lr = 3;
-            else
-                lr = 1;
-        }
-        lineTrack = false;
-        lineAvoid = false;
-        while (!TOFtoPoint(500, 370, 2, lr)) {
-            updateAllData();
-
-            angleCorrect(90 * sign);
-            sendLayer1();
-        }
-        lineTrack = true;
-        setMove(0, 0, 0);
-        sendLayer1();
-
-        while (readLightGate() > 40) {
-            Serial.println("moving to ball");
-            updateAllData();
-            setMove(30, ballData.angle, 0);
-            angleCorrect(90 * sign);
-            sendLayer1();
-        }
-        // flick ball into goal
-        if (scoringBlue) {
-            setMove(0, 0, 60 * sign, 20);
-        } else {
-            setMove(0, 0, -60 * sign, 20);
-        }
-
-        sendLayer1();
-        delay(50);
-        lineTrack = false;
-        while (!TOFtoPoint(200, 370, 0, lr)) {
-            updateAllData();
-            angleCorrect(90 * sign);
-            sendLayer1();
-        }
-        turnToAng(0);
-
-        // move to next point and wait
-        lineTrack = true;
-
-        int tmp = side == 1 ? 1 : -1;
-
-        while (!goTo(Point(tmp * 500, 0), 70)) {
-            updateAllData();
-            angleCorrect();
-            sendLayer1();
-        }
-        timer = millis();
-        while (millis() - timer < 1100) {
-            updateAllData();
-            angleCorrect();
-            sendLayer1();
-        }
-    } else {
-        bool scored = false;
-        while (!scored) {
-            striker();
-            if (kick) scored = true;
-        }
-
-        int tmp = side == 1 ? 1 : -1;
-        while (!goTo(Point(tmp * 500, 0), 70)) {
-            updateAllData();
-            angleCorrect();
-            sendLayer1();
-        }
-        timer = millis();
-        while (millis() - timer < 1100) {
-            updateAllData();
-            angleCorrect();
-            sendLayer1();
-        }
-        // automatically swap sides
-        if (side == 1)
-            side = 0;
-        else
-            side = 1;
-        // printLightData();
-        // camera.printData();
     }
 }
 
@@ -625,28 +424,46 @@ void setup() {
     delay(100);
     digitalWrite(LED_BUILTIN, LOW);
 }
-
+long tmp = 0;
 void loop() {
     // TODO: ADD FAILURE STATE FOR TOF, USE COMPASS IF TOF DIED
     // bbox.printTOF();
     // printIMU();
-    // camera.printData(0);
-    // normal();
+    
+    //   normal();
+    runningSpeed = 50;
     updateAllData();
-    bbox.printTOF();
     printIMU();
+    trackGoal();
+    angleCorrect();
+    sendLayer1();
 
-    // setMove(70,0,0);
-    // angleCorrect();
-    // sendLayer1();
-    // Serial.print("LIGHT GATE: ");
-    // Serial.println(readLightGate());
-    //  dribble = true;
-    //  updateDribbler();
-    // // bbox.printTOF();
+    // moveInCircle();
+     // updateAllData();
+     // lineAvoid = false;
+     // setMove(0,0,0);
+     // printIMU();
+     // angleCorrect();
+     // sendLayer1();
 
-    // bt.printData();
-    // readLayer1();
-    // printLightData();
-    // sendLayer1();
+     // dribble = true;
+     // if (millis() - tmp > 5000) {
+     //     tmp = millis();
+     //     if (kick) kick = false;
+     //     else kick = true;
+     // }
+
+     // Serial.print("LIGHT GATE: ");
+     // Serial.println(readLightGate());
+     // updateDribbler();
+     // updateKick();
+     // printLightData();
+     //  dribble = true;
+     //  updateDribbler();
+     // // bbox.printTOF();
+
+     // bt.printData();
+     // readLayer1();
+     // printLightData();
+     // sendLayer1();
 }

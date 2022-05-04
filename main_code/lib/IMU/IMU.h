@@ -40,6 +40,7 @@ class IMU {
     float heading;
     float eulerOffset = 0;
     float quatOffset = 0;
+    float angleOffset = 0;
     int eeAddress = IMU_CALIB_ADDR;
     sensors_event_t event;
     adafruit_bno055_offsets_t calibrationData;

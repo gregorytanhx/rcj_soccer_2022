@@ -116,7 +116,7 @@ void loop() {
     receiveData();
 
     calibrate = false;
-
+    
     if (calibrate) {
         if (doneCalibrating) {
             light.read();
@@ -127,8 +127,9 @@ void loop() {
         }
 
     } else {
-        light.read();
+        light.readRaw();
         if (light.doneReading()) {
+            //light.printLight();
             light.getLineData(lineData);
             sendData();
         }

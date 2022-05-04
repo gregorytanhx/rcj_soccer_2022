@@ -54,6 +54,7 @@ long lastLineTime = 0;
 int ballCnt = 0;
 float lastBallAngle;
 float lastBallDist;
+float cmpCorrection;
 bool goalieCharge = false;
 long goalieChargeTimer;
 int lastDist;
@@ -87,8 +88,10 @@ Point absBallCoords(0, 0);
 Point sidewaysCoordinate(0,0);
 
 PID coordPID(0.15, 0, 0.1);
-PID cmpPID(0.07, 0.1, 1);
-PID camAngPID(0.1, 0, 2);
+PID cmpPID(0.2, 0.033, 6.8, 0.9);
+// PID cmpPID(0.2, 0.0, 0.0, 0.95);
+
+PID camAngPID(0.1, 0, 0.3);
 
 // initialise neutral point coordinates
 // each point is an x and y coordinate with respect to field centre

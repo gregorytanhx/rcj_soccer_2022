@@ -44,7 +44,7 @@ void updateKick() {
 }
 
 void updateBallData() {
-    if (readLightGate() <= 30) lastGateTime = millis();
+    if (readLightGate() <= 25) lastGateTime = millis();
     ballData.captured = millis() - lastGateTime < 200;
     if (camera.ballVisible) {
         ballData.angle = camera.ballAngle;
@@ -130,14 +130,14 @@ void trackBall() {
         robotAngle = ballData.angle + ballOffset * 0.85;
     // ball directly next to robot
 
-    // Serial.print("Ball Angle: ");
-    // Serial.print(ballData.angle);
-    // Serial.print(" Ball Dist: ");
-    // Serial.print(ballData.dist);
-    // Serial.print(" Ball Offset: ");
-    // Serial.println(ballOffset);
-    // Serial.print(" Move Angle: ");
-    // Serial.println(mod(robotAngle + 360, 360));
+    Serial.print("Ball Angle: ");
+    Serial.print(ballData.angle);
+    Serial.print(" Ball Dist: ");
+    Serial.print(ballData.dist);
+    Serial.print(" Ball Offset: ");
+    Serial.println(ballOffset);
+    Serial.print(" Move Angle: ");
+    Serial.println(mod(robotAngle + 360, 360));
    
     setMove(runningSpeed, robotAngle, 0);
 }
@@ -152,8 +152,7 @@ void trackGoal(float goalAngle = -1.0) {
     else
         goalOffset = max((goalAngle - 360), -90);
 
-    float goalMult = 1.2;
-    robotAngle = goalAngle + goalMult * goalOffset;
+    robotAngle = goalAngle + 0.9 * goalOffset;
 
     // Serial.print("Goal Angle: ");
     // Serial.print(goalAngle);
@@ -163,11 +162,8 @@ void trackGoal(float goalAngle = -1.0) {
 }
 
 void angleCorrect(int target = 0) {
-    moveData.rotation.val = cmpPID.update(-heading + target);
-    if (moveData.speed.val == 0)
-        moveData.angSpeed.val = 30;
-    else
-        moveData.angSpeed.val = 15;
+    moveData.rotation.val = cmpCorrection;
+    moveData.angSpeed.val = 20;
 }
 
 void avoidLine() {
@@ -218,7 +214,7 @@ void camAngleCorrect(int targetAng = 0) {
             camAngPID.update(camera.frontVector.getAngle() - targetAng);
         // Serial.print("Correction: ");
         // Serial.println(moveData.rotation.val);
-         moveData.angSpeed.val = 20;
+         moveData.angSpeed.val = 15;
     } else {
         // Serial.println("FUCKKKKKK");
         moveData.rotation.val = 0;

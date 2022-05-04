@@ -14,7 +14,10 @@ float IMU::readEuler() {
 float IMU::read() {
     bno.getEvent(&event);
     heading = event.orientation.x;
-    heading -= eulerOffset;
+    heading -= angleOffset;
+   
+    if (heading < 0) heading += 360;
+    if (heading > 180) heading -= 360;
     return heading;
 }
 
@@ -31,7 +34,7 @@ void IMU::sendCalib() {
 void IMU::begin() {
     bool useMag = false;
     if (useMag) {
-        if (!bno.begin(Adafruit_BNO055::OPERATION_MODE_NODF)) {
+        if (!bno.begin(Adafruit_BNO055::OPERATION_MODE_NDOF)) {
             Serial.println("No BNO055 detected");
             while (1)
                 ;
@@ -49,7 +52,7 @@ void IMU::begin() {
     loadCalib();
     delay(1000);
     bno.setExtCrystalUse(false);
-    delay(100);
+
     if (useMag) {
         while (gyro != 3 || mag != 3) {
             bno.getCalibration(&system, &gyro, &accel, &mag);
@@ -61,9 +64,14 @@ void IMU::begin() {
             printCalib();
         }
     }
+    delay(100);
+    angleOffset = read();
+    // for (int i = 0; i < 10; i++) {
+    //     angleOffset += read();
+    //     delay(10);
+    // }
 
-    eulerOffset = readEuler();
-    quatOffset = readQuat();
+    // angleOffset /= 10;
 }
 
 void IMU::loadCalib() {
@@ -108,6 +116,13 @@ void IMU::printData() {
     printCalib();
 }
 
+// double IMU::read() {
+//     sensors_event_t event;
+//     bno.getEvent(&event);
+//     heading = -(event.orientation.x - angleOffset);
+//     return nonReflex(heading);
+// }
+
 double IMU::readQuat() {
     imu::Quaternion quat = bno.getQuat();
     /* Display the quat data */
@@ -118,10 +133,9 @@ double IMU::readQuat() {
                               1 - 2 * (yy + quat.z() * quat.z()));
 
     heading *= -1;
-    heading -= quatOffset;
-    if (heading < 0) heading += 360;
-    if (heading > 180) heading -= 360;
-    return heading;
+    heading -= angleOffset;
+
+    return nonReflex(heading);
 }
 
 void IMU::displaySensorDetails() {

@@ -3,6 +3,7 @@
 
 #include <Arduino.h>
 #include <math.h>
+#include <Wire.h>
 
 #define pi 3.1415926536
 
@@ -78,6 +79,7 @@ bool angleIsInside(float angleBoundCounterClockwise,
                    float angleBoundClockwise,
                    float angleCheck);
 float polarAngle(float y, float x);
+void i2cScanner(TwoWire &Wire1);
 
 typedef union floatData {
     float val;

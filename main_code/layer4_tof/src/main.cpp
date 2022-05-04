@@ -14,6 +14,7 @@ int shutPins[4] = {SHUT_1, SHUT_2, SHUT_3, SHUT_4};
 int intPins[4] = {INT_1, INT_2, INT_3, INT_4};
 bool doneMeasuring[4];
 int tofCnt = 4;
+bool newData;
 
 TOFBuffer buffer;
 
@@ -38,8 +39,12 @@ void init_sensors() {
         sensors[i].setDistanceModeShort();
         sensors[i].setROI(4, 4, 199);
         // Intermeasurement Period must be greater than or equal to time budget
-        sensors[i].setTimingBudgetInMs(33);
-        sensors[i].setIntermeasurementPeriod(33);
+
+        // set shorter time budget for horizontal tofs
+        int timeBudget = (i == 1 || i == 3) ? 20 : 33;
+        
+        sensors[i].setTimingBudgetInMs(timeBudget);
+        sensors[i].setIntermeasurementPeriod(timeBudget);
         delay(10);
     }
     for (int i = 0; i < 4; i++) {
@@ -48,6 +53,7 @@ void init_sensors() {
 }
 
 void read_sensors() {
+    newData = false;
     for (int i = 0; i < 4; i++) {
         // get measurement once ranging is done
         if (sensors[i].checkForDataReady()) {
@@ -55,6 +61,7 @@ void read_sensors() {
             sensors[i].clearInterrupt();
             sensors[i].stopRanging();
             sensors[i].startRanging();
+            newData = true;
         }
     }
 }
@@ -64,39 +71,6 @@ void sendVals() {
     L4CommSerial.write(buffer.b, sizeof(buffer.b));
 }
 
-void i2cScanner() {
-    byte error, address;  // variable for error and I2C address
-    int nDevices;
-
-    Serial.println("Scanning...");
-
-    nDevices = 0;
-    for (address = 1; address < 127; address++) {
-        // The i2c_scanner uses the return value of
-        // the Write.endTransmisstion to see if
-        // a device did acknowledge to the address.
-        Wire1.beginTransmission(address);
-        error = Wire1.endTransmission();
-
-        if (error == 0) {
-            Serial.print("I2C device found at address 0x");
-            if (address < 16) Serial.print("0");
-            Serial.print(address, HEX);
-            Serial.println("  !");
-            nDevices++;
-        } else if (error == 4) {
-            Serial.print("Unknown error at address 0x");
-            if (address < 16) Serial.print("0");
-            Serial.println(address, HEX);
-        }
-    }
-    if (nDevices == 0)
-        Serial.println("No I2C devices found\n");
-    else
-        Serial.println("done\n");
-
-    delay(5000);  // wait 5
-}
 
 void setup() {
     pinMode(STM32_LED, OUTPUT);
@@ -112,16 +86,17 @@ void setup() {
 }
 
 void loop() {
-    // i2cScanner();
+    // i2cScanner(&Wire1);
     //  L4DebugSerial.println(tofCnt);
-    // 
-    // for (int i = 0; i < 4; i++) {
-    //     L4DebugSerial.print(buffer.vals[i]);
-    //     L4DebugSerial.print(" ");
+    //
+    // if (newData) {
+    //     for (int i = 0; i < 4; i++) {
+    //         L4DebugSerial.print(buffer.vals[i]);
+    //         L4DebugSerial.print(" ");
+    //     }
     // }
-    // L4DebugSerial.println();
-
-    
+        
+    L4DebugSerial.println();    
     read_sensors();
-    sendVals();
+    if (newData) sendVals();
 }

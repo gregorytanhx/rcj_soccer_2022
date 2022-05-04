@@ -69,8 +69,9 @@ void readIMU() {
                 cmpVal.b[i] = IMUSerial.read();
             }
         }
+        heading = (float)cmpVal.val / 100;
+        cmpCorrection = cmpPID.update(-heading);
     }
-    heading = (float)cmpVal.val / 100;
 }
 
 void printIMU() {

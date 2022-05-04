@@ -18,6 +18,16 @@ double PID::update(double error) {
     
     lastTime = millis();
     lastError = error;
+    // Serial.print("P: ");
+    // Serial.print(kp * proportional);
+    // Serial.print(" I: ");
+    // Serial.print(ki * integral);
+    // Serial.print(" D: ");
+    // Serial.print(kd * derivative);
+    // Serial.print(" Correction");
+    // Serial.print(kp * proportional + ki * integral + kd * derivative);
+    //     Serial.println();
+
     return kp * proportional + ki * integral + kd * derivative;
 }
 
