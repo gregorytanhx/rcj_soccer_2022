@@ -90,7 +90,7 @@ sensor.set_contrast(3)
 sensor.skip_frames(time=1000)
 
 clock = time.clock()
-uart = UART(1, 1000000)
+uart = UART(1, 2000000)
 
 ID = 'whitebot'
 #ID = 'blackbot'

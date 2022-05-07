@@ -56,7 +56,7 @@ void Light::printThresh() {
 
 void Light::printLight() {
     L1DebugSerial.print("Values: ");
-    for (int i = 17; i < 32; i++) {
+    for (int i = 0; i < 32; i++) {
         L1DebugSerial.print(lightVals[i]);
         L1DebugSerial.print(", ");
     }
@@ -66,24 +66,24 @@ void Light::printLight() {
 
 void Light::readRaw() {
     // no mapping
-    if (micros() - readTimer >= 1000) {
+    if (micros() - readTimer >= 100) {
         bool out = false;
         // read from first MUX
         int idx = lightCnt;
 
         lightVals[idx] = analogRead(sigA);
-        if (lightVals[idx] > lightThresh.vals[idx]) {
-            lineDetected[outSensors] = idx;
-            outSensors++;
-        }
-        // read from second MUX
+        // if (lightVals[idx] > lightThresh.vals[idx]) {
+        //     lineDetected[outSensors] = idx;
+        //     outSensors++;
+        // }
+        // // read from second MUX
         idx = lightCnt + 16;
 
-        lightVals[idx] = analogRead(sigB);
-        if (lightVals[idx] > lightThresh.vals[idx]) {
-            lineDetected[outSensors] = idx;
-            outSensors++;
-        }
+        // lightVals[idx] = analogRead(sigB);
+        // if (lightVals[idx] > lightThresh.vals[idx]) {
+        //     lineDetected[outSensors] = idx;
+        //     outSensors++;
+        // }
 
         lightCnt++;
         lightCnt %= 16;
@@ -93,10 +93,10 @@ void Light::readRaw() {
         digitalWriteFast(mux_A3, muxChannel[lightCnt][2]);
         digitalWriteFast(mux_A4, muxChannel[lightCnt][3]);
 
-        digitalWriteFast(mux_B1, muxChannel[lightCnt][0]);
-        digitalWriteFast(mux_B2, muxChannel[lightCnt][1]);
-        digitalWriteFast(mux_B3, muxChannel[lightCnt][2]);
-        digitalWriteFast(mux_B4, muxChannel[lightCnt][3]);
+        // digitalWriteFast(mux_B1, muxChannel[lightCnt][0]);
+        // digitalWriteFast(mux_B2, muxChannel[lightCnt][1]);
+        // digitalWriteFast(mux_B3, muxChannel[lightCnt][2]);
+        // digitalWriteFast(mux_B4, muxChannel[lightCnt][3]);
 
         readTimer = micros();
     }

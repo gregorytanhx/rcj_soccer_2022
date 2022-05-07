@@ -50,10 +50,11 @@ void updateBallData() {
         ballData.angle = camera.ballAngle;
         ballData.dist = camera.ballDist;
         lastBallTime = millis();
-        Point relBall(ballData.angle, ballData.dist  * 10);
-        Point tmp = relBall - camera.centreVector;
-        ballData.x = tmp.x + 100;
-        ballData.y = tmp.y;
+        relBall = Point(ballData.angle, ballData.dist  * 10);
+        absBall = relBall - camera.centreVector;
+       
+        ballData.x = absBall.x + 100;
+        ballData.y = absBall.y;
         // Serial.print("Abs Ball Coords: ");
         // Serial.print(ballData.x);
         // Serial.print(" ");
@@ -71,12 +72,12 @@ void updateBallData() {
         // absolute coordinates
 
         // relative coordinates to other robot
-        Point ballCoords(bt.otherData.ballData.x, bt.otherData.ballData.y);
+        absBall = Point(bt.otherData.ballData.x, bt.otherData.ballData.y);
         botCoords = Point(0,0);
         // relative coordinates to self
-        relBallCoords = ballCoords - botCoords;
-        ballData.angle = mod(relBallCoords.getAngle() + 360, 360);
-        ballData.dist = relBallCoords.getDistance() / 10;
+        relBall = absBall - botCoords;
+        ballData.angle = mod(relBall.getAngle() + 360, 360);
+        ballData.dist = relBall.getDistance() / 10;
         // treat ball as visible
         ballData.visible = true;
         lastBallTime = millis();
@@ -87,7 +88,7 @@ void updateBallData() {
         Serial.println(ballData.dist);
     }
 
-    ballData.visible = millis() - lastBallTime < 3000;
+    ballData.visible = millis() - lastBallTime < 1000;
 }
 
 void updateLineControl() {
@@ -112,9 +113,9 @@ void trackBall() {
     float ballOffset, ballMult;
     ballData.dist = max(ballData.dist - 8, 0);
     if (ballData.angle < 180)
-        ballOffset = fmin(ballData.angle * 1.1, 90);
+        ballOffset = fmin(ballData.angle * 1.0, 90);
     else
-        ballOffset = max((ballData.angle - 360) * 1.1, -90);
+        ballOffset = max((ballData.angle - 360) * 1.0, -90);
 
     // float factor = 1 - ballData.dist / 80;
     // ballMult = fmin(1.3, 0.02 * exp(factor * 4.2));
@@ -152,6 +153,7 @@ void trackGoal(float goalAngle = -1.0) {
     else
         goalOffset = max((goalAngle - 360), -90);
 
+    float goalMult = 1.2;
     robotAngle = goalAngle + 0.9 * goalOffset;
 
     // Serial.print("Goal Angle: ");

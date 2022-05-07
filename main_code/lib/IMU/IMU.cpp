@@ -31,8 +31,8 @@ void IMU::sendCalib() {
     Serial2.write(mag);
 }
 
-void IMU::begin() {
-    bool useMag = false;
+void IMU::begin(bool useMag) {
+   
     if (useMag) {
         if (!bno.begin(Adafruit_BNO055::OPERATION_MODE_NDOF)) {
             Serial.println("No BNO055 detected");

@@ -11,7 +11,7 @@
 // #define SET_ID
 //#define USE_LAYER4_IMU
 
-#define FIELD_WIDTH 1500
+#define FIELD_WIDTH 1650
 #define FIELD_HEIGHT 1900
 
 

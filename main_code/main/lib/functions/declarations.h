@@ -83,14 +83,15 @@ Role defaultRole;
 uint8_t robotID;
 
 Point botCoords(0, 0);
-Point relBallCoords(0, 0);
-Point absBallCoords(0, 0);
+Point relBall(0, 0);
+Point absBall(0, 0);
 Point sidewaysCoordinate(0,0);
 
 PID coordPID(0.15, 0, 0.1);
-PID cmpPID(0.2, 0.033, 6.8, 0.9);
-// PID cmpPID(0.2, 0.0, 0.0, 0.95);
-
+PID cmpPID(0.05, 0.2, 7.5, 0.5);
+// PID cmpPID(0.2, 0.033, 0.0, 0.95);
+PID goalieBallPID(1.4, 0.05, 12.5, 0.8);
+PID goalieGoalPID(0.5, 0.03, 8, 0.8);
 PID camAngPID(0.1, 0, 0.3);
 
 // initialise neutral point coordinates

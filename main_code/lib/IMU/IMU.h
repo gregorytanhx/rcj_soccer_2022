@@ -25,7 +25,7 @@
 class IMU {
    public:
     IMU(TwoWire *theWire);
-    void begin();
+    void begin(bool useMag = false);
     void printData();
     void calibrate();
     void sendCalib();

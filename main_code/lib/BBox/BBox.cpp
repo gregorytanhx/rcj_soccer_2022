@@ -14,7 +14,8 @@ void BBox::update(TOFBuffer &tof, LineData &lineData, float heading,
     flagCnt = 0;
     for (int i = 0; i < 4; i++) {
         // update moving average for each TOF
-         tof.vals[i] = cos(deg2rad(heading)) * tof.vals[i];  // correct for angle
+        //  tof.vals[i] = cos(deg2rad(heading)) * tof.vals[i];  // correct for
+        //  angle
         tofVals[i] = tofAvg[i].reading(tof.vals[i]);
         if (tof.vals[i] < 150) {
             tofFlag[i] = 1;
@@ -42,16 +43,47 @@ void BBox::update(TOFBuffer &tof, LineData &lineData, float heading,
     // measured from left
     Xstart = FIELD_WIDTH / 2 - rightTOF;
     Xend = leftTOF - FIELD_WIDTH / 2;
-
-    // measured from top
+    width = abs(Xend - Xstart);
+    x = (Xstart + Xend) / 2;
     Ystart = FIELD_HEIGHT / 2 - frontTOF;
     Yend = backTOF - FIELD_HEIGHT / 2;
 
-    width = abs(Xend - Xstart);
-    height = abs(Yend - Ystart);
+    // measured from top
+    if (!tofFlag[0] && !tofFlag[2]) {
+        height = abs(Yend - Ystart);
+        y = (Ystart + Yend) / 2;
+    } else if (!tofFlag[0])
+        y = Ystart;
+    else if (!tofFlag[2])
+        y = Yend;
+    else {
+        if (tofFlag[0] == 2 && tofFlag[2] == 1)
+            y = Ystart;
+        else if (tofFlag[2] == 1 && tofFlag[0] == 2)
+            y = Yend;
+        else if (tofFlag[0] == 2 && tofFlag[2] == 2) 
+            y = (flagTimer[0] < flagTimer[2]) ? Yend : Ystart;
+        else
+            y = 0;
+    }
 
-    x = (Xstart + Xend) / 2;
-    y = (Ystart + Yend) / 2;
+    if (!tofFlag[1] && !tofFlag[3]) {
+        height = abs(Xstart - Xend);
+        x = (Xstart + Xend) / 2;
+    } else if (!tofFlag[1])
+        x = Xstart;
+    else if (!tofFlag[3])
+        x = Xend;
+    else {
+        if (tofFlag[1] == 2 && tofFlag[3] == 1)
+            x = Xstart;
+        else if (tofFlag[1] == 1 && tofFlag[3] == 2)
+            x = Xend;
+        else if (tofFlag[1] == 2 && tofFlag[3] == 2) 
+            x = (flagTimer[0] < flagTimer[2]) ? Xend : Xstart;
+        else
+            x = 0;
+    }
 
     // take area of robot over area of bbox as confidence score
     Xconfidence = min(1, (float)200 / (float)width);
@@ -60,26 +92,26 @@ void BBox::update(TOFBuffer &tof, LineData &lineData, float heading,
     // if (Xconfidence < 0.5) x = camera.centreVector.x;
     // if (Yconfidence < 0.5) y = camera.centreVector.y;
 
-    if (lineData.onLine) {
-        float lineAngle = nonReflex(lineData.lineAngle.val + heading);
-        if (angleIsInside(85, 95, lineAngle)) {
-            // right edge of field
-            x = FIELD_WIDTH / 2 - 250;
-            Xconfidence = 1;
-        } else if (angleIsInside(-85, -95, lineAngle)) {
-            // left edge of field
-            Xconfidence = 1;
-            x = -FIELD_WIDTH /2 + 250;
-        } else if (angleIsInside(-5, 5, lineAngle)) {
-            // at the top corners
-            Yconfidence = 1;
-            y = FIELD_HEIGHT / 2 - 250;
-        } else if (angleIsInside(-175, 175, lineAngle)) {
-            // at the top corners
-            Yconfidence = 1;
-            y = -FIELD_HEIGHT / 2 + 250;
-        }
-    }
+    // if (lineData.onLine) {
+    //     float lineAngle = nonReflex(lineData.lineAngle.val + heading);
+    //     if (angleIsInside(85, 95, lineAngle)) {
+    //         // right edge of field
+    //         x = FIELD_WIDTH / 2 - 250;
+    //         Xconfidence = 1;
+    //     } else if (angleIsInside(-85, -95, lineAngle)) {
+    //         // left edge of field
+    //         Xconfidence = 1;
+    //         x = -FIELD_WIDTH /2 + 250;
+    //     } else if (angleIsInside(-5, 5, lineAngle)) {
+    //         // at the top corners
+    //         Yconfidence = 1;
+    //         y = FIELD_HEIGHT / 2 - 250;
+    //     } else if (angleIsInside(-175, 175, lineAngle)) {
+    //         // at the top corners
+    //         Yconfidence = 1;
+    //         y = -FIELD_HEIGHT / 2 + 250;
+    //     }
+    // }
 }
 
 void BBox::print() {
@@ -113,8 +145,6 @@ void BBox::checkFieldDims() {
     Serial.println();
 }
 
-
-
 void BBox::processTOFout() {
     tofOutCnt = 0;
 
@@ -138,16 +168,19 @@ void BBox::processTOFout() {
             if (tofOut[0] == 0 && tofOut[1] == 3) {
                 tofOut[0] = 4;  // special case to make avg method work
             }
-            outAngle = mod((float)(tofOut[0] + tofOut[1]) * 0.5 * 90 + 180, 360);
+            outAngle =
+                mod((float)(tofOut[0] + tofOut[1]) * 0.5 * 90 + 180, 360);
         }
     }
     if (tofOutCnt == 3) {
         if (tofOut[0] == 0) {
             if (tofOut[1] == 1) {
                 if (tofOut[2] == 2)
-                    outAngle = 270;  // detect front, right, back, move in 270 deg
+                    outAngle =
+                        270;  // detect front, right, back, move in 270 deg
                 else
-                    outAngle = 180;  // detect front, right, left, move in 180 deg
+                    outAngle =
+                        180;  // detect front, right, left, move in 180 deg
             } else
                 outAngle = 90;  // detect front, left, back, move in 90 deg
         } else

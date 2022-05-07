@@ -15,14 +15,14 @@ void updatePosition() {
 void slowDown() {
     bool tmp = false;
     for (int i = 0; i < 4; i++) {
-        if (bbox.tofFlag[i] == 0 && bbox.tofVals[i] < 600) tmp = true;
+        if (bbox.tofFlag[i] == 0 && bbox.tofVals[i] < 400) tmp = true;
     }
-    if (bbox.Xconfidence < 0.8 || abs(botCoords.x) > 280) tmp = true;
+    if (bbox.Xconfidence < 0.8 || abs(botCoords.x) > 400) tmp = true;
 
     if (tmp)
         runningSpeed = 50;
     else
-        runningSpeed = 70;
+        runningSpeed = 80;
     // Serial.print("SPEED: ");
     // Serial.println(runningSpeed);
 }

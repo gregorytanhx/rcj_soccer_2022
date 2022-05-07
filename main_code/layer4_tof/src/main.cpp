@@ -88,7 +88,7 @@ void setup() {
 void loop() {
     // i2cScanner(&Wire1);
     //  L4DebugSerial.println(tofCnt);
-    //
+    
     // if (newData) {
     //     for (int i = 0; i < 4; i++) {
     //         L4DebugSerial.print(buffer.vals[i]);
@@ -96,7 +96,7 @@ void loop() {
     //     }
     // }
         
-    L4DebugSerial.println();    
+    // L4DebugSerial.println();    
     read_sensors();
     if (newData) sendVals();
 }

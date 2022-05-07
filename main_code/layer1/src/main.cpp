@@ -116,7 +116,9 @@ void loop() {
     receiveData();
 
     calibrate = false;
-    
+    // lineTrack = true;
+    // lineAvoid = false;
+
     if (calibrate) {
         if (doneCalibrating) {
             light.read();
@@ -127,9 +129,9 @@ void loop() {
         }
 
     } else {
-        light.readRaw();
+        light.read();
         if (light.doneReading()) {
-            //light.printLight();
+            // light.printLight();
             light.getLineData(lineData);
             sendData();
         }
@@ -154,13 +156,13 @@ void loop() {
                 lineTimer.update();
                 float closestAngle = nonReflex(light.getClosestAngle(angle));
                 // use PID to control angle of correction
-                float correction = lineTrackPID.update(closestAngle - angle);
-                float moveAngle = angle + correction;
+                // float correction = lineTrackPID.update(closestAngle - angle);
+                // float moveAngle = angle + correction;
                 float dist = light.chordLength > 1 ? light.chordLength - 1
                                                    : 1 - light.chordLength;
 
                 // use chord length to adjust speed
-                motors.setMove(speed, moveAngle, rotation, angSpeed);
+                motors.setMove(speed, closestAngle, rotation, angSpeed);
 
             } else if (lineAvoid) {
                 // avoid line by moving in opposite direction to line

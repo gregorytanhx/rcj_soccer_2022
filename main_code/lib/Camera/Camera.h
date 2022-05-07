@@ -9,7 +9,7 @@
 
 #define CAMERA_PACKET_SIZE 17
 #define CAMERA_SYNC_BYTE 42
-#define CAMERA_BAUD 1000000
+#define CAMERA_BAUD 2000000
 
 enum Side { facingYellow, facingBlue, unset };
 
