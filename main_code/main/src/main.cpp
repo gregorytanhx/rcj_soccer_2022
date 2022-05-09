@@ -101,9 +101,9 @@ void goalie() {
     if (robotID == 0) {
         centreAngle = 165;
         if (camera.ownGoalAngle > centreAngle)
-            distThresh = 30;
+            distThresh = 31;
         else
-            distThresh = 34;
+            distThresh = 35;
     } else {
         centreAngle = 165;
         if (camera.ownGoalAngle > centreAngle)
@@ -144,7 +144,7 @@ void goalie() {
         }
     }
 
-    if (goalYDist < 40 && camera.ownGoalDist < 75 && ballData.visible &&
+    if (goalYDist < 40 && lineData.onLine && ballData.visible &&
         ballData.dist < 80) {
         // Serial.println("Aliging to ball");
         // if ball is visible, align to ball
@@ -161,11 +161,11 @@ void goalie() {
 
         //
         float distError = (80 / (abs(relBall.y) / 10)) + abs(relBall.x) / 10;
-        float error = abs(nonReflex(ballData.angle)) + distError;
+        float error = abs(nonReflex(ballData.angle)) * distError;
         moveSpeed = goalieBallPID.update(error);
 
-        // Serial.print("speed:  ");
-        // Serial.print(moveSpeed);
+        Serial.print("speed:  ");
+        Serial.println(moveSpeed);
 
         // Serial.print(" Ball Angle: ");
         // Serial.print(ballData.angle);
@@ -179,10 +179,13 @@ void goalie() {
             // Serial.println("STOPPED");
             moveSpeed = 0;
         }
+        if (ballData.angle > 150 && ballData.angle < 210) {
+            // ball behind robot, suck thumb and cry
+            moveSpeed = 0;
+        }
         // Serial.print(" Speed: ");
-        Serial.println(moveSpeed);
-
-        moveSpeed = min(moveSpeed, 90);
+        
+        moveSpeed = min(moveSpeed, 100);
 
     } else {
         // Serial.println("Returning to goal centre");
@@ -193,16 +196,16 @@ void goalie() {
         // target goal angle is 180
         float xCo, yCo;
         xCo = goalXDist;
-        yCo = distThresh - goalYDist;
+        // weighted toward y dist
+        yCo = (35 - goalYDist) * 3;
         robotAngle = polarAngle(yCo, xCo);
-        float error = abs(camera.ownGoalAngle - centreAngle) *
-                      sqrt(xCo * xCo + yCo * yCo);
+        float error = sqrt(xCo * xCo + yCo * yCo);
 
         // Serial.print("Own goal angle: ");
         // Serial.println(camera.ownGoalAngle);
         // Serial.print("Angle: ");
         // Serial.println(robotAngle);
-        moveSpeed = min(goalieGoalPID.update(error), 70);
+        moveSpeed = min(goalieGoalPID.update(error), 60);
 
         // Serial.print("Speed: ");
         // Serial.println(moveSpeed);
@@ -268,6 +271,17 @@ void moveInCircle() {
         sendLayer1();
     }
 }
+
+void tuneCompassPID() {
+    updateAllData();
+    setMove(0, 0, 0);
+    angleCorrect();
+    sendLayer1();
+
+
+   
+}
+
 
 void robot2() {
     // robot 2 program for SG Open technical challenge
@@ -367,13 +381,12 @@ void loop() {
     // TODO: ADD FAILURE STATE FOR TOF, USE COMPASS IF TOF DIED
     // bbox.printTOF();
     // printIMU();
-//  updateAllData();
-//     setMove(0,0,0);
-//     angleCorrect();
-//     sendLayer1();
-   normal();
+    // use serial plotter???
+    // tuneCompassPID();
+//   moveInCircle();
     // tmp = micros();
-    // normal();
+    normal();
+ 
     // Serial.println(micros() - tmp);
     //   bbox.checkFieldDims();
     // runningSpeed = 50;

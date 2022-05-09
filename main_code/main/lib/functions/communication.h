@@ -71,6 +71,12 @@ void readIMU() {
         }
         heading = (float)cmpVal.val / 100;
         cmpCorrection = cmpPID.update(-heading);
+        // Serial.print(-heading);
+        // Serial.print("  ");
+        // Serial.print(cmpCorrection);
+        // Serial.print("  ");
+        // Serial.print(0);
+        // Serial.println();
     }
 }
 

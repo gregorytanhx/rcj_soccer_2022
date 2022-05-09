@@ -34,6 +34,6 @@ void loop() {
     
     // cmp.calibrate();
     sendData();
-    Serial.println(cmp.read());
+    // Serial.println(cmp.read());
 
 }

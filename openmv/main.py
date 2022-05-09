@@ -76,8 +76,14 @@ sensor.set_auto_gain(False, gain_db=15)
 # === EXPOSURE ===
 curr_exposure = sensor.get_exposure_us()
 print(curr_exposure)
-sensor.set_auto_exposure(False, exposure_us = int(curr_exposure * 0.27))
-#sensor.set_auto_exposure(False, exposure_us = 1000)
+
+# if tuning exposure
+#sensor.set_auto_exposure(False, exposure_us = int(curr_exposure * 0.27))
+
+LAB_EXPOSURE = 1775
+SC_EXPOSURE = 2000
+
+sensor.set_auto_exposure(False, exposure_us = LAB_EXPOSURE)
 
 sensor.skip_frames(time = 1000)
 # === WHITE BAL ===
@@ -90,7 +96,7 @@ sensor.set_contrast(3)
 sensor.skip_frames(time=1000)
 
 clock = time.clock()
-uart = UART(1, 1000000)
+uart = UART(1, 2000000)
 
 ID = 'whitebot'
 #ID = 'blackbot'
@@ -335,8 +341,8 @@ def send(data):
 
 while(True):
 
-    debug = True
-    #debug = False
+    #debug = True
+    debug = False
     clock.tick()
     img = sensor.snapshot()
 

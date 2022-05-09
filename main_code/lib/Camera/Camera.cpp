@@ -81,8 +81,8 @@ void Camera::process() {
 void Camera::update() {
 
     if (read()) {
-        Serial.print("Camera time: ");
-        Serial.println(micros() - lastReadTime);
+        // Serial.print("Camera time: ");
+        // Serial.println(micros() - lastReadTime);
        
         process();
         lastReadTime = micros();

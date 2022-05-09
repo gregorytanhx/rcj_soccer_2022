@@ -88,10 +88,13 @@ Point absBall(0, 0);
 Point sidewaysCoordinate(0,0);
 
 PID coordPID(0.15, 0, 0.1);
-PID cmpPID(0.05, 0.2, 7.5, 0.5);
-// PID cmpPID(0.2, 0.033, 0.0, 0.95);
-PID goalieBallPID(1.4, 0.05, 12.5, 0.8);
-PID goalieGoalPID(0.5, 0.03, 8, 0.8);
+// no dribbler
+PID cmpPID(0.1, 0.05, 7.5, 0.5);
+// 0.09, 0.5
+// black bot vals (wif dribbler=)
+// PID cmpPID(0.2, 0.033, 6.8, 0.9);
+PID goalieBallPID(0.2, 0.001, 17, 0.8);
+PID goalieGoalPID(3.0, 0.005, 40, 0.7);
 PID camAngPID(0.1, 0, 0.3);
 
 // initialise neutral point coordinates
