@@ -101,7 +101,7 @@ void goalie() {
     if (robotID == 0) {
         centreAngle = 165;
         if (camera.ownGoalAngle > centreAngle)
-            distThresh = 31;
+            distThresh = 32;
         else
             distThresh = 35;
     } else {
@@ -190,16 +190,14 @@ void goalie() {
     } else {
         // Serial.println("Returning to goal centre");
         // if ball not visible, align to goal centre
-        // since robot is line tracking, simply set target angle to own goal
-        // angle
-
+      
         // target goal angle is 180
         float xCo, yCo;
         xCo = goalXDist;
         // weighted toward y dist
-        yCo = (35 - goalYDist) * 3;
+        yCo = 35 - goalYDist;
         robotAngle = polarAngle(yCo, xCo);
-        float error = sqrt(xCo * xCo + yCo * yCo);
+        float error = sqrt(pow(xCo, 2) + pow(yCo * 2, 2));
 
         // Serial.print("Own goal angle: ");
         // Serial.println(camera.ownGoalAngle);

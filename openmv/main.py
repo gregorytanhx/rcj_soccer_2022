@@ -78,12 +78,12 @@ curr_exposure = sensor.get_exposure_us()
 print(curr_exposure)
 
 # if tuning exposure
-#sensor.set_auto_exposure(False, exposure_us = int(curr_exposure * 0.27))
+sensor.set_auto_exposure(False, exposure_us = int(curr_exposure * 0.27))
 
 LAB_EXPOSURE = 1775
 SC_EXPOSURE = 2000
 
-sensor.set_auto_exposure(False, exposure_us = LAB_EXPOSURE)
+#sensor.set_auto_exposure(False, exposure_us = LAB_EXPOSURE)
 
 sensor.skip_frames(time = 1000)
 # === WHITE BAL ===
@@ -116,14 +116,14 @@ if ID == 'blackbot':
     black_thresh = [(10, 16, -10, 10, -5, 15)]
 
 else:
-    centreY = 133
+    centreY = 138
     centreX = 150
     ROI = (0, 0, 297, 240)
 
     # LAB thresholds
     # lab field values.
     red_thresh = [(50,70, 40, 60, 5, 40)]
-    blue_thresh = [(20, 45, -10, 10, -55, -15)]
+    blue_thresh = [(30, 60, -10, 15, -55, -35)]
     yellow_thresh = [(40, 90, -30, 20, 30, 60)]
     green_thresh = [(50, 75, -50, -20, -5, 15)]
     white_thresh = [(70, 93, -30, 10, -10, 20)]
