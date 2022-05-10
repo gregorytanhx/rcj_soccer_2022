@@ -110,7 +110,7 @@ if ID == 'blackbot':
     # lab field values
     #red_thresh = [(35, 55, 20, 53, 15, 40)]
     red_thresh = [(50,70, 40, 60, 5, 40)]
-    blue_thresh = [(35, 60, -5, 10, -50, -35)]
+    blue_thresh = [(30, 60, -10, 10, -50, -25)]
     yellow_thresh = [(60, 90,-30, 0, 40, 60)]
     green_thresh = [(50, 75, -50, -20, -5, 15)]
     white_thresh = [(70, 93, -30, 10, -10, 20)]
@@ -342,7 +342,7 @@ def send(data):
 
 while(True):
     debug = False
-    #debug = True
+    debug = True
 
     clock.tick()
     img = sensor.snapshot()

@@ -23,7 +23,7 @@ void striker() {
                 trackGoal();
                 // turn off front dribbler + turn on kicker if facing front goal
                 // and 50cm away
-                if (camera.oppGoalDist <= 52 &&
+                if (camera.oppGoalDist <= 50 &&
                     (camera.oppGoalAngle < 30 || camera.oppGoalAngle > 330) &&
                     (robotAngle < 60 || robotAngle > 300)) {
                     // kick every 1.5s
@@ -56,7 +56,7 @@ void striker() {
 
         // Serial.println("ball captured!");
     } else if (camera.ballVisible) {
-        Serial.println("TRACKING BALL");
+        // Serial.println("TRACKING BALL");
         trackBall();
         if ((camera.ballAngle < 60 || camera.ballAngle > 300) &&
             camera.ballDist < 60) {
@@ -74,7 +74,7 @@ void striker() {
         }
         goTo(neutralPoints[CentreDot], 90);
         // setMove(0,0,0);
-        Serial.println("CAN'T SEE BALL, RETURNING TO CENTRE");
+        // Serial.println("CAN'T SEE BALL, RETURNING TO CENTRE");
     }
 
     int distThresh = 42;
@@ -91,21 +91,32 @@ void striker() {
     } else {
         angleCorrect();
     }
+    // Serial.print(moveData.speed.val);
+    // Serial.print(" ");
+    // Serial.print(moveData.angle.val);
+    // Serial.print(" ");
+    // Serial.print(moveData.rotation.val);
+
+    // Serial.println();
 }
 
 void goalie() {
     // defence program
     lineTrack = true;
     lineAvoid = false;
-    int goalAngLeft, goalAngRight, centreAngle, distThresh;
+    int goalLeftDist, goalRightDist, centreAngle, distThresh;
     if (robotID == 0) {
         centreAngle = 165;
+        goalRightDist = 18;
+        goalLeftDist = 20;
         if (camera.ownGoalAngle > centreAngle)
             distThresh = 32;
         else
             distThresh = 35;
     } else {
         centreAngle = 165;
+        goalRightDist = 18;
+        goalLeftDist = 20;
         if (camera.ownGoalAngle > centreAngle)
             distThresh = 30;
         else
@@ -160,7 +171,17 @@ void goalie() {
         // fuck
 
         //
-        float distError = (80 / (abs(relBall.y) / 10)) + abs(relBall.x) / 10;
+        float xDist;
+        // limit dist error if ball is past edge of goal
+        if (relBall.x > 0) {
+            // ball right of robot
+            xDist = min(goalRightDist + goalXDist, abs(relBall.x) /10);
+        } else {
+            // ball left of robot
+            xDist = min(goalLeftDist - goalXDist, abs(relBall.x) / 10);
+        }
+
+        float distError = (80 / (abs(relBall.y) / 10)) + xDist / 10;
         float error = abs(nonReflex(ballData.angle)) * distError;
         moveSpeed = goalieBallPID.update(error);
 
@@ -174,8 +195,8 @@ void goalie() {
         // Serial.print("Angle: ");
         // Serial.println(robotAngle);
         // if (abs(nonReflex(ballData.angle)) < 1) moveSpeed = 0;
-        if (((goalXDist < -18) && ballData.angle < 180) ||
-            ((goalXDist > 20) && ballData.angle > 180)) {
+        if (((goalXDist < -goalRightDist) && ballData.angle < 180) ||
+            ((goalXDist > goalLeftDist) && ballData.angle > 180)) {
             // Serial.println("STOPPED");
             moveSpeed = 0;
         }
@@ -183,8 +204,8 @@ void goalie() {
             // ball behind robot, suck thumb and cry
             moveSpeed = 0;
         }
-        // Serial.print(" Speed: ");
-        
+ 
+        // set maximum speed limit
         moveSpeed = min(moveSpeed, 100);
 
     } else {
@@ -333,7 +354,7 @@ void setup() {
     // defaultRole = robotID == 0 ? Role::defend : Role::attack;
     roleSwitching = false;
     movingSideways = false;
-    defaultRole = Role::defend;
+    defaultRole = Role::attack;
     pinMode(KICKER_PIN, OUTPUT);
     digitalWrite(KICKER_PIN, HIGH);
     Serial.begin(9600);
@@ -341,9 +362,9 @@ void setup() {
     L4Serial.begin(STM32_BAUD);
     IMUSerial.begin(STM32_BAUD);
     camera.begin();
-    // camera.side = Side::facingBlue;
+    camera.side = Side::facingBlue;
 
-    camera.side = Side::facingYellow;
+    // camera.side = Side::facingYellow;
     bt.begin();
     bbox.begin();
 
@@ -383,33 +404,11 @@ void loop() {
     // tuneCompassPID();
 //   moveInCircle();
     // tmp = micros();
+    // bbox.printTOF();
     normal();
- 
-    // Serial.println(micros() - tmp);
-    //   bbox.checkFieldDims();
-    // runningSpeed = 50;
-    // updateAllData();
-    // printIMU();
-    // trackGoal();
-    // angleCorrect();
-    // sendLayer1();
-
-    // moveInCircle();
-    // updateAllData();
-    // lineAvoid = false;
-    // setMove(0,0,0);
-    // printIMU();
-    // angleCorrect();
-    // sendLayer1();
-
-    // if (millis() - tmp > 5000) {
-    //     tmp = millis();
-    //     if (kick) kick = false;
-    //     else kick = true;
-    // }
-
-    // Serial.print("LIGHT GATE: ");
-    // Serial.println(readLightGate());
+    
+    Serial.print("LIGHT GATE: ");
+    Serial.println(readLightGate());
     // updateDribbler();
     // updateKick();
     // printLightData();

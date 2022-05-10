@@ -109,15 +109,16 @@ void Light::read() {
         int idx = lightMap[lightCnt];
 
         lightVals[idx] = analogRead(sigA);
-        if (lightVals[idx] > lightThresh.vals[idx]) {
+    
+        if (lightVals[idx] > lightThresh.vals[idx] && (idx != 25 && robotID == 1)) {
             lineDetected[outSensors] = idx;
             outSensors++;
         }
         // read from second MUX
         idx = lightMap[lightCnt + 16];
-
+    
         lightVals[idx] = analogRead(sigB);
-        if (lightVals[idx] > lightThresh.vals[idx]) {
+        if (lightVals[idx] > lightThresh.vals[idx] && (idx != 25 && robotID == 1)) {
             lineDetected[outSensors] = idx;
             outSensors++;
         }

@@ -26,7 +26,7 @@ void updateKick() {
             // Serial.println("kicked");
         } else {
             // solenoid sticks out for 100ms
-            if (millis() - kickTime > 100) {
+            if (millis() - kickTime > 50) {
                 digitalWriteFast(KICKER_PIN, HIGH);
                 // Serial.println("stopped kicking");
                 stopKick = true;
@@ -44,7 +44,7 @@ void updateKick() {
 }
 
 void updateBallData() {
-    if (readLightGate() <= 25) lastGateTime = millis();
+    if (readLightGate() <= 20) lastGateTime = millis();
     ballData.captured = millis() - lastGateTime < 200;
     if (camera.ballVisible) {
         ballData.angle = camera.ballAngle;
@@ -131,14 +131,14 @@ void trackBall() {
         robotAngle = ballData.angle + ballOffset * 0.85;
     // ball directly next to robot
 
-    Serial.print("Ball Angle: ");
-    Serial.print(ballData.angle);
-    Serial.print(" Ball Dist: ");
-    Serial.print(ballData.dist);
-    Serial.print(" Ball Offset: ");
-    Serial.println(ballOffset);
-    Serial.print(" Move Angle: ");
-    Serial.println(mod(robotAngle + 360, 360));
+    // Serial.print("Ball Angle: ");
+    // Serial.print(ballData.angle);
+    // Serial.print(" Ball Dist: ");
+    // Serial.print(ballData.dist);
+    // Serial.print(" Ball Offset: ");
+    // Serial.println(ballOffset);
+    // Serial.print(" Move Angle: ");
+    // Serial.println(mod(robotAngle + 360, 360));
    
     setMove(runningSpeed, robotAngle, 0);
 }

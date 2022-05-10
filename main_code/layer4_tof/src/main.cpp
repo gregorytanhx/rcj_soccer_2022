@@ -84,7 +84,7 @@ void setup() {
     init_sensors();
     // digitalWrite(STM32_LED, HIGH);
 }
-
+long tmp;
 void loop() {
     // i2cScanner(&Wire1);
     //  L4DebugSerial.println(tofCnt);
@@ -96,7 +96,12 @@ void loop() {
     //     }
     // }
         
-    // L4DebugSerial.println();    
+    L4DebugSerial.println();   
+    if (tofCnt == 4) {
+        tmp = millis();
+    }
+    if (millis() - tmp > 3000) digitalWrite(STM32_LED, HIGH);
+  
     read_sensors();
     if (newData) sendVals();
 }
