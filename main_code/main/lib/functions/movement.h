@@ -50,9 +50,9 @@ void updateBallData() {
         ballData.angle = camera.ballAngle;
         ballData.dist = camera.ballDist;
         lastBallTime = millis();
-        relBall = Point(ballData.angle, ballData.dist  * 10);
+        relBall = Point(ballData.angle, ballData.dist * 10);
         absBall = relBall - camera.centreVector;
-       
+
         ballData.x = absBall.x + 100;
         ballData.y = absBall.y;
         // Serial.print("Abs Ball Coords: ");
@@ -73,10 +73,10 @@ void updateBallData() {
 
         // relative coordinates to other robot
         absBall = Point(bt.otherData.ballData.x, bt.otherData.ballData.y);
-        botCoords = Point(0,0);
+        botCoords = Point(0, 0);
         // relative coordinates to self
         relBall = absBall - botCoords;
-        ballData.angle = mod(relBall.getAngle() + 360, 360);
+        ballData.angle = mod(relBall.getAngle(), 360);
         ballData.dist = relBall.getDistance() / 10;
         // treat ball as visible
         ballData.visible = true;
@@ -122,7 +122,6 @@ void trackBall() {
 
     // robotAngle = ballData.angle + ballMult * ballOffset;
 
-
     if (ballData.dist > 35)
         robotAngle = ballData.angle + ballOffset * 0.35;
     else if (ballData.dist > 20)
@@ -139,13 +138,14 @@ void trackBall() {
     // Serial.println(ballOffset);
     // Serial.print(" Move Angle: ");
     // Serial.println(mod(robotAngle + 360, 360));
-   
+
     setMove(runningSpeed, robotAngle, 0);
 }
 
 void trackGoal(float goalAngle = -1.0) {
     if (goalAngle == -1.0) {
-       goalAngle = mod(camera.oppGoalAngle - 10 + 360, 360);
+        //    goalAngle = mod(camera.oppGoalAngle - 10 + 360, 360);
+        goalAngle = camera.oppGoalAngle;
     }
     float goalOffset;
     if (goalAngle < 180)
@@ -153,7 +153,6 @@ void trackGoal(float goalAngle = -1.0) {
     else
         goalOffset = max((goalAngle - 360), -90);
 
-    float goalMult = 1.2;
     robotAngle = goalAngle + 0.9 * goalOffset;
 
     // Serial.print("Goal Angle: ");
@@ -166,33 +165,6 @@ void trackGoal(float goalAngle = -1.0) {
 void angleCorrect(int target = 0) {
     moveData.rotation.val = cmpCorrection;
     moveData.angSpeed.val = 20;
-}
-
-void avoidLine() {
-    lineAvoid = true;
-    if (lineData.onLine) {
-        lastLineTime = millis();
-        if (bbox.outAngle > 0) {
-            lineAvoid = false;
-            
-            Serial.print("OUT");
-            Serial.print(" Angle: ");
-            Serial.println(bbox.outAngle);
-            setMove(runningSpeed, bbox.outAngle, 0);
-        } else {
-            lineAvoid = true;
-        }
-    }
-    if (millis() - lastLineTime < 500) {
-        if (bbox.outAngle > 0) {
-            lineAvoid = false;
-
-            Serial.print("OUT");
-            Serial.print(" Angle: ");
-            Serial.println(bbox.outAngle);
-            setMove(runningSpeed, bbox.outAngle, 0);
-        }
-    }
 }
 
 void aimGoal() {
@@ -216,7 +188,7 @@ void camAngleCorrect(int targetAng = 0) {
             camAngPID.update(camera.frontVector.getAngle() - targetAng);
         // Serial.print("Correction: ");
         // Serial.println(moveData.rotation.val);
-         moveData.angSpeed.val = 15;
+        moveData.angSpeed.val = 15;
     } else {
         // Serial.println("FUCKKKKKK");
         moveData.rotation.val = 0;

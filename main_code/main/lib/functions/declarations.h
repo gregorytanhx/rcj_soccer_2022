@@ -41,15 +41,8 @@ bool dribble = false;
 bool previouslyCharging = false;
 bool goalieAttack = true;
 bool kicked = false;
-long lastBallTime = 0;
-long lastKickTime = 0;
-long lastGateTime = 0;
-long lastBallMoveTime = 0;
-long lastChargeTime = 0;
-long lastDribbleTime = 0;
-long lastSwitchTime = 0;
-long dribblerOnTime = 0;
-long lastLineTime = 0;
+long lastChargeTime, lastBallMoveTime, lastKickTime, lastGateTime, lastBallTime;
+long lastLineTime, lastInTime, dribblerOnTime, lastSwitchTime, lastDribbleTime;
 
 int ballCnt = 0;
 float lastBallAngle;
@@ -59,6 +52,8 @@ bool goalieCharge = false;
 long goalieChargeTimer;
 int lastDist;
 int distCnt = 0;
+int lineCnt;
+float outBallAngle;
 
 TOFBuffer tof;
 // IMU cmp(&Wire1);
@@ -85,14 +80,14 @@ uint8_t robotID;
 Point botCoords(0, 0);
 Point relBall(0, 0);
 Point absBall(0, 0);
-Point sidewaysCoordinate(0,0);
+Point sidewaysCoordinate(0, 0);
 
 PID coordPID(0.15, 0, 0.1);
 // no dribbler
-PID cmpPID(0.1, 0.05, 7.5, 0.5);
+// PID cmpPID(0.1, 0.05, 7.5, 0.5);
 // 0.09, 0.5
 // black bot vals (wif dribbler=)
-// PID cmpPID(0.2, 0.033, 6.8, 0.9);
+PID cmpPID(0.12, 0.09, 6.5, 0.7);
 PID goalieBallPID(0.2, 0.001, 17, 0.8);
 PID goalieGoalPID(3.0, 0.005, 40, 0.7);
 PID camAngPID(0.1, 0, 0.3);
@@ -106,12 +101,12 @@ PID camAngPID(0.1, 0, 0.3);
 // for camera only
 // Point neutralPoints[] = {Point(-135, ),  Point(200, 500),  Point(0, -100),
 //                          Point(-350, -500), Point(250, -300), Point(0, -660),
-//                          Point(0, 660),     Point(965, -660), Point(965, 660),
-//                          Point(-965, -660), Point(-965, 660)};
+//                          Point(0, 660),     Point(965, -660), Point(965,
+//                          660), Point(-965, -660), Point(-965, 660)};
 // for TOF only
 Point neutralPoints[] = {Point(-260, 350),  Point(280, 370),  Point(50, 0),
                          Point(-270, -300), Point(295, -390), Point(-500, 0),
-                         Point(500, 0),     Point(965, -0), Point(965, 660),
+                         Point(500, 0),     Point(965, -0),   Point(965, 660),
                          Point(-965, -660), Point(-965, 660)};
 
 // enum for neutral points
@@ -128,6 +123,14 @@ enum points {
     BottomLeftCorner,
     BottomRightCorner
 };
+
+enum state {
+    chasingBall, 
+    chasingGoal, 
+    returningToCentre
+};
+
+state attackState; 
 
 int readLightGate() { return lightGateVal.reading(analogRead(LIGHT_GATE_PIN)); }
 

@@ -102,15 +102,15 @@ uart = UART(1, 2000000)
 ID = 'blackbot'
 
 if ID == 'blackbot':
-    centreY = 127
+    centreY = 140
     centreX = 139
     ROI = (0, 0, 298, 240)
 
     # LAB thresholds
     # lab field values
     #red_thresh = [(35, 55, 20, 53, 15, 40)]
-    red_thresh = [(50,70, 40, 60, 5, 40)]
-    blue_thresh = [(35, 60, -5, 10, -50, -35)]
+    red_thresh = [(50, 70, 40, 60, 10, 30)]
+    blue_thresh = [(25, 50, -10, 15, -50, -25)]
     yellow_thresh = [(60, 90,-30, 0, 40, 60)]
     green_thresh = [(50, 75, -50, -20, -5, 15)]
     white_thresh = [(70, 93, -30, 10, -10, 20)]
@@ -123,7 +123,7 @@ else:
 
     # LAB thresholds
     # lab field values.
-    red_thresh = [(50,70, 40, 60, 5, 40)]
+    red_thresh = [(50, 70, 40, 60, 5, 40)]
     blue_thresh = [(30, 60, -10, 15, -55, -35)]
     yellow_thresh = [(40, 90, -30, 20, 30, 60)]
     green_thresh = [(50, 75, -50, -20, -5, 15)]
@@ -221,6 +221,7 @@ def track_obj(thresh, pixel_thresh, area_thresh, color = (255, 255, 255), debug=
     if debug and found_obj:
         img.draw_rectangle(found_blob.rect(), color = color)
         img.draw_cross(found_blob.cx(), found_blob.cy(), color = color)
+        #img.draw_line(centreX, found_blob.cy(), centreY, found_blob.cx(), color=color)
         found_obj.confidence = 1/num_blobs
 
     return found_obj
@@ -342,7 +343,7 @@ def send(data):
 
 while(True):
     debug = False
-    #debug = True
+    debug = True
 
     clock.tick()
     img = sensor.snapshot()
