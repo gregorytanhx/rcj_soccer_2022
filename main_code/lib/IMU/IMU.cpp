@@ -54,7 +54,8 @@ void IMU::begin(bool useMag) {
     bno.setExtCrystalUse(false);
 
     if (useMag) {
-        while (gyro != 3 || mag != 3) {
+        long start = millis();
+        while ((gyro != 3 || mag != 3) && millis() - start < 5000) {
             bno.getCalibration(&system, &gyro, &accel, &mag);
             printCalib();
         }

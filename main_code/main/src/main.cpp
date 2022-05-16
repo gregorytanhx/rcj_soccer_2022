@@ -4,7 +4,7 @@
 #include <movement.h>
 
 void striker() {
-    slowDown();
+   
     bool goalCorrect = false;
     if (movingSideways) {
         movingSideways = !goTo(sidewaysCoordinate, 100);
@@ -20,13 +20,13 @@ void striker() {
                 Serial.print(camera.oppGoalDist);
                 Serial.println();
                 // max speed when aiming for goal
-                runningSpeed = 80;
+                // runningSpeed = 80;
                 trackGoal();
                 // turn off front dribbler + turn on kicker if facing front goal
                 // and 50cm away
-                if (camera.oppGoalDist <= 50 &&
-                    ((camera.oppGoalAngle - heading) < 10 || (camera.oppGoalAngle - heading) > 350) &&
-                    (robotAngle < 40 || robotAngle > 320)) {
+                if (camera.oppGoalDist <= 48 &&
+                    ((camera.oppGoalAngle - heading) < 20 || (camera.oppGoalAngle - heading) > 340) &&
+                    (robotAngle < 30 || robotAngle > 330)) {
                     // kick every 1.5s
                     if (millis() - lastKickTime > 1500) {
                         dribble = false;
@@ -50,7 +50,7 @@ void striker() {
             }
 
         } else {
-            setMove(runningSpeed, 0, 0);
+            robotAngle = 0;
             attackState = chasingGoal;
             if (camera.oppGoalDist <= 50) {
                 kick = true;
@@ -84,10 +84,15 @@ void striker() {
         // Serial.println("CAN'T SEE BALL, RETURNING TO CENTRE");
     }
 
-    int distThresh = 42;
-    // camera.printData(0);
+    int distThresh = 41;
+
+    // if (camera.oppGoalDist < distThresh) {
+    //     goTo(neutralPoints[CentreDot], 70);
+    // }
     // avoid fully entering penalty area
 
+    setMove(runningSpeed, robotAngle, 0);
+    slowDown();
     avoidLine();
     updateDribbler();
     updateKick();
@@ -98,13 +103,13 @@ void striker() {
     } else {
         angleCorrect();
     }
-    // Serial.print(moveData.speed.val);
-    // Serial.print(" ");
-    // Serial.print(moveData.angle.val);
-    // Serial.print(" ");
-    // Serial.print(moveData.rotation.val);
+    Serial.print(moveData.speed.val);
+    Serial.print(" ");
+    Serial.print(moveData.angle.val);
+    Serial.print(" ");
+    Serial.print(moveData.rotation.val);
 
-    // Serial.println();
+    Serial.println();
 }
 
 void goalie() {
@@ -138,29 +143,29 @@ void goalie() {
         camera.ownGoalDist * cos(deg2rad(180 - camera.ownGoalAngle));
     float goalXDist =
         camera.ownGoalDist * sin(deg2rad(centreAngle - camera.ownGoalAngle));
-    if (millis() - lastChargeTime > 10000) {
-        if (camera.ballVisible && camera.newData &&
-            abs(lastBallAngle - camera.ballAngle) > 5 &&
-            abs(lastBallDist - camera.ballDist) > 20) {
-            lastBallMoveTime = millis();
-        }
-        if (millis() - lastBallMoveTime > 3000 && goalieAttack) {
-            Serial.println("Charging");
-            // goalie charges to score if ball has not moved for some time
-            goalieCharge = true;
-            goalieChargeTimer = millis();
-            lineTrack = false;
-            // move off white line first
-            while (lineData.onLine) {
-                updateAllData();
-                setMove(60, 0, 0);
-                angleCorrect();
-                sendLayer1();
-            }
-            moveSpeed = 0;
-            robotAngle = 0;
-        }
-    }
+    // if (millis() - lastChargeTime > 10000) {
+    //     if (camera.ballVisible && camera.newData &&
+    //         abs(lastBallAngle - camera.ballAngle) > 5 &&
+    //         abs(lastBallDist - camera.ballDist) > 20) {
+    //         lastBallMoveTime = millis();
+    //     }
+    //     if (millis() - lastBallMoveTime > 3000 && goalieAttack) {
+    //         Serial.println("Charging");
+    //         // goalie charges to score if ball has not moved for some time
+    //         goalieCharge = true;
+    //         goalieChargeTimer = millis();
+    //         lineTrack = false;
+    //         // move off white line first
+    //         while (lineData.onLine) {
+    //             updateAllData();
+    //             setMove(60, 0, 0);
+    //             angleCorrect();
+    //             sendLayer1();
+    //         }
+    //         moveSpeed = 0;
+    //         robotAngle = 0;
+    //     }
+    // }
 
     if (goalYDist < 40 && lineData.onLine && ballData.visible &&
         ballData.dist < 80) {
@@ -230,7 +235,7 @@ void goalie() {
         float xCo, yCo;
         xCo = goalXDist;
         // weighted toward y dist
-        yCo = 35 - goalYDist;
+        yCo = 34 - goalYDist;
         robotAngle = polarAngle(yCo, xCo);
         float error = sqrt(pow(xCo, 2) + pow(yCo * 2, 2));
 
@@ -279,7 +284,7 @@ void normal() {
         // Serial.println("DEFENCE");
         goalie();
     }
-    // lineAvoid = false;
+    // // lineAvoid = false;
     // Serial.print("SPEED: ");
     // Serial.print(moveData.speed.val);
     // Serial.print(" ANGLE: ");
@@ -299,9 +304,11 @@ void moveInCircle() {
             // if (dir == 0) dir = 360;
             dir %= 360;
         }
-        setMove(50, dir, 0);
+        setMove(70, dir, 0);
         angleCorrect();
         sendLayer1();
+        //  dribble = true;
+        //  updateDribbler();
     }
 }
 
@@ -361,14 +368,14 @@ long time;
 // #define SET_ID
 void setup() {
 #ifdef SET_ID
-    EEPROM.write(EEPROM_ID_ADDR, 0);
+    EEPROM.write(EEPROM_ID_ADDR, 1);
 #else
     robotID = EEPROM.read(EEPROM_ID_ADDR);
 #endif
-    defaultRole = robotID == 0 ? Role::defend : Role::attack;
+    // defaultRole = robotID == 1 ? Role::defend : Role::attack;
     roleSwitching = false;
     movingSideways = false;
-    // defaultRole = Role::;
+    defaultRole = Role::attack;
     pinMode(KICKER_PIN, OUTPUT);
     digitalWrite(KICKER_PIN, HIGH);
     Serial.begin(9600);
@@ -412,6 +419,35 @@ void setup() {
 }
 long tmp = 0;
 void loop() {
+
+    normal();
+    // bbox.print();
+    // bbox.printTOF();
+    // updateAllData();
+    // Serial.print("Goal Angle: ");
+    // Serial.print(camera.oppGoalAngle);
+    // Serial.print(" Goal Dist: ");
+    // Serial.print(abs(camera.oppGoalDist * cos(deg2rad(camera.oppGoalAngle))));
+    // Serial.println();
+    // setMove(0,0,0);
+    // sendLayer1();
+    // dribble = true;
+    // updateDribbler();
+    // updateAllData();
+    // sendLayer1();
+    // bbox.printTOF();
+    // kick = true;
+    // updateKick();
+    // dribble = true;
+    // updateDribbler();
+    // Serial.print("LIGHT GATE: ");
+    // Serial.println(readLightGate());
+    // tuneCompassPID();
+
+    // moveInCircle();
+    // updateAllData();
+    // printIMU();
+    
     // TODO: ADD FAILURE STATE FOR TOF, USE COMPASS IF TOF DIED
     // bbox.printTOF();
     // printIMU();
@@ -420,18 +456,18 @@ void loop() {
 //   moveInCircle();
     // tmp = micros();
     // bbox.printTOF();
-    normal();
+    // normal();
+    // dribble = true;
+    // updateDribbler();
     // tuneCompassPID();
     // moveInCircle();
     // setMove(50,0,0);
     // sendLayer1();
     
-    // Serial.print("LIGHT GATE: ");
-    // Serial.println(readLightGate());
+    
  
     // printLightData();
-    //  dribble = true;
-    //  updateDribbler();
+  
     // // bbox.printTOF();
 
     // bt.printData();

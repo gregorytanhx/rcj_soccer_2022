@@ -14,92 +14,98 @@ void updatePosition() {
 
 void slowDown() {
     bool tmp = false;
-    if ((bbox.tofFlag[1] == 0 && bbox.tofVals[1] < 400) ||
-        (bbox.tofFlag[3] == 0 && bbox.tofVals[3] < 400) ||
-        (bbox.tofFlag[2] == 0 && bbox.tofVals[2] < 400))
-        tmp = true;
+    int shortestDist = 999;
+    for (int i = 0; i < 2; i++) {
+        // check horizontal tofs
+        int j = i * 2 + 1;
+        if (bbox.tofVals[j] < 500 && bbox.tofFlag[j] == 0) {
+            tmp = true;
+            if (shortestDist > bbox.tofVals[j]) shortestDist = bbox.tofVals[j];
+        }
+    }
 
-    if (abs(botCoords.x) > 300) tmp = true;
+    // if (abs(botCoords.x) > 300) tmp = true;
+    if (camera.ownGoalDist < 48) tmp = true;
 
-    if (tmp)
-        runningSpeed = 50;
-    else
-        runningSpeed = 70;
-    // Serial.print("SPEED: ");
-    // Serial.println(runningSpeed);
+    if (tmp) {
+        // deceleration at edges of field
+        moveData.speed.val = max(30, 0.33 * max(0, shortestDist - 350));
+    }
+    // else
+   
 }
 
 void avoidLine() {
     int lineStop;
-    lineAvoid = true;
-    lineTrack = false;
+    bool previouslyIn;
+    // lineAvoid = true;
+    // lineTrack = false;
     // incorporate line tracking
-    if (millis() - lastLineTime < 200 && lineCnt <= 3) lineCnt++;
 
+    // if (lineData.onLine) {
+    //     if (previouslyIn && lineCnt <= 3) lineCnt++;
+    //     previouslyIn = false;
+    //     lastLineTime = millis();
+    //     if (lineCnt > 3 && attackState == chasingBall) {
+    //         // after avoiding line for 3 times
+    //         lineAvoid = false;
+
+    //         if (millis() - lastInTime < 500) {
+    //             // stop on line for 0.5s first
+    //             setMove(0, 0, 0);
+    //             outBallAngle = outBallAngle = ballData.angle;
+    //         }
+    //         if (angleDiff(outBallAngle, ballData.angle) > 40 || millis() -
+    //         lastInTime > 5000 || !ballData.visible) {
+    //             lineTrack = false;
+    //             lineCnt = 0;
+    //         } else {
+    //             lineTrack = true;
+    //             float dist = lineData.chordLength.val > 1 ?
+    //             lineData.chordLength.val - 1 : 1 - lineData.chordLength.val;
+    //             setMove(max(dist * 60, 35), robotAngle, 0);
+    //         }
+    //     }
+
+    //     else {
+    //         if (bbox.outAngle >= 0) {
+    //             lineAvoid = false;
+    //             Serial.print("OUT");
+    //             Serial.print(" Angle: ");
+    //             Serial.println(bbox.outAngle);
+    //             setMove(runningSpeed, bbox.outAngle, 0);
+    //         } else {
+    //             lineAvoid = true;
+    //         }
+    //     }
+    // } else {
+    //     lastInTime = millis();
+    //     previouslyIn = true;
+    // }
+    lineAvoid = true;
+    // strict avoidance
     if (lineData.onLine) {
-        lastLineTime = millis();
-        if (lineCnt > 3 && attackState == chasingBall) {
-            // after avoiding line for 3 times
-            lineAvoid = false;
-
-            if (millis() - lastInTime < 500) {
-                // stop on line for 0.5s first
-                setMove(0, 0, 0);
-                outBallAngle = outBallAngle = ballData.angle;
-            }
-            if (angleDiff(outBallAngle, ballData.angle) > 40 || millis() - lastInTime > 5000 || !ballData.visible) {
-                lineTrack = false;
-                lineCnt = 0;
-            } else {
-                lineTrack = true;
-                setMove(runningSpeed, robotAngle, 0);
-            }
-        }
-
-        else {
-            if (bbox.outAngle > 0) {
-                lineAvoid = false;
-                Serial.print("OUT");
-                Serial.print(" Angle: ");
-                Serial.println(bbox.outAngle);
-                setMove(runningSpeed, bbox.outAngle, 0);
-            } else {
-                lineAvoid = true;
-            }
+        if (bbox.outAngle >= 0) {
+            // lineAvoid = false;
+            Serial.print("OUT");
+            Serial.print(" Angle: ");
+            Serial.println(bbox.outAngle);
+            setMove(runningSpeed, bbox.outAngle, 0);
         }
     } else {
         lastInTime = millis();
     }
 
-    // strict avoidance
-    // if (lineData.onLine) {
-    // if (bbox.outAngle > 0) {
-    //     lineAvoid = false;
-    //     Serial.print("OUT");
-    //     Serial.print(" Angle: ");
-    //     Serial.println(bbox.outAngle);
-    //     setMove(runningSpeed, bbox.outAngle, 0);
-    // } else {
-    //     lineAvoid = true;
-    // }
-    // } else {
-        // lastInTime = millis();
-    // }
-   
-    // if (millis() - lastLineTime < 500) {
-    //     if (bbox.outAngle > 0) {
-    //         lineAvoid = false;
+    if (millis() - lastLineTime < 500) {
+        if (bbox.outAngle >= 0) {
+            // lineAvoid = false;
 
-    //         Serial.print("OUT");
-    //         Serial.print(" Angle: ");
-    //         Serial.println(bbox.outAngle);
-    //         setMove(runningSpeed, bbox.outAngle, 0);
-    //     }
-    // }
-
-    
-
-    
+            Serial.print("OUT");
+            Serial.print(" Angle: ");
+            Serial.println(bbox.outAngle);
+            setMove(runningSpeed, bbox.outAngle, 0);
+        }
+    }
 }
 
 // bool reachedPoint(Point target, int dist = 30) {
@@ -161,7 +167,8 @@ bool goTo(Point target, int distThresh = 50) {
     // Serial.println();
     // CAMERA CONFIDENCE CAN BE BASED ON NUMBER OF SEPERATE BLOBS DETECTED
 
-    setMove(moveSpeed, moveAngle, 0);
+    robotAngle = moveAngle;
+    runningSpeed = moveSpeed;
     if (pointVector.getDistance() <= distThresh && moveSpeed == 0) {
         distCnt++;
 

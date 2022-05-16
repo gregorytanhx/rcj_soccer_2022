@@ -84,10 +84,10 @@ Point sidewaysCoordinate(0, 0);
 
 PID coordPID(0.15, 0, 0.1);
 // no dribbler
-// PID cmpPID(0.1, 0.05, 7.5, 0.5);
+// PID cmpPID(0.18, 0.15, 20.5, 0.4);
 // 0.09, 0.5
-// black bot vals (wif dribbler=)
-PID cmpPID(0.12, 0.09, 6.5, 0.7);
+// white bot vals (wif dribbler=)
+PID cmpPID(0.19, 0.13, 43.5, 0.4);
 PID goalieBallPID(0.2, 0.001, 17, 0.8);
 PID goalieGoalPID(3.0, 0.005, 40, 0.7);
 PID camAngPID(0.1, 0, 0.3);

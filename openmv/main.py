@@ -98,18 +98,18 @@ sensor.skip_frames(time=1000)
 clock = time.clock()
 uart = UART(1, 2000000)
 
-#ID = 'whitebot'
-ID = 'blackbot'
+ID = 'whitebot'
+#ID = 'blackbot'
 
 if ID == 'blackbot':
-    centreY = 140
-    centreX = 139
+    centreY = 119
+    centreX = 166
     ROI = (0, 0, 298, 240)
 
     # LAB thresholds
     # lab field values
     #red_thresh = [(35, 55, 20, 53, 15, 40)]
-    red_thresh = [(50, 70, 40, 60, 10, 30)]
+    red_thresh = [(30, 55, 30, 60, 10, 30)]
     blue_thresh = [(25, 50, -10, 15, -50, -25)]
     yellow_thresh = [(60, 90,-30, 0, 40, 60)]
     green_thresh = [(50, 75, -50, -20, -5, 15)]
@@ -118,13 +118,13 @@ if ID == 'blackbot':
 
 else:
     centreY = 138
-    centreX = 150
+    centreX = 143
     ROI = (0, 0, 297, 240)
 
     # LAB thresholds
     # lab field values.
     red_thresh = [(50, 70, 40, 60, 5, 40)]
-    blue_thresh = [(30, 60, -10, 15, -55, -35)]
+    blue_thresh = [(30, 60, -10, 30, -55, -40)]
     yellow_thresh = [(40, 90, -30, 20, 30, 60)]
     green_thresh = [(50, 75, -50, -20, -5, 15)]
     white_thresh = [(70, 93, -30, 10, -10, 20)]
@@ -234,8 +234,8 @@ def find_objects(debug=False):
     predBall = None
     img.draw_cross(centreX, centreY, color = (255, 0, 0))
     ball = track_obj(red_thresh, 1, 1, debug = debug, stride=2)
-    blue = track_obj(blue_thresh, 10, 10, color = (0, 0, 255), stride = 10,  debug = debug, merge = False, margin = 10)
-    yellow = track_obj(yellow_thresh, 10, 10, color = (0, 255, 0), stride = 10, debug =  debug, merge = False, margin = 0)
+    blue = track_obj(blue_thresh, 5, 10, color = (0, 0, 255), stride = 10,  debug = debug, merge = False, margin = 0)
+    yellow = track_obj(yellow_thresh, 5, 10, color = (0, 255, 0), stride = 10, debug =  debug, merge = False, margin = 0)
 
     if ballFound:
         kf.F[0][2] = dT
@@ -343,7 +343,7 @@ def send(data):
 
 while(True):
     debug = False
-    debug = True
+    #debug = True
 
     clock.tick()
     img = sensor.snapshot()
@@ -353,6 +353,6 @@ while(True):
     data = find_objects(debug=debug)
 
     send(data)
-
-    print("FPS:", clock.fps())
+    if debug:
+        print("FPS:", clock.fps())
 

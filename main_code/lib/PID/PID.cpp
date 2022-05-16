@@ -34,3 +34,9 @@ double PID::update(double error) {
 void PID::resetIntegral() {
   integral = 0;
 }
+
+void PID::setVals(double p, double i, double d){
+  kp = p;
+  ki = i;
+  kd = d;
+}

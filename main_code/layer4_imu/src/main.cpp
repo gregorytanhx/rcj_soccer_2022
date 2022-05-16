@@ -24,10 +24,13 @@ void setup() {
     Serial.begin(9600);
 #endif
     Serial.println("test");
-    delay(3000);
-    cmp.begin();
     pinMode(STM32_LED, OUTPUT);
+    digitalWrite(STM32_LED, HIGH);
+    delay(3000);
+    cmp.begin(false);
+    digitalWrite(STM32_LED, LOW);
 }
+
 long lastPrintTime = 0;
 void loop() {
     // i2cScanner(&Wire1);
@@ -35,5 +38,6 @@ void loop() {
     // cmp.calibrate();
     sendData();
     // Serial.println(cmp.read());
+    // cmp.printCalib();
 
 }

@@ -23,7 +23,7 @@ typedef union motorBuffer {
 // buffer for receiving data from teensy
 motorBuffer buffer;
 
-float lastLineAngle;
+float lastLineAngle, lastChordLength;
 MyTimer lineTimer(1000);
 
 PID lineTrackPID(0.6, 0, 0.5);
@@ -32,11 +32,13 @@ bool lineTrack = true;
 bool lineAvoid = false;
 bool calibrate = false;
 bool doneCalibrating = false;
+bool prevLine;
 
 uint8_t robotID;
 int spd = 0;
 int cnt = 0;
 long lastRecvTime;
+long lastOutTime, lastInTime;
 
 void sendData() {
     L1CommSerial.write(LAYER1_SEND_SYNC_BYTE);
@@ -89,7 +91,7 @@ void receiveData() {
 int maxVals[32];
 
 // handle line avoidance directly through stm32
-//#define SET_ID
+// #define SET_ID
 void setup() {
 #ifdef SET_ID
     robotID = ID;
@@ -117,7 +119,7 @@ void loop() {
 
     calibrate = false;
     // lineTrack = true;
-    // lineAvoid = false;
+    // lineAvoid = true;
 
     if (calibrate) {
         if (doneCalibrating) {
@@ -133,10 +135,16 @@ void loop() {
         if (light.doneReading()) {
             // light.printLight();
             light.getLineData(lineData);
-            sendData();
+        }
+
+        if (!lineData.onLine && prevLine && lineData.chordLength > 1) {
+            // previously on line, now out of field
+            lineData.onLine = true;
+            lineData.chordLength = 3;
         }
 
         if (lineData.onLine) {
+            lastOutTime = millis();
             if (lastLineAngle >= 0 &&
                 abs(lastLineAngle - lineData.lineAngle.val) >= 90) {
                 // prevent line angle from changing
@@ -177,13 +185,17 @@ void loop() {
 
             lastLineAngle = lineData.lineAngle.val;
         } else {
+            lastInTime = millis();
             // no line detected, move according to teensy instructions
             motors.setMove(speed, angle, rotation, angSpeed);
 
-            // reset last line angle
-            lastLineAngle = -1;
+            if (millis() - lastOutTime > 500) {
+                // reset last line angle
+                lastLineAngle = -1;
+            }
         }
-
+        prevLine = lineData.onLine;
+        sendData();
         motors.moveOut();
     }
 }

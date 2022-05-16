@@ -7,9 +7,10 @@
 class PID {
    public:
     PID(){};
-    PID(double kp, double ki, double kd, double mult = 1);
+    PID(double p, double i, double d, double mult = 1);
     double update(double error);
     void resetIntegral();
+    void setVals(double p, double i, double d);
 
     double kp;
     double ki;

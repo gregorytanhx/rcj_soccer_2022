@@ -110,7 +110,7 @@ void Light::read() {
 
         lightVals[idx] = analogRead(sigA);
     
-        if (lightVals[idx] > lightThresh.vals[idx] && (idx != 25 && robotID == 1)) {
+        if (lightVals[idx] > lightThresh.vals[idx] && ((idx != 25 && robotID == 1) || robotID == 0)) {
             lineDetected[outSensors] = idx;
             outSensors++;
         }
@@ -118,7 +118,7 @@ void Light::read() {
         idx = lightMap[lightCnt + 16];
     
         lightVals[idx] = analogRead(sigB);
-        if (lightVals[idx] > lightThresh.vals[idx] && (idx != 25 && robotID == 1)) {
+        if (lightVals[idx] > lightThresh.vals[idx] && ((idx != 25 && robotID == 1) || robotID == 0)) {
             lineDetected[outSensors] = idx;
             outSensors++;
         }
