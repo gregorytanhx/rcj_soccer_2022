@@ -72,9 +72,11 @@ movingAvg lightGateVal(10);
 bool roleSwitching = false;
 bool movingSideways = false;
 bool onField = true;
+bool inPenalty = false;
 bool previouslyCaptured = false;
 Role role = Role::undecided;
 Role defaultRole;
+Role prevRole;
 uint8_t robotID;
 
 Point botCoords(0, 0);

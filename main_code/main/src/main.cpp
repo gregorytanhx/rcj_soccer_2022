@@ -6,6 +6,7 @@
 void striker() {
    
     bool goalCorrect = false;
+    
     if (movingSideways) {
         movingSideways = !goTo(sidewaysCoordinate, 100);
     } else if (ballData.captured) {
@@ -93,7 +94,19 @@ void striker() {
 
     setMove(runningSpeed, robotAngle, 0);
     slowDown();
-    avoidLine();
+    if (prevRole == Role::defend) {
+        // just switched over from defence, exit penalty area first
+        inPenalty = true;
+    } 
+    if (inPenalty) {
+        lineAvoid = false;
+        if (!lineData.onLine) inPenalty = false;
+    } else {
+        avoidLine();
+    }
+        
+    
+   
     updateDribbler();
     updateKick();
     if (usingDribbler) {
@@ -290,6 +303,7 @@ void normal() {
     // Serial.print(" ANGLE: ");
     // Serial.print(moveData.angle.val);
     // Serial.println();
+    prevRole = currentRole();
     sendLayer1();
 }
 
@@ -419,8 +433,12 @@ void setup() {
 }
 long tmp = 0;
 void loop() {
-
-    normal();
+    lineAvoid = true;
+    setMove(0,0,0);
+    sendLayer1();
+    updateAllData();
+    printLightData();
+    // normal();
     // bbox.print();
     // bbox.printTOF();
     // updateAllData();

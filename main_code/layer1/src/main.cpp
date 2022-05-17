@@ -135,25 +135,32 @@ void loop() {
         if (light.doneReading()) {
             // light.printLight();
             light.getLineData(lineData);
+            if (lineData.onLine) {
+                lastOutTime = millis();
+                if (lastLineAngle >= 0 &&
+                    abs(lastLineAngle - lineData.lineAngle.val) >= 90) {
+                    // prevent line angle from changing
+                    lineData.lineAngle.val = lastLineAngle;
+                    // allow chord length to keep increasing as robot
+                    // goes over centre of line
+                    lineData.chordLength.val = 2 - lineData.chordLength.val;
+                }
+            } else {
+                if (prevLine && lastChordLength > 1 &&
+                    (millis() - lastOutTime < 500)) {
+                    // previously on line, now out of field
+                    lineData.onLine = true;
+                    lineData.chordLength.val = 3;
+                    lineData.lineAngle.val = lastLineAngle;
+                }
+            }
+            
         }
 
-        if (!lineData.onLine && prevLine && lineData.chordLength > 1) {
-            // previously on line, now out of field
-            lineData.onLine = true;
-            lineData.chordLength = 3;
-        }
+       
 
         if (lineData.onLine) {
-            lastOutTime = millis();
-            if (lastLineAngle >= 0 &&
-                abs(lastLineAngle - lineData.lineAngle.val) >= 90) {
-                // prevent line angle from changing
-                lineData.lineAngle.val = lastLineAngle;
-                // allow chord length to keep increasing as robot
-                // goes over centre of line
-                lineData.chordLength.val = 2 - lineData.chordLength.val;
-            }
-
+           
             // L1DebugSerial.print("Line Angle: ");
             // L1DebugSerial.print(lineData.lineAngle.val);
             // L1DebugSerial.print("\tChord Length: ");
@@ -184,6 +191,8 @@ void loop() {
             }
 
             lastLineAngle = lineData.lineAngle.val;
+            lastChordLength = lineData.chordLength.val;
+
         } else {
             lastInTime = millis();
             // no line detected, move according to teensy instructions
@@ -192,10 +201,11 @@ void loop() {
             if (millis() - lastOutTime > 500) {
                 // reset last line angle
                 lastLineAngle = -1;
+                lastChordLength = 0;
             }
         }
         prevLine = lineData.onLine;
-        sendData();
+        if (light.doneReading()) sendData();
         motors.moveOut();
     }
 }

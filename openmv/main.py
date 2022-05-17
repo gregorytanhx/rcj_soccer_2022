@@ -99,18 +99,18 @@ clock = time.clock()
 uart = UART(1, 2000000)
 
 ID = 'whitebot'
-#ID = 'blackbot'
+ID = 'blackbot'
 
 if ID == 'blackbot':
     centreY = 119
-    centreX = 166
+    centreX = 148
     ROI = (0, 0, 298, 240)
 
     # LAB thresholds
     # lab field values
     #red_thresh = [(35, 55, 20, 53, 15, 40)]
     red_thresh = [(30, 55, 30, 60, 10, 30)]
-    blue_thresh = [(25, 50, -10, 15, -50, -25)]
+    blue_thresh = [(30, 60, -10, 30, -55, -40)]
     yellow_thresh = [(60, 90,-30, 0, 40, 60)]
     green_thresh = [(50, 75, -50, -20, -5, 15)]
     white_thresh = [(70, 93, -30, 10, -10, 20)]
