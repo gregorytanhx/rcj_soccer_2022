@@ -9,35 +9,119 @@ void updatePosition() {
     bbox.update(tof, lineData, heading, camera);
     botCoords.x = bbox.x;
     botCoords.y = bbox.y;
-    bbox.processTOFout();
 }
 
 void slowDown() {
     bool tmp = false;
-    int shortestDist = 999;
-    for (int i = 0; i < 2; i++) {
-        // check horizontal tofs
-        int j = i * 2 + 1;
-        if (bbox.tofVals[j] < 500 && bbox.tofFlag[j] == 0) {
-            tmp = true;
-            if (shortestDist > bbox.tofVals[j]) shortestDist = bbox.tofVals[j];
+    // int shortestDist = 999;
+
+    // make speed proportional to axis angle
+    float Xaxis = sin(deg2rad(moveData.angle.val));
+    float Yaxis = cos(deg2rad(moveData.angle.val));
+    // confidence based slowdown??
+    float newSpeed = 0.5 * (Xaxis * moveData.speed.val * bbox.Xconfidence +
+                            Yaxis * moveData.speed.val * bbox.Yconfidence);
+    Serial.print("Confidence based speed: ");
+    Serial.println(newSpeed);
+    // if (abs(botCoords.x) > 300) tmp = true;
+
+    // implement slowdown based on robotangle
+
+    // if (camera.ownGoalDist < 48 || camera.oppGoalDist < 48)
+    //     moveData.speed.val = 60;
+    // else
+    bool minSpeed = false;
+    for (int i = 1; i < 4; i++) {
+        
+        if (bbox.tofVals[i] < 650 && !bbox.tofFlag[i]) {
+            if (bbox.tofVals[i] <= 400) {
+                minSpeed = true;
+            }
+               
+            moveData.speed.val = 50;
         }
     }
-
-    // if (abs(botCoords.x) > 300) tmp = true;
-    if (camera.ownGoalDist < 48) tmp = true;
-
-    if (tmp) {
-        // deceleration at edges of field
-        moveData.speed.val = max(30, 0.33 * max(0, shortestDist - 350));
-    }
-    // else
+    if (minSpeed) moveData.speed.val = 30;
    
 }
 
 void avoidLine() {
+    lineAvoid = true;
     int lineStop;
-    bool previouslyIn;
+    int outAngle = bbox.processTOFout();
+    Serial.print("OUT");
+    Serial.print(" Angle: ");
+    Serial.println(outAngle);
+    // strict avoidance
+    if (lineData.onLine) {
+        lastOutTime = millis();
+        // if (outAngle >= 0) {
+        //     lineAvoid = false;
+        //     setMove(moveData.speed.val, outAngle, 0);
+        // }
+
+        if (previouslyIn && lineCnt <= 3) lineCnt++;
+        previouslyIn = false;
+        Serial.println(previouslyIn);
+        // if (lineCnt > 3) {
+        //     if (millis() - lastInTime > 500) {
+        //         if (!lineStop) {
+        //             lineStop = true;
+        //             outBallAngle = ballData.angle;
+        //             outBallDist = ballData.dist;
+        //         }
+        //         if (millis() - lastInTime > 2000 ||
+        //             (ballData.visible && (abs(outBallAngle - ballData.angle))
+        //             >
+        //                 10 || abs(outBallDist - ballData.dist) > 20) ||
+        //             !ballData.visible) {
+        //             lineStop = 0;
+        //             lineAvoid = true;
+        //             if (outAngle >= 0) {
+        //                 lineAvoid = false;
+        //                 Serial.print("OUT");
+        //                 Serial.print(" Angle: ");
+        //                 Serial.println(outAngle);
+        //                 setMove(moveData.speed.val, outAngle, 0);
+        //             }
+        //         } else {
+        //             Serial.println("STOP");
+        //             lineAvoid = false;
+        //             setMove(0, 0, 0);
+        //             dribble = false;
+        //         }
+        //     } else {
+        //         Serial.println("STOP");
+        //         lineAvoid = false;
+        //         setMove(0, 0, 0);
+        //         dribble = false;
+        //     }
+        // } else {
+        if (outAngle >= 0) {
+            lineAvoid = false;
+            Serial.print("OUT");
+            Serial.print(" Angle: ");
+            Serial.println(outAngle);
+            setMove(60, outAngle, 0);
+        }
+        // }
+    } else {
+        lastInTime = millis();
+        previouslyIn = true;
+        if (millis() - lastOutTime > 800) {
+            lineCnt = 0;
+            lineStop = false;
+        }
+    }
+
+    if (millis() - lastOutTime < 200) {
+        if (outAngle >= 0) {
+            // lineAvoid = false;
+
+            setMove(60, outAngle, 0);
+        }
+    }
+
     // lineAvoid = true;
     // lineTrack = false;
     // incorporate line tracking
@@ -82,30 +166,6 @@ void avoidLine() {
     //     lastInTime = millis();
     //     previouslyIn = true;
     // }
-    lineAvoid = true;
-    // strict avoidance
-    if (lineData.onLine) {
-        if (bbox.outAngle >= 0) {
-            // lineAvoid = false;
-            Serial.print("OUT");
-            Serial.print(" Angle: ");
-            Serial.println(bbox.outAngle);
-            setMove(runningSpeed, bbox.outAngle, 0);
-        }
-    } else {
-        lastInTime = millis();
-    }
-
-    if (millis() - lastLineTime < 500) {
-        if (bbox.outAngle >= 0) {
-            // lineAvoid = false;
-
-            Serial.print("OUT");
-            Serial.print(" Angle: ");
-            Serial.println(bbox.outAngle);
-            setMove(runningSpeed, bbox.outAngle, 0);
-        }
-    }
 }
 
 // bool reachedPoint(Point target, int dist = 30) {
@@ -130,6 +190,12 @@ void avoidLine() {
 bool pointOnLine(Point tmp) { return abs(tmp.x) >= 960; }
 
 bool goTo(Point target, int distThresh = 50) {
+    if (millis() - lastCoordTime > 1000) {
+        coordPIDX.resetIntegral();
+        coordPIDY.resetIntegral();
+    }
+    lastCoordTime = millis();
+
     // Point target: vector pointing from centre of field to point on field
 
     // Use cam by default if both goals are visible
@@ -150,28 +216,29 @@ bool goTo(Point target, int distThresh = 50) {
     pointVector.y *= bbox.Yconfidence;
     moveAngle = pointVector.getAngle();
 
-    Xspeed = constrain(0.2 * abs(pointVector.x), 15, 35);
-    Yspeed = constrain(0.2 * abs(pointVector.y), 15, 35);
+    Xspeed = coordPIDX.update(abs(pointVector.x));
+    Yspeed = coordPIDY.update(abs(pointVector.y));
     if (abs(pointVector.x) < distThresh / 2) Xspeed = 0;
     if (abs(pointVector.y) < distThresh / 2) Yspeed = 0;
-    moveSpeed = min(45, Xspeed + Yspeed);
-    if (moveSpeed > 0) moveSpeed = max(moveSpeed, 27);
-    // Serial.print("TOF: ");
-    // Serial.print(" Angle to target: ");
-    // Serial.print(moveAngle);
-    // Serial.print(" Distance to target: ");
-    // Serial.print(pointVector.getDistance());
-    // Serial.print(" Speed: ");
-    // Serial.println(moveSpeed);
+    moveSpeed = Xspeed + Yspeed;
+    Serial.print("TOF: ");
+    Serial.print(" Angle to target: ");
+    Serial.print(moveAngle);
+    Serial.print(" Distance to target: ");
+    Serial.print(pointVector.getDistance());
+    Serial.print(" Speed: ");
+    Serial.println(moveSpeed);
 
     // Serial.println();
     // CAMERA CONFIDENCE CAN BE BASED ON NUMBER OF SEPERATE BLOBS DETECTED
 
-    robotAngle = moveAngle;
-    runningSpeed = moveSpeed;
-    if (pointVector.getDistance() <= distThresh && moveSpeed == 0) {
-        distCnt++;
+    // if (abs(pointVector.x) < distThresh / 2) Xspeed = 0;
+    // if (abs(pointVector.y) < distThresh / 2) Yspeed = 0;
 
+    robotAngle = moveAngle;
+    runningSpeed = min(80, moveSpeed);
+    if (pointVector.getDistance() <= distThresh) {
+        distCnt++;
     } else {
         distCnt = 0;
     }

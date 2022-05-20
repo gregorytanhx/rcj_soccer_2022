@@ -35,7 +35,7 @@ class BBox {
     void print();
     void printTOF();
     void checkFieldDims();
-    void processTOFout();
+    int processTOFout(int tofThresh = 400);
     movingAvg tofAvg[4] = {movingAvg(DATAPOINTS), movingAvg(DATAPOINTS),
                            movingAvg(DATAPOINTS), movingAvg(DATAPOINTS)};
 

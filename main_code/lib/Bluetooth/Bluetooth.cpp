@@ -4,6 +4,10 @@ void Bluetooth::begin() {
     BTSerial.begin(BLUETOOTH_BAUD);
     pinMode(BT_EN_PIN, OUTPUT);
     digitalWrite(BT_EN_PIN, LOW);
+    pinMode(BT_RESET_PIN, OUTPUT);
+    digitalWrite(BT_RESET_PIN, LOW);
+    delay(200);
+    digitalWrite(BT_RESET_PIN, HIGH);
 }
 
 void Bluetooth::initAT() {
@@ -44,7 +48,7 @@ void Bluetooth::send() {
 }
 
 void Bluetooth::receive() {
-    bool nothingRecieved = true;
+    bool nothingReceived = true;
     newData = false;
     while (BTSerial.available() >= sizeof(btBuffer.b) + 1) {
         newData = true;
@@ -65,11 +69,12 @@ void Bluetooth::receive() {
             otherData.robotPos = Point(btBuffer.vals[5], btBuffer.vals[6]);
             otherData.role = static_cast<Role>(btBuffer.b[16]);
             otherData.confidence = (float)btBuffer.vals[0] / 100;
-            timer.update();
+            lastReceiveTime = millis();
         }
-        nothingRecieved = false;
+        nothingReceived = false;
     }
-    isConnected = !nothingRecieved || !timer.timeHasPassed();
+
+    isConnected = !nothingReceived || !(millis() - lastReceiveTime > BLUETOOTH_LOST_COMMUNICATION_TIME);
     if (isConnected) {
         if (!previouslyConnected) {
             previouslyConnected = true;
@@ -99,7 +104,7 @@ void Bluetooth::printData() {
 
 void Bluetooth::update(BluetoothData data) {
     ownData = data;
-    if (millis() - lastSendTime > 20) {
+    if (millis() - lastSendTime > 10) {
         send();
         lastSendTime = millis();
     }

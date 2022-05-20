@@ -99,33 +99,33 @@ clock = time.clock()
 uart = UART(1, 2000000)
 
 ID = 'whitebot'
-ID = 'blackbot'
+#ID = 'blackbot'
 
 if ID == 'blackbot':
-    centreY = 119
-    centreX = 148
+    centreY = 139
+    centreX = 128
     ROI = (0, 0, 298, 240)
 
     # LAB thresholds
     # lab field values
     #red_thresh = [(35, 55, 20, 53, 15, 40)]
-    red_thresh = [(30, 55, 30, 60, 10, 30)]
-    blue_thresh = [(30, 60, -10, 30, -55, -40)]
-    yellow_thresh = [(60, 90,-30, 0, 40, 60)]
+    red_thresh = [(28, 64, 16, 66, -1, 43)]
+    blue_thresh = [(25, 54, -14, 21, -56, -25)]
+    yellow_thresh = [(65, 90,-30, 5, 40, 85)]
     green_thresh = [(50, 75, -50, -20, -5, 15)]
     white_thresh = [(70, 93, -30, 10, -10, 20)]
     black_thresh = [(10, 16, -10, 10, -5, 15)]
 
 else:
-    centreY = 138
-    centreX = 143
+    centreY = 146
+    centreX = 142
     ROI = (0, 0, 297, 240)
 
     # LAB thresholds
     # lab field values.
-    red_thresh = [(50, 70, 40, 60, 5, 40)]
-    blue_thresh = [(30, 60, -10, 30, -55, -40)]
-    yellow_thresh = [(40, 90, -30, 20, 30, 60)]
+    red_thresh = [(33, 58, 41, 65, -9, 45)]
+    blue_thresh = [(30, 74, -22, 14, -57, -30)]
+    yellow_thresh = [(77, 100, -50, 127, 19, 61)]
     green_thresh = [(50, 75, -50, -20, -5, 15)]
     white_thresh = [(70, 93, -30, 10, -10, 20)]
     black_thresh = [(10, 16, -10, 10, -5, 15)]
@@ -233,7 +233,7 @@ def find_objects(debug=False):
     global notFoundCount
     predBall = None
     img.draw_cross(centreX, centreY, color = (255, 0, 0))
-    ball = track_obj(red_thresh, 1, 1, debug = debug, stride=2)
+    ball = track_obj(red_thresh, 3, 3, debug = debug, stride=2)
     blue = track_obj(blue_thresh, 5, 10, color = (0, 0, 255), stride = 10,  debug = debug, merge = False, margin = 0)
     yellow = track_obj(yellow_thresh, 5, 10, color = (0, 255, 0), stride = 10, debug =  debug, merge = False, margin = 0)
 

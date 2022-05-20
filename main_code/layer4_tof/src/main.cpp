@@ -38,11 +38,12 @@ void init_sensors() {
         sensors[i].setI2CAddress(0x30 + i * 2);
         sensors[i].setDistanceModeShort();
         sensors[i].setROI(4, 4, 199);
+
         // Intermeasurement Period must be greater than or equal to time budget
 
         // set shorter time budget for horizontal tofs
         int timeBudget = (i == 1 || i == 3) ? 20 : 33;
-        
+
         sensors[i].setTimingBudgetInMs(timeBudget);
         sensors[i].setIntermeasurementPeriod(timeBudget);
         delay(10);
@@ -66,11 +67,43 @@ void read_sensors() {
     }
 }
 
+void i2cScanner() {
+    byte error, address;  // variable for error and I2C address
+    int nDevices;
+
+    Serial.println("Scanning...");
+
+    nDevices = 0;
+    for (address = 1; address < 127; address++) {
+        // The i2c_scanner uses the return value of
+        // the Write.endTransmisstion to see if
+        // a device did acknowledge to the address.
+        Wire1.beginTransmission(address);
+        error = Wire1.endTransmission();
+
+        if (error == 0) {
+            Serial.print("I2C device found at address 0x");
+            if (address < 16) Serial.print("0");
+            Serial.print(address, HEX);
+            Serial.println("  !");
+            nDevices++;
+        } else if (error == 4) {
+            Serial.print("Unknown error at address 0x");
+            if (address < 16) Serial.print("0");
+            Serial.println(address, HEX);
+        }
+    }
+    if (nDevices == 0)
+        Serial.println("No I2C devices found\n");
+    else
+        Serial.println("done\n");
+
+    delay(5000);  // wait 5
+}
 void sendVals() {
     L4CommSerial.write(LAYER4_SYNC_BYTE);
     L4CommSerial.write(buffer.b, sizeof(buffer.b));
 }
-
 
 void setup() {
     pinMode(STM32_LED, OUTPUT);
@@ -86,22 +119,23 @@ void setup() {
 }
 long tmp;
 void loop() {
-    // i2cScanner(&Wire1);
-    //  L4DebugSerial.println(tofCnt);
-    
-    // if (newData) {
-    //     for (int i = 0; i < 4; i++) {
-    //         L4DebugSerial.print(buffer.vals[i]);
-    //         L4DebugSerial.print(" ");
-    //     }
-    // }
-        
-    L4DebugSerial.println();   
-    if (tofCnt == 4) {
-        tmp = millis();
-    }
-    if (millis() - tmp > 3000) digitalWrite(STM32_LED, HIGH);
-  
-    read_sensors();
-    if (newData) sendVals();
+//    i2cScanner();
+//    L4DebugSerial.println("fuck");
+   //  L4DebugSerial.println(tofCnt);
+
+   // if (newData) {
+   //     for (int i = 0; i < 4; i++) {
+   //         L4DebugSerial.print(buffer.vals[i]);
+   //         L4DebugSerial.print(" ");
+   //     }
+   // }
+
+   // L4DebugSerial.println();
+   // if (tofCnt == 4) {
+   //     tmp = millis();
+   // }
+   // if (millis() - tmp > 3000) digitalWrite(STM32_LED, HIGH);
+
+   read_sensors();
+   if (newData) sendVals();
 }

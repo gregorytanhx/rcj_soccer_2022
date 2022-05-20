@@ -41,8 +41,10 @@ bool dribble = false;
 bool previouslyCharging = false;
 bool goalieAttack = true;
 bool kicked = false;
+bool previouslyIn = true;
 long lastChargeTime, lastBallMoveTime, lastKickTime, lastGateTime, lastBallTime;
 long lastLineTime, lastInTime, dribblerOnTime, lastSwitchTime, lastDribbleTime;
+long lastOutTime, lastBallAlignTime, lastCoordTime;
 
 int ballCnt = 0;
 float lastBallAngle;
@@ -53,7 +55,7 @@ long goalieChargeTimer;
 int lastDist;
 int distCnt = 0;
 int lineCnt;
-float outBallAngle;
+float outBallAngle, outBallDist;
 
 TOFBuffer tof;
 // IMU cmp(&Wire1);
@@ -84,14 +86,19 @@ Point relBall(0, 0);
 Point absBall(0, 0);
 Point sidewaysCoordinate(0, 0);
 
-PID coordPID(0.15, 0, 0.1);
+
+float coord_kp = 0.3;
+float coord_ki = 0;
+float coord_kd = 1;
+PID coordPIDX(coord_kp, coord_ki, coord_kd, 0.8);
+PID coordPIDY(coord_kp, coord_ki, coord_kd, 0.8);
 // no dribbler
 // PID cmpPID(0.18, 0.15, 20.5, 0.4);
 // 0.09, 0.5
 // white bot vals (wif dribbler=)
 PID cmpPID(0.19, 0.13, 43.5, 0.4);
-PID goalieBallPID(0.2, 0.001, 17, 0.8);
-PID goalieGoalPID(3.0, 0.005, 40, 0.7);
+PID goalieBallPID(0.3, 0.01, 25, 0.8);
+PID goalieGoalPID(2.3, 0.02, 45, 0.8);
 PID camAngPID(0.1, 0, 0.3);
 
 // initialise neutral point coordinates
@@ -109,7 +116,7 @@ PID camAngPID(0.1, 0, 0.3);
 Point neutralPoints[] = {Point(-260, 350),  Point(280, 370),  Point(50, 0),
                          Point(-270, -300), Point(295, -390), Point(-500, 0),
                          Point(500, 0),     Point(965, -0),   Point(965, 660),
-                         Point(-965, -660), Point(-965, 660)};
+                         Point(-965, -660)};
 
 // enum for neutral points
 enum points {
@@ -123,8 +130,11 @@ enum points {
     TopLeftCorner,
     TopRightCorner,
     BottomLeftCorner,
-    BottomRightCorner
+    BottomRightCorner, 
+    
 };
+
+Point GoalieCentre(50, -350);
 
 enum state {
     chasingBall, 

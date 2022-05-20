@@ -50,5 +50,6 @@
 #define BOARD_LED_1 8
 #define BOARD_LED_2 9
 #define BT_EN_PIN 6
+#define BT_RESET_PIN 2
 
 #endif 

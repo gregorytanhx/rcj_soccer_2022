@@ -88,7 +88,7 @@ void updateBallData() {
         Serial.println(ballData.dist);
     }
 
-    ballData.visible = millis() - lastBallTime < 1000;
+    ballData.visible = millis() - lastBallTime < 500;
 }
 
 void updateLineControl() {
@@ -117,14 +117,14 @@ void trackBall() {
     else
         ballOffset = max((ballData.angle - 360) * 1.0, -90);
 
-    float factor = 1 - ballData.dist / 80;
-    ballMult = fmin(1, 0.018 * exp(factor * 5.1));
+    float factor = 1 - ballData.dist / 90;
+    ballMult = fmin(1.2, 0.016 * exp(factor * 4.9));
+   
+    
 
     robotAngle = ballData.angle + ballMult * ballOffset;
    
-    if ((ballData.angle < 20 || ballData.angle > 340) && ballData.dist < 20) {
-        robotAngle = 0;
-    }
+    
     // if (ballData.angle <)
     // if (ballData.dist > 35)
     //     robotAngle = ballData.angle + ballOffset * 0.35;
@@ -135,21 +135,27 @@ void trackBall() {
 
     if (robotAngle < 20 || robotAngle > 340 ||
         (robotAngle > 160 && robotAngle < 200)) {
-        runningSpeed = 70;
+        runningSpeed = 80;
     } else {
-        runningSpeed = 65;
+        runningSpeed = 75;
     }
+
+    // if ((ballData.angle < 20 || ballData.angle > 340) && ballData.dist < 25) {
+    //     robotAngle = 0;
+    //     runningSpeed = 60;
+    // }
+
     // runningSpeed = 60;
     // ball directly next to robot
 
-    // Serial.print("Ball Angle: ");
-    // Serial.print(ballData.angle);
-    // Serial.print(" Ball Dist: ");
-    // Serial.print(ballData.dist);
-    // Serial.print(" Ball Offset: ");
-    // Serial.print(ballOffset);
-    // Serial.print(" Move Angle: ");
-    // Serial.println(mod(robotAngle + 360, 360));
+    Serial.print("Ball Angle: ");
+    Serial.print(ballData.angle);
+    Serial.print(" Ball Dist: ");
+    Serial.print(ballData.dist);
+    Serial.print(" Ball Offset: ");
+    Serial.print(ballOffset);
+    Serial.print(" Move Angle: ");
+    Serial.println(mod(robotAngle + 360, 360));
 
 }
 
@@ -164,12 +170,12 @@ void trackGoal(float goalAngle = -1.0) {
     else
         goalOffset = max((goalAngle - 360), -90);
 
-    robotAngle = goalAngle + 0.9 * goalOffset;
-    runningSpeed = 80;
-    // Serial.print("Goal Angle: ");
-    // Serial.print(goalAngle);
-    // Serial.print(" Move Angle: ");
-    // Serial.println(robotAngle);
+    robotAngle = goalAngle + 1.1 * goalOffset;
+    runningSpeed = 75;
+    Serial.print("Goal Angle: ");
+    Serial.print(goalAngle);
+    Serial.print(" Move Angle: ");
+    Serial.println(robotAngle);
 }
 
 void angleCorrect(int target = 0) {

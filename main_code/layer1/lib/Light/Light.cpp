@@ -163,7 +163,7 @@ void Light::calibrate() {
         maxVals[i] = 0;
         minVals[i] = 1200;
     }
-    const unsigned long timeOut = 30000;
+    const unsigned long timeOut = 60000;
     unsigned long timeStart = millis();
     while ((millis() - timeStart) < timeOut) {
         L1DebugSerial.println("Calibrating...");
@@ -201,24 +201,28 @@ void Light::calibrate() {
 #endif
 
 #ifdef DEBUG
-    L1DebugSerial.print("Max: ");
-    for (int i = 0; i < 32; i++) {
-        L1DebugSerial.print(maxVals[lightMap[i]]);
-        L1DebugSerial.print(" ");
+   
+    while (true) {
+        L1DebugSerial.print("Max: ");
+        for (int i = 0; i < 32; i++) {
+            L1DebugSerial.print(maxVals[lightMap[i]]);
+            L1DebugSerial.print(" ");
+        }
+        L1DebugSerial.println();
+        L1DebugSerial.print("Min: ");
+        for (int i = 0; i < 32; i++) {
+            L1DebugSerial.print(minVals[lightMap[i]]);
+            L1DebugSerial.print(" ");
+        }
+        L1DebugSerial.println();
+        L1DebugSerial.print("Thresh: ");
+        for (int i = 0; i < 32; i++) {
+            L1DebugSerial.print(lightThresh.vals[lightMap[i]]);
+            L1DebugSerial.print(", ");
+        }
+        L1DebugSerial.println();
     }
-    L1DebugSerial.println();
-    L1DebugSerial.print("Min: ");
-    for (int i = 0; i < 32; i++) {
-        L1DebugSerial.print(minVals[lightMap[i]]);
-        L1DebugSerial.print(" ");
-    }
-    L1DebugSerial.println();
-    L1DebugSerial.print("Thresh: ");
-    for (int i = 0; i < 32; i++) {
-        L1DebugSerial.print(lightThresh.vals[lightMap[i]]);
-        L1DebugSerial.print(", ");
-    }
-    L1DebugSerial.println();
+   
 #endif
 
 #ifdef USE_EEPROM
@@ -265,7 +269,7 @@ void Light::getLineData(LineData& data) {
         if (outSensors == 1) {
             onLine = false;
         } else {
-            for (int i = 0; i < outSensors - 1; i++) {
+            for (int i = 0; i < outSensors - 1; i++) {  
                 for (int j = 1; j < outSensors; j++) {
                     float tmpDiff = angleDiff(lineDetected[i] * (360 / 32),
                                               lineDetected[j] * (360 / 32));

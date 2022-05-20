@@ -110,8 +110,7 @@ void setup() {
     // lineTimer.update();
     pinMode(STM32_LED, OUTPUT);
     digitalWrite(STM32_LED, HIGH);
-    // pinMode(PB10, OUTPUT);
-    // pinMode(PB11, OUTPUT);
+   
 }
 
 void loop() {
@@ -124,7 +123,7 @@ void loop() {
     if (calibrate) {
         if (doneCalibrating) {
             light.read();
-            light.sendVals();
+            
         } else {
             light.calibrate();
             doneCalibrating = true;
@@ -147,10 +146,10 @@ void loop() {
                 }
             } else {
                 if (prevLine && lastChordLength > 1 &&
-                    (millis() - lastOutTime < 500)) {
+                    (millis() - lastOutTime < 100) && (millis() - lastInTime > 300)) {
                     // previously on line, now out of field
                     lineData.onLine = true;
-                    lineData.chordLength.val = 3;
+                    lineData.chordLength.val = 2;
                     lineData.lineAngle.val = lastLineAngle;
                 }
             }
@@ -177,13 +176,13 @@ void loop() {
                                                    : 1 - light.chordLength;
 
                 // use chord length to adjust speed
-                motors.setMove(speed, closestAngle, rotation, angSpeed);
+                motors.setMove(speed * 0.9 + 30 * dist, closestAngle, rotation, angSpeed);
 
             } else if (lineAvoid) {
                 // avoid line by moving in opposite direction to line
                 float moveAngle = fmod(lineData.lineAngle.val + 180, 360);
                 // L1DebugSerial.println("Line Avoid");
-                motors.setMove(fmax(70 * lineData.chordLength.val, 50),
+                motors.setMove(40 + 50 * lineData.chordLength.val,
                                moveAngle, rotation, angSpeed);
             } else {
                 // ignore line
@@ -195,10 +194,11 @@ void loop() {
 
         } else {
             lastInTime = millis();
+            
+
             // no line detected, move according to teensy instructions
             motors.setMove(speed, angle, rotation, angSpeed);
-
-            if (millis() - lastOutTime > 500) {
+            if (millis() - lastOutTime > 1000) {
                 // reset last line angle
                 lastLineAngle = -1;
                 lastChordLength = 0;
@@ -208,4 +208,5 @@ void loop() {
         if (light.doneReading()) sendData();
         motors.moveOut();
     }
+
 }

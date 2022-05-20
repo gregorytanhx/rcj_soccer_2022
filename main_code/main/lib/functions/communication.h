@@ -122,6 +122,7 @@ Role currentRole() {
         } else {
             // if other bot disconnects or robot is only one on field, default
             // to striker
+            Serial.println("ATTACK");
             return Role::attack;
         }
     } else {
@@ -132,11 +133,14 @@ Role currentRole() {
 bool shouldSwitchRoles(BluetoothData attackerData, BluetoothData defenderData) {
     // switch roles if goalie has ball or ball is much closer to goalie or
     // striker went out out field
-    return (defenderData.ballData.angle < 40 ||
-            defenderData.ballData.angle > 320) &&
-           (attackerData.ballData.angle > 90 &&
-            attackerData.ballData.angle < 270) &&
-           defenderData.ballData.dist < 30;
+    return defenderData.ballData.captured && !attackerData.ballData.captured ||
+           (defenderData.ballData.visible && attackerData.ballData.visible &&
+            (defenderData.ballData.angle < 40 ||
+             defenderData.ballData.angle > 320) &&
+            (defenderData.ballData.dist < 35) &&
+            (attackerData.ballData.dist > 50 ||
+             ((attackerData.ballData.angle > 70 &&
+               attackerData.ballData.angle < 290))));
 }
 
 void updateRole() {
@@ -202,9 +206,6 @@ void updateBluetooth() {
     bt.update(btData);
     if (bt.isConnected && roleSwitching) {
         updateRole();
-    } else if (bt.previouslyConnected) {
-        // if other robot disconnects, become striker by default
-        role = Role::attack;
     }
 }
 
