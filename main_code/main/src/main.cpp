@@ -112,7 +112,7 @@ void striker() {
     else {
         avoidLine();
     }
-
+    
     updateDribbler();
     updateKick();
     if (usingDribbler) {
@@ -478,8 +478,8 @@ void loop() {
     // updateDribbler();
     printLightData();
     normal();
-    // Serial.print("LIGHTGATE: ");
-    // Serial.println(readLightGate());
+    Serial.print("LIGHTGATE: ");
+    Serial.println(readLightGate());
 
     // updateAllData();
     // setMove(60,0,0);

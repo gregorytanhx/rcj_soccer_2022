@@ -166,7 +166,7 @@ void Light::calibrate() {
     const unsigned long timeOut = 60000;
     unsigned long timeStart = millis();
     while (true) {
-        L1DebugSerial.println("Calibrating...");
+        // L1DebugSerial.println("Calibrating...");
 
         read();
         if (doneReading()) {

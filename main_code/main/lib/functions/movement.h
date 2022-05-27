@@ -44,7 +44,7 @@ void updateKick() {
 }
 
 void updateBallData() {
-    if (readLightGate() <= 20) lastGateTime = millis();
+    if (readLightGate() <= 15) lastGateTime = millis();
     ballData.captured = millis() - lastGateTime < 50;
     if (camera.ballVisible) {
         ballData.angle = camera.ballAngle;
