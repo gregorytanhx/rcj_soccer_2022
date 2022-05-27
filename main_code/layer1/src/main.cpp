@@ -115,7 +115,7 @@ void setup() {
 
 void loop() {
     receiveData();
-
+    
     calibrate = false;
     // lineTrack = true;
     // lineAvoid = true;
@@ -156,7 +156,6 @@ void loop() {
             
         }
 
-       
 
         if (lineData.onLine) {
            
@@ -168,15 +167,18 @@ void loop() {
             if (lineTrack) {
                 // follow line
                 lineTimer.update();
-                float closestAngle = nonReflex(light.getClosestAngle(angle));
+                float closestAngle = light.getClosestAngle(angle);
                 // use PID to control angle of correction
                 // float correction = lineTrackPID.update(closestAngle - angle);
                 // float moveAngle = angle + correction;
                 float dist = light.chordLength > 1 ? light.chordLength - 1
                                                    : 1 - light.chordLength;
+                // L1DebugSerial.print(angle);
+                // L1DebugSerial.print(" ");
+                // L1DebugSerial.println(closestAngle);
 
                 // use chord length to adjust speed
-                motors.setMove(speed * 0.9 + 30 * dist, closestAngle, rotation, angSpeed);
+                motors.setMove(speed, closestAngle, rotation, angSpeed);
 
             } else if (lineAvoid) {
                 // avoid line by moving in opposite direction to line

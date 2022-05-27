@@ -39,12 +39,14 @@ bool doneCalibrating = false;
 bool kick = false;
 bool dribble = false;
 bool previouslyCharging = false;
-bool goalieAttack = true;
+bool penaltyAvoid = false;
+bool goalieAttack = false;
 bool kicked = false;
 bool previouslyIn = true;
 long lastChargeTime, lastBallMoveTime, lastKickTime, lastGateTime, lastBallTime;
 long lastLineTime, lastInTime, dribblerOnTime, lastSwitchTime, lastDribbleTime;
 long lastOutTime, lastBallAlignTime, lastCoordTime;
+long startTime;
 
 int ballCnt = 0;
 float lastBallAngle;
@@ -53,6 +55,7 @@ float cmpCorrection;
 bool goalieCharge = false;
 long goalieChargeTimer;
 int lastDist;
+int shootCnt = 0;
 int distCnt = 0;
 int lineCnt;
 float outBallAngle, outBallDist;
@@ -60,6 +63,7 @@ float outBallAngle, outBallDist;
 TOFBuffer tof;
 // IMU cmp(&Wire1);
 int runningSpeed;
+int minSpeed = 30;
 float heading;
 float moveSpeed;
 float robotAngle;
@@ -97,8 +101,8 @@ PID coordPIDY(coord_kp, coord_ki, coord_kd, 0.8);
 // 0.09, 0.5
 // white bot vals (wif dribbler=)
 PID cmpPID(0.19, 0.13, 43.5, 0.4);
-PID goalieBallPID(0.3, 0.01, 25, 0.8);
-PID goalieGoalPID(2.3, 0.02, 45, 0.8);
+PID goalieBallPID(0.4, 0.02, 10, 0.8);
+PID goalieGoalPID(2.4, 0.02, 45, 0.8);
 PID camAngPID(0.1, 0, 0.3);
 
 // initialise neutral point coordinates

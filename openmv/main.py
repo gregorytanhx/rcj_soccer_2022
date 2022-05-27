@@ -102,28 +102,28 @@ ID = 'whitebot'
 #ID = 'blackbot'
 
 if ID == 'blackbot':
-    centreY = 139
-    centreX = 128
+    centreY = 133
+    centreX = 134
     ROI = (0, 0, 298, 240)
 
     # LAB thresholds
     # lab field values
     #red_thresh = [(35, 55, 20, 53, 15, 40)]
-    red_thresh = [(28, 64, 16, 66, -1, 43)]
+    red_thresh = [(43, 71, 41, 65, -9, 45)]
     blue_thresh = [(25, 54, -14, 21, -56, -25)]
-    yellow_thresh = [(65, 90,-30, 5, 40, 85)]
+    yellow_thresh = [(64, 95, -39, 28, 55, 127)]
     green_thresh = [(50, 75, -50, -20, -5, 15)]
     white_thresh = [(70, 93, -30, 10, -10, 20)]
     black_thresh = [(10, 16, -10, 10, -5, 15)]
 
 else:
-    centreY = 146
-    centreX = 142
+    centreY = 139
+    centreX = 145
     ROI = (0, 0, 297, 240)
 
     # LAB thresholds
     # lab field values.
-    red_thresh = [(33, 58, 41, 65, -9, 45)]
+    red_thresh = [(43, 71, 41, 65, -9, 45)]
     blue_thresh = [(30, 74, -22, 14, -57, -30)]
     yellow_thresh = [(77, 100, -50, 127, 19, 61)]
     green_thresh = [(50, 75, -50, -20, -5, 15)]
@@ -353,6 +353,5 @@ while(True):
     data = find_objects(debug=debug)
 
     send(data)
-    if debug:
-        print("FPS:", clock.fps())
+    print("FPS:", clock.fps())
 

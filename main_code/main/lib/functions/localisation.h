@@ -27,145 +27,19 @@ void slowDown() {
 
     // implement slowdown based on robotangle
 
-    // if (camera.ownGoalDist < 48 || camera.oppGoalDist < 48)
-    //     moveData.speed.val = 60;
+    if (camera.oppGoalDist < 48) moveData.speed.val = 65;
+    if (camera.ownGoalDist < 50) moveData.speed.val = 55;
     // else
     bool minSpeed = false;
-    for (int i = 1; i < 4; i++) {
-        
-        if (bbox.tofVals[i] < 650 && !bbox.tofFlag[i]) {
+    for (int i = 0; i < 4; i++) {
+        if (bbox.tofVals[i] <= 600 && !bbox.tofFlag[i]) {
             if (bbox.tofVals[i] <= 400) {
                 minSpeed = true;
             }
-               
             moveData.speed.val = 50;
         }
     }
     if (minSpeed) moveData.speed.val = 30;
-   
-}
-
-void avoidLine() {
-    lineAvoid = true;
-    int lineStop;
-    int outAngle = bbox.processTOFout();
-    Serial.print("OUT");
-    Serial.print(" Angle: ");
-    Serial.println(outAngle);
-    // strict avoidance
-    if (lineData.onLine) {
-        lastOutTime = millis();
-        // if (outAngle >= 0) {
-        //     lineAvoid = false;
-        //     setMove(moveData.speed.val, outAngle, 0);
-        // }
-
-        if (previouslyIn && lineCnt <= 3) lineCnt++;
-        previouslyIn = false;
-        Serial.println(previouslyIn);
-        // if (lineCnt > 3) {
-        //     if (millis() - lastInTime > 500) {
-        //         if (!lineStop) {
-        //             lineStop = true;
-        //             outBallAngle = ballData.angle;
-        //             outBallDist = ballData.dist;
-        //         }
-        //         if (millis() - lastInTime > 2000 ||
-        //             (ballData.visible && (abs(outBallAngle - ballData.angle))
-        //             >
-        //                 10 || abs(outBallDist - ballData.dist) > 20) ||
-        //             !ballData.visible) {
-        //             lineStop = 0;
-        //             lineAvoid = true;
-        //             if (outAngle >= 0) {
-        //                 lineAvoid = false;
-        //                 Serial.print("OUT");
-        //                 Serial.print(" Angle: ");
-        //                 Serial.println(outAngle);
-        //                 setMove(moveData.speed.val, outAngle, 0);
-        //             }
-        //         } else {
-        //             Serial.println("STOP");
-        //             lineAvoid = false;
-        //             setMove(0, 0, 0);
-        //             dribble = false;
-        //         }
-        //     } else {
-        //         Serial.println("STOP");
-        //         lineAvoid = false;
-        //         setMove(0, 0, 0);
-        //         dribble = false;
-        //     }
-        // } else {
-        if (outAngle >= 0) {
-            lineAvoid = false;
-            Serial.print("OUT");
-            Serial.print(" Angle: ");
-            Serial.println(outAngle);
-            setMove(60, outAngle, 0);
-        }
-        // }
-    } else {
-        lastInTime = millis();
-        previouslyIn = true;
-        if (millis() - lastOutTime > 800) {
-            lineCnt = 0;
-            lineStop = false;
-        }
-    }
-
-    if (millis() - lastOutTime < 200) {
-        if (outAngle >= 0) {
-            // lineAvoid = false;
-
-            setMove(60, outAngle, 0);
-        }
-    }
-
-    // lineAvoid = true;
-    // lineTrack = false;
-    // incorporate line tracking
-
-    // if (lineData.onLine) {
-    //     if (previouslyIn && lineCnt <= 3) lineCnt++;
-    //     previouslyIn = false;
-    //     lastLineTime = millis();
-    //     if (lineCnt > 3 && attackState == chasingBall) {
-    //         // after avoiding line for 3 times
-    //         lineAvoid = false;
-
-    //         if (millis() - lastInTime < 500) {
-    //             // stop on line for 0.5s first
-    //             setMove(0, 0, 0);
-    //             outBallAngle = outBallAngle = ballData.angle;
-    //         }
-    //         if (angleDiff(outBallAngle, ballData.angle) > 40 || millis() -
-    //         lastInTime > 5000 || !ballData.visible) {
-    //             lineTrack = false;
-    //             lineCnt = 0;
-    //         } else {
-    //             lineTrack = true;
-    //             float dist = lineData.chordLength.val > 1 ?
-    //             lineData.chordLength.val - 1 : 1 - lineData.chordLength.val;
-    //             setMove(max(dist * 60, 35), robotAngle, 0);
-    //         }
-    //     }
-
-    //     else {
-    //         if (bbox.outAngle >= 0) {
-    //             lineAvoid = false;
-    //             Serial.print("OUT");
-    //             Serial.print(" Angle: ");
-    //             Serial.println(bbox.outAngle);
-    //             setMove(runningSpeed, bbox.outAngle, 0);
-    //         } else {
-    //             lineAvoid = true;
-    //         }
-    //     }
-    // } else {
-    //     lastInTime = millis();
-    //     previouslyIn = true;
-    // }
 }
 
 // bool reachedPoint(Point target, int dist = 30) {
@@ -321,4 +195,130 @@ bool CamToPoint(Point target, int distThresh = 90) {
     }
     return distCnt >= 100;
 }
+
+void avoidLine() {
+    lineAvoid = true;
+    int lineStop;
+    int outAngle = bbox.processTOFout();
+    // Serial.print("OUT");
+    // Serial.print(" Angle: ");
+    // Serial.println(outAngle);
+    // strict avoidance
+    if (lineData.onLine) {
+        lastOutTime = millis();
+
+        if (previouslyIn && lineCnt <= 3) lineCnt++;
+        previouslyIn = false;
+        // prevent unecessary oscillations
+        if (lineCnt > 3) {
+            if (millis() - lastInTime > 500) {
+                if (!lineStop) {
+                    lineStop = true;
+                    outBallAngle = ballData.angle;
+                    outBallDist = ballData.dist;
+                }
+                if (millis() - lastInTime > 2000 ||
+                    (ballData.visible && (abs(outBallAngle - ballData.angle) > 5 ||
+                     abs(outBallDist - ballData.dist) > 10) ||
+                    !ballData.visible)) {
+                    lineStop = 0;
+                    lineAvoid = true;
+                    if (outAngle >= 0) {
+                        lineAvoid = false;
+                        Serial.print("OUT");
+                        Serial.print(" Angle: ");
+                        Serial.println(outAngle);
+                        setMove(50 + lineData.chordLength.val * 40, outAngle, 0);
+                    }
+                } else {
+                    Serial.println("STOP");
+                    lineAvoid = false;
+                    setMove(0, 0, 0);
+                    dribble = false;
+                }
+            } else {
+                Serial.println("STOP");
+                lineAvoid = false;
+                setMove(0, 0, 0);
+                dribble = false;
+            }
+        } else {
+            if (outAngle >= 0) {
+                lineAvoid = false;
+                Serial.print("OUT");
+                Serial.print(" Angle: ");
+                Serial.println(outAngle);
+                setMove(50 + lineData.chordLength.val * 40, outAngle, 0);
+            }
+        }
+    } else {
+        lastInTime = millis();
+        previouslyIn = true;
+        if (millis() - lastOutTime > 800) {
+            lineCnt = 0;
+            lineStop = false;
+        }
+    }
+
+    if (millis() - lastOutTime < 1000 &&
+        (camera.oppGoalAngle > 330 || camera.oppGoalAngle < 30) &&
+        camera.oppGoalDist < 48) {
+        // if near penalty area, move toward centre of field for clear shot
+        goTo(neutralPoints[CentreDot], 100);
+        setMove(runningSpeed, robotAngle, 0);
+    }
+    
+    if (millis() - lastOutTime < 200) {
+        if (outAngle >= 0) {
+            // lineAvoid = false;
+            setMove(60, outAngle, 0);
+        }
+    }
+
+    // lineAvoid = true;
+    // lineTrack = false;
+    // incorporate line tracking
+
+    // if (lineData.onLine) {
+    //     if (previouslyIn && lineCnt <= 3) lineCnt++;
+    //     previouslyIn = false;
+    //     lastLineTime = millis();
+    //     if (lineCnt > 3 && attackState == chasingBall) {
+    //         // after avoiding line for 3 times
+    //         lineAvoid = false;
+
+    //         if (millis() - lastInTime < 500) {
+    //             // stop on line for 0.5s first
+    //             setMove(0, 0, 0);
+    //             outBallAngle = outBallAngle = ballData.angle;
+    //         }
+    //         if (angleDiff(outBallAngle, ballData.angle) > 40 || millis() -
+    //         lastInTime > 5000 || !ballData.visible) {
+    //             lineTrack = false;
+    //             lineCnt = 0;
+    //         } else {
+    //             lineTrack = true;
+    //             float dist = lineData.chordLength.val > 1 ?
+    //             lineData.chordLength.val - 1 : 1 - lineData.chordLength.val;
+    //             setMove(max(dist * 60, 35), robotAngle, 0);
+    //         }
+    //     }
+
+    //     else {
+    //         if (bbox.outAngle >= 0) {
+    //             lineAvoid = false;
+    //             Serial.print("OUT");
+    //             Serial.print(" Angle: ");
+    //             Serial.println(bbox.outAngle);
+    //             setMove(runningSpeed, bbox.outAngle, 0);
+    //         } else {
+    //             lineAvoid = true;
+    //         }
+    //     }
+    // } else {
+    //     lastInTime = millis();
+    //     previouslyIn = true;
+    // }
+}
+
 #endif

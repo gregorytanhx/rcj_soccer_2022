@@ -165,7 +165,7 @@ void Light::calibrate() {
     }
     const unsigned long timeOut = 60000;
     unsigned long timeStart = millis();
-    while ((millis() - timeStart) < timeOut) {
+    while (true) {
         L1DebugSerial.println("Calibrating...");
 
         read();
@@ -192,6 +192,24 @@ void Light::calibrate() {
 
                 lightThresh.vals[i] = (maxVals[i] + minVals[i]) / 2;
             }
+            L1DebugSerial.print("Max: ");
+            for (int i = 0; i < 32; i++) {
+                L1DebugSerial.print(maxVals[lightMap[i]]);
+                L1DebugSerial.print(" ");
+            }
+            L1DebugSerial.println();
+            L1DebugSerial.print("Min: ");
+            for (int i = 0; i < 32; i++) {
+                L1DebugSerial.print(minVals[lightMap[i]]);
+                L1DebugSerial.print(" ");
+            }
+            L1DebugSerial.println();
+            L1DebugSerial.print("Thresh: ");
+            for (int i = 0; i < 32; i++) {
+                L1DebugSerial.print(lightThresh.vals[lightMap[i]]);
+                L1DebugSerial.print(", ");
+            }
+            L1DebugSerial.println();
         }
 
         // printLight();

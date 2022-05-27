@@ -133,14 +133,16 @@ Role currentRole() {
 bool shouldSwitchRoles(BluetoothData attackerData, BluetoothData defenderData) {
     // switch roles if goalie has ball or ball is much closer to goalie or
     // striker went out out field
-    return defenderData.ballData.captured && !attackerData.ballData.captured ||
+    return (defenderData.ballData.captured &&
+            !attackerData.ballData.captured) ||
            (defenderData.ballData.visible && attackerData.ballData.visible &&
-            (defenderData.ballData.angle < 40 ||
-             defenderData.ballData.angle > 320) &&
-            (defenderData.ballData.dist < 35) &&
-            (attackerData.ballData.dist > 50 ||
-             ((attackerData.ballData.angle > 70 &&
-               attackerData.ballData.angle < 290))));
+            (defenderData.ballData.angle < 15 ||
+             defenderData.ballData.angle > 345) &&
+            (defenderData.ballData.dist < 25) &&
+            (attackerData.ballData.dist - defenderData.ballData.dist > 10 ||
+             ((attackerData.ballData.angle > 90 &&
+               attackerData.ballData.angle < 270) &&
+              attackerData.ballData.dist > 30)));
 }
 
 void updateRole() {
@@ -157,7 +159,7 @@ void updateRole() {
                 bt.otherData.role == Role::attack ? Role::defend : Role::attack;
         }
     } else if (robotID == 1) {
-        // Robot ID 0 (default striker) decides on role
+        // Robot ID 1 (default striker) decides on role
         Serial.println("HERE");
         BluetoothData attackerData =
             role == Role::attack ? btData : bt.otherData;
@@ -168,34 +170,32 @@ void updateRole() {
         } else if (role == Role::defend) {
             Serial.println("DEFENCE");
         }
-        Serial.print("Goalie ball angle: ");
-        Serial.print(defenderData.ballData.angle);
-        Serial.print(" Striker ball angle: ");
-        Serial.print(attackerData.ballData.angle);
-        Serial.print(" Goalie ball dist: ");
-        Serial.print(defenderData.ballData.dist);
-        Serial.print(" Striker ball dist: ");
-        Serial.print(attackerData.ballData.dist);
+        // Serial.print("Goalie ball angle: ");
+        // Serial.print(defenderData.ballData.angle);
+        // Serial.print(" Striker ball angle: ");
+        // Serial.print(attackerData.ballData.angle);
+        // Serial.print(" Goalie ball dist: ");
+        // Serial.print(defenderData.ballData.dist);
+        // Serial.print(" Striker ball dist: ");
+        // Serial.print(attackerData.ballData.dist);
 
-        if (shouldSwitchRoles(attackerData, defenderData)) {
-            Serial.println("FUUU");
-        }
         if (shouldSwitchRoles(attackerData, defenderData) &&
-            millis() - lastSwitchTime > 2000) {
+            millis() - lastSwitchTime > 5000 && millis() - startTime > 5000) {
             Serial.println("SWITCH");
             lastSwitchTime = millis();
             role = role == Role::attack ? Role::defend : Role::attack;
         }
 
     } else {
-        // Robot ID 0 is always the the opposite of the other robot
+        // Robot ID 1 is always the the opposite of the other robot
         role = bt.otherData.role == Role::attack ? Role::defend : Role::attack;
     }
 
     if (role != previousRole && previousRole == Role::attack) {
         // If switched to defender, move to the side to prevent collision
         movingSideways = true;
-        sidewaysCoordinate = Point(400 * sign(botCoords.x), botCoords.y);
+        sidewaysCoordinate = Point(200 * sign(botCoords.x), botCoords.y);
+        penaltyAvoid = true;
     } else {
         movingSideways = false;
     }
