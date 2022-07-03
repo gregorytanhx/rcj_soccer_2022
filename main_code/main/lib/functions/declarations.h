@@ -43,10 +43,12 @@ bool penaltyAvoid = false;
 bool goalieAttack = false;
 bool kicked = false;
 bool previouslyIn = true;
+bool armed = false;
+bool usingOtherBallData = false;
 long lastChargeTime, lastBallMoveTime, lastKickTime, lastGateTime, lastBallTime;
 long lastLineTime, lastInTime, dribblerOnTime, lastSwitchTime, lastDribbleTime;
-long lastOutTime, lastBallAlignTime, lastCoordTime;
-long startTime;
+long lastOutTime, lastBallAlignTime, lastCoordTime, armTime;
+long startTime, lastAvoidTime;
 
 int ballCnt = 0;
 float lastBallAngle;

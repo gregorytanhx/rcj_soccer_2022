@@ -8,11 +8,23 @@ void updateDribbler() {
     // use pwm to control dribbler
     // turn on dribbler if facing ball and within 50 cm
     // turn off dribbler if ball in possession, facing goal and within 50cm
-    if (dribble) {
-        analogWrite(DRIBBLER_PIN, DRIBBLER_UPPER_LIMIT);
-    } else {
+    if (!armed) {
+        analogWriteFrequency(DRIBBLER_PIN, 1000);
         analogWrite(DRIBBLER_PIN, DRIBBLER_LOWER_LIMIT);
+        armed = true;
+        armTime = millis();
+
     }
+    if (millis() - armTime > 3000) {
+        if (dribble) {
+            analogWrite(DRIBBLER_PIN, DRIBBLER_UPPER_LIMIT);
+        } else {
+            analogWrite(DRIBBLER_PIN, DRIBBLER_LOWER_LIMIT);
+        }
+    }
+    
+
+   
 }
 long kickTime = 0;
 long kickInterval = 0;
@@ -47,6 +59,8 @@ void updateBallData() {
     if (readLightGate() <= 15) lastGateTime = millis();
     ballData.captured = millis() - lastGateTime < 50;
     if (camera.ballVisible) {
+        usingOtherBallData = false;
+
         ballData.angle = camera.ballAngle;
         ballData.dist = camera.ballDist;
         lastBallTime = millis();
@@ -61,12 +75,13 @@ void updateBallData() {
         // Serial.println(ballData.y);
     } else if (millis() - lastBallTime < 3000 && camera.predBall) {
         // use predicted ball if ball was last seen less than one second ago
-
+        usingOtherBallData = false;
         ballData.angle = camera.predBallAngle;
         ballData.dist = camera.predBallDist;
 
         // do NOT update ball timer here
     } else if (bt.otherData.ballData.visible) {
+        usingOtherBallData = true;
         // find ball position based on other robot's data
         // derive angle and distance of ball relative to robot based on its
         // absolute coordinates
@@ -86,6 +101,8 @@ void updateBallData() {
         Serial.print(ballData.angle);
         Serial.print(" Ball Dist: ");
         Serial.println(ballData.dist);
+    } else {
+        usingOtherBallData = false;
     }
 
     ballData.visible = millis() - lastBallTime < 500;
@@ -119,9 +136,9 @@ void trackBall() {
 
     float factor = 1 - ballData.dist / 90;
     if (robotID == 1) {
-        ballMult = fmin(1, 0.031 * exp(factor * 4.2));
+        ballMult = fmin(1.1, 0.031 * exp(factor * 4.3));
     } else {
-        ballMult = fmin(1, 0.033 * exp(factor * 3.8));
+        ballMult = fmin(1.1, 0.033 * exp(factor * 4.0));
     }
     // ballMult = fmin(1.2, 0.021 * exp(factor * 4.3));
 
@@ -141,6 +158,10 @@ void trackBall() {
         runningSpeed = 75;
     } else {
         runningSpeed = 70;
+    }
+
+    if (ballData.dist < 30) {
+        runningSpeed = 45 + min(ballData.dist - 10, 0) * 1.5;
     }
 
     // runningSpeed = 60;

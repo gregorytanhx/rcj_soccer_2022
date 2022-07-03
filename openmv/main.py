@@ -75,10 +75,10 @@ curr_gain = sensor.get_gain_db()
 sensor.set_auto_gain(False, gain_db=15)
 # === EXPOSURE ===
 curr_exposure = sensor.get_exposure_us()
-print(curr_exposure)
+print(curr_exposure * 0.21)
 
 # if tuning exposure
-sensor.set_auto_exposure(False, exposure_us = int(curr_exposure * 0.27))
+sensor.set_auto_exposure(False, exposure_us = 1580)
 
 LAB_EXPOSURE = 1775
 SC_EXPOSURE = 2000
@@ -87,7 +87,7 @@ SC_EXPOSURE = 2000
 
 sensor.skip_frames(time = 1000)
 # === WHITE BAL ===
-sensor.set_auto_whitebal(False, rgb_gain_db = (-5.55645, -6.52073, -1.804)) #Must remain false for blob tracking
+sensor.set_auto_whitebal(False, rgb_gain_db = (-5.55645, -6.52073, -0.504)) #Must remain false for blob tracking
 
 sensor.set_brightness(0)
 sensor.set_contrast(3)
@@ -102,33 +102,50 @@ ID = 'whitebot'
 #ID = 'blackbot'
 
 if ID == 'blackbot':
-    centreY = 133
-    centreX = 134
+    centreY = 146
+    centreX = 141
     ROI = (0, 0, 298, 240)
 
     # LAB thresholds
     # lab field values
     #red_thresh = [(35, 55, 20, 53, 15, 40)]
-    red_thresh = [(43, 71, 41, 65, -9, 45)]
-    blue_thresh = [(25, 54, -14, 21, -56, -25)]
-    yellow_thresh = [(64, 95, -39, 28, 55, 127)]
-    green_thresh = [(50, 75, -50, -20, -5, 15)]
-    white_thresh = [(70, 93, -30, 10, -10, 20)]
-    black_thresh = [(10, 16, -10, 10, -5, 15)]
 
+    #red_thresh = [(43, 71, 41, 65, -9, 45)]
+    #blue_thresh = [(30, 74, -22, 14, -57, -30)]
+    #yellow_thresh = [(77, 100, -50, 127, 19, 61)]
+
+
+
+    # SCIENCE CENTRE VALS
+
+    # PRAC FIELD
+    #red_thresh = [(43, 71, 41, 65, -9, 45)]
+    #blue_thresh = [(5, 29, -20, 29, -31, -3)]
+    #yellow_thresh = [(45, 100, 0, 40, 18, 127)]
+
+    # REAL VALS
+
+    red_thresh = [(43, 71, 41, 65, -9, 45)]
+    blue_thresh = [(5, 29, -20, 29, -31, -3)]
+    yellow_thresh = [(51, 93, -18, 66, 23, 107)]
 else:
-    centreY = 139
-    centreX = 145
+    centreY = 144
+    centreX = 155
     ROI = (0, 0, 297, 240)
 
     # LAB thresholds
     # lab field values.
+    #red_thresh = [(43, 71, 41, 65, -9, 45)]
+    #blue_thresh = [(30, 74, -22, 14, -57, -30)]
+    #yellow_thresh = [(77, 100, -50, 127, 19, 61)]
+
+
+    # SCIENCE CENTRE VALS
     red_thresh = [(43, 71, 41, 65, -9, 45)]
-    blue_thresh = [(30, 74, -22, 14, -57, -30)]
-    yellow_thresh = [(77, 100, -50, 127, 19, 61)]
-    green_thresh = [(50, 75, -50, -20, -5, 15)]
-    white_thresh = [(70, 93, -30, 10, -10, 20)]
-    black_thresh = [(10, 16, -10, 10, -5, 15)]
+    blue_thresh = [(0, 23, -35, 11, -24, -7)]
+    yellow_thresh = [(51, 93, -18, 66, 23, 107)]
+
+    # PRACTICE FIELD
 
 dT = 0
 ballFound = False
@@ -343,7 +360,7 @@ def send(data):
 
 while(True):
     debug = False
-    #debug = True
+    debug = True
 
     clock.tick()
     img = sensor.snapshot()

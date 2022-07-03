@@ -33,10 +33,23 @@ void slowDown() {
     bool minSpeed = false;
     for (int i = 0; i < 4; i++) {
         if (bbox.tofVals[i] <= 600 && !bbox.tofFlag[i]) {
-            if (bbox.tofVals[i] <= 400) {
-                minSpeed = true;
+            if (i == 1 || i == 3) {
+                // near either side
+                if ((i == 1 && (moveData.angle.val > 0 && moveData.angle.val < 180)) ||
+                    (i == 3 &&
+                     (moveData.angle.val > 180 && moveData.angle.val < 360))) {
+                    if (bbox.tofVals[i] <= 400) {
+                        minSpeed = true;
+                    }
+                    moveData.speed.val = 50;
+                }
+
+            } else {
+                if (bbox.tofVals[i] <= 400) {
+                    minSpeed = true;
+                }
+                moveData.speed.val = 50;
             }
-            moveData.speed.val = 50;
         }
     }
     if (minSpeed) moveData.speed.val = 30;
@@ -210,39 +223,41 @@ void avoidLine() {
         if (previouslyIn && lineCnt <= 3) lineCnt++;
         previouslyIn = false;
         // prevent unecessary oscillations
-        if (lineCnt > 3) {
-            if (millis() - lastInTime > 500) {
-                if (!lineStop) {
-                    lineStop = true;
-                    outBallAngle = ballData.angle;
-                    outBallDist = ballData.dist;
-                }
-                if (millis() - lastInTime > 2000 ||
-                    (ballData.visible && (abs(outBallAngle - ballData.angle) > 5 ||
-                     abs(outBallDist - ballData.dist) > 10) ||
-                    !ballData.visible)) {
-                    lineStop = 0;
-                    lineAvoid = true;
-                    if (outAngle >= 0) {
-                        lineAvoid = false;
-                        Serial.print("OUT");
-                        Serial.print(" Angle: ");
-                        Serial.println(outAngle);
-                        setMove(50 + lineData.chordLength.val * 40, outAngle, 0);
-                    }
-                } else {
-                    Serial.println("STOP");
-                    lineAvoid = false;
-                    setMove(0, 0, 0);
-                    dribble = false;
-                }
-            } else {
-                Serial.println("STOP");
-                lineAvoid = false;
-                setMove(0, 0, 0);
-                dribble = false;
-            }
-        } else {
+        // if (lineCnt > 3) {
+        //     if (millis() - lastInTime > 500) {
+        //         if (!lineStop) {
+        //             lineStop = true;
+        //             outBallAngle = ballData.angle;
+        //             outBallDist = ballData.dist;
+        //         }
+        //         if (millis() - lastInTime > 2000 ||
+        //             (ballData.visible &&
+        //                  (abs(outBallAngle - ballData.angle) > 5 ||
+        //                   abs(outBallDist - ballData.dist) > 10) ||
+        //              !ballData.visible)) {
+        //             lineStop = 0;
+        //             lineAvoid = true;
+        //             if (outAngle >= 0) {
+        //                 lineAvoid = false;
+        //                 Serial.print("OUT");
+        //                 Serial.print(" Angle: ");
+        //                 Serial.println(outAngle);
+        //                 setMove(50 + lineData.chordLength.val * 40, outAngle,
+        //                         0);
+        //             }
+        //         } else {
+        //             Serial.println("STOP");
+        //             lineAvoid = false;
+        //             setMove(0, 0, 0);
+        //             dribble = false;
+        //         }
+        //     } else {
+        //         Serial.println("STOP");
+        //         lineAvoid = false;
+        //         setMove(0, 0, 0);
+        //         dribble = false;
+        //     }
+        // } else {
             if (outAngle >= 0) {
                 lineAvoid = false;
                 Serial.print("OUT");
@@ -250,7 +265,7 @@ void avoidLine() {
                 Serial.println(outAngle);
                 setMove(50 + lineData.chordLength.val * 40, outAngle, 0);
             }
-        }
+        // }
     } else {
         lastInTime = millis();
         previouslyIn = true;
@@ -267,7 +282,7 @@ void avoidLine() {
         goTo(neutralPoints[CentreDot], 100);
         setMove(runningSpeed, robotAngle, 0);
     }
-    
+
     if (millis() - lastOutTime < 200) {
         if (outAngle >= 0) {
             // lineAvoid = false;

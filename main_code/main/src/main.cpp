@@ -6,9 +6,30 @@
 void striker() {
     bool goalCorrect = false;
     lineTrack = false;
+    avoidOpp = true;
     if (ballData.captured) {
         if (usingDribbler) {
-            if (camera.oppGoalVisible) {
+            if (avoidOpp &&
+                (bbox.tofVals[0] < 200 || millis() - lastAvoidTime < 1000) &&
+                camera.ownGoalVisible && camera.ownGoalDist > 50) {
+                // if opponent robot directly in front and far away enough from
+                // home goal, attempt to quickly steal ball and dodge by moving
+                // sideways
+                if (bbox.tofVals[0] < 200) lastAvoidTime = millis();
+                if (camera.oppGoalVisible) {
+                    if (camera.ownGoalAngle < 90)
+                        robotAngle = 100;
+                    else
+                        robotAngle = 280;
+                } else {
+                    if (botCoords.x > 0)
+                        robotAngle = 100;
+                    else
+                        robotAngle = 280;
+                }
+                runningSpeed = 120;
+
+            } else if (camera.oppGoalVisible) {
                 attackState = chasingGoal;
                 // camera.printData();
                 // Serial.println("TRACKING GOAL");
@@ -22,10 +43,9 @@ void striker() {
                 trackGoal();
                 // turn off front dribbler + turn on kicker if facing front goal
                 // and 50cm away
-                if (camera.oppGoalDist <= 50 &&
-                    (camera.oppGoalAngle <= 20 || camera.oppGoalAngle >= 340) &&
-                    (robotAngle < 45 || robotAngle > 315)) {
-            
+                if (camera.oppGoalDist <= 49 &&
+                    (camera.oppGoalAngle <= 30 || camera.oppGoalAngle >= 330) &&
+                    (robotAngle < 60 || robotAngle > 330)) {
                     // kick every 1.5s
                     if (millis() - lastKickTime > 1500) {
                         dribble = false;
@@ -42,6 +62,8 @@ void striker() {
                     dribble = true;
                     dribblerOnTime = millis();
                 }
+                
+                if (millis() - lastAvoidTime < 2000) runningSpeed = 100;
             } else {
                 attackState = returningToCentre;
                 goTo(neutralPoints[CentreDot], 70);
@@ -112,7 +134,7 @@ void striker() {
     else {
         avoidLine();
     }
-    
+
     updateDribbler();
     updateKick();
     if (usingDribbler) {
@@ -141,36 +163,38 @@ void goalie() {
     if (robotID == 0) {
         centreAngle = 165;
         goalRightDist = 16;
-        goalLeftDist = 26;
+        goalLeftDist = 24;
         distThresh = 32;
 
     } else {
         centreAngle = 165;
         goalRightDist = 16;
-        goalLeftDist = 26;
+        goalLeftDist = 24;
         distThresh = 32;
     }
 
     float goalYDist =
         camera.ownGoalDist * cos(deg2rad(180 - camera.ownGoalAngle + heading));
-    float goalXDist =
-        camera.ownGoalDist * sin(deg2rad(centreAngle - camera.ownGoalAngle + heading));
+    float goalXDist = camera.ownGoalDist *
+                      sin(deg2rad(centreAngle - camera.ownGoalAngle + heading));
 
-    if (goalXDist > -goalRightDist &&
-        goalXDist < goalLeftDist && goalYDist < 60) {
+    if (goalXDist >= -goalRightDist && goalXDist <= goalLeftDist &&
+        goalYDist <= 60) {
         lineTrack = true;
         Serial.println("linetracking");
     } else {
         lineTrack = false;
     }
-    
+
     if (movingSideways) {
         movingSideways = !goTo(sidewaysCoordinate, 70);
     } else {
         if (!camera.ownGoalVisible) {
             runningSpeed = 0;
         } else {
-            if (lineData.onLine && ballData.visible && ballData.dist < 60) {
+            if (lineData.onLine && ballData.visible &&
+                ((!usingOtherBallData && ballData.dist < 60) ||
+                 (usingOtherBallData && ballData.dist < 30))) {
                 if (millis() - lastBallAlignTime > 1000) {
                     goalieBallPID.resetIntegral();
                 }
@@ -209,16 +233,16 @@ void goalie() {
                 // Serial.print("speed:  ");
                 // Serial.println(runningSpeed);
 
-                // Serial.print(" Ball Angle: ");
-                // Serial.print(ballData.angle);
-                // Serial.print(" Ball Distance: ");
-                // Serial.println(ballData.dist);
-                // Serial.print("Angle: ");
-                // Serial.println(robotAngle);
-                // if (abs(nonReflex(ballData.angle)) < 1) moveSpeed = 0;
+                Serial.print(" Ball Angle: ");
+                Serial.print(ballData.angle);
+                Serial.print(" Ball Distance: ");
+                Serial.println(ballData.dist);
+                Serial.print("Angle: ");
+                Serial.println(robotAngle);
+                if (abs(nonReflex(ballData.angle)) < 1) moveSpeed = 0;
 
-                if (((goalXDist < -goalRightDist) && ballData.angle < 180) ||
-                    ((goalXDist > goalLeftDist) && ballData.angle > 180)) {
+                if (((goalXDist >= goalRightDist) && ballData.angle > 180) ||
+                    ((goalXDist <= -goalLeftDist) && ballData.angle < 180)) {
                     Serial.println("STOPPED");
                     runningSpeed = 0;
                 }
@@ -241,12 +265,15 @@ void goalie() {
                 // weighted toward y dist
 
                 yCo = distThresh - goalYDist;
-                
+
                 if (lineData.onLine) {
                     error = abs(xCo) * 2;
-                    if (xCo > 0) robotAngle = 80;
-                    else robotAngle = 280;
-                    // angle weighted upwards slightly to prevent getting stuck at sides
+                    if (xCo > 0)
+                        robotAngle = 80;
+                    else
+                        robotAngle = 280;
+                    // angle weighted upwards slightly to prevent getting stuck
+                    // at sides
                 } else {
                     error = sqrt(pow(xCo, 2) + pow(yCo, 2));
                     robotAngle = mod(polarAngle(yCo, xCo), 360);
@@ -258,7 +285,8 @@ void goalie() {
                 // Serial.print("Angle: ");
                 // Serial.println(robotAngle);
                 runningSpeed = min(goalieGoalPID.update(error), 60);
-                if ((!lineData.onLine || millis() - lastInTime < 2000) && goalYDist < 50) {
+                if ((!lineData.onLine || millis() - lastInTime < 2000) &&
+                    goalYDist < 50) {
                     runningSpeed = minSpeed;
                 }
 
@@ -268,10 +296,9 @@ void goalie() {
         }
     }
 
-    
     if (penaltyAvoid) {
         Serial.println("AVOIDING PENALTY AREA");
-        
+
         lineAvoid = true;
         lineTrack = false;
         if (lineData.onLine) {
@@ -285,14 +312,14 @@ void goalie() {
             lineAvoid = false;
             lineTrack = true;
             penaltyAvoid = false;
-            lineCnt = 0 ;
+            lineCnt = 0;
         }
     } else {
         lineAvoid = false;
     }
 
     if (!lineData.onLine) lastInTime = millis();
-    
+
     setMove(runningSpeed, robotAngle, 0);
     lastBallAngle = camera.ballAngle;
     lastBallDist = camera.ballDist;
@@ -315,7 +342,6 @@ void goalie() {
 
 void normal() {
     // regular program
-
 
     // lineAvoid = true;
     // lineTrack = false;
@@ -417,9 +443,9 @@ void setup() {
 #else
     robotID = EEPROM.read(EEPROM_ID_ADDR);
 #endif
-    defaultRole = robotID == 0 ? Role::defend : Role::attack;
-    // roleSwitching = false;
-    if (robotID == 1) minSpeed = 35;
+    defaultRole = robotID == 1 ? Role::defend : Role::attack;
+    roleSwitching = false;
+    // if (robotID == 1) minSpeed = 35;
     roleSwitching = true;
     movingSideways = false;
     // defaultRole = Role::defend;
@@ -439,11 +465,6 @@ void setup() {
 
     usingDribbler = true;
     if (usingDribbler) {
-        analogWriteResolution(8);
-        pinMode(DRIBBLER_PIN, OUTPUT);
-
-        analogWriteFrequency(DRIBBLER_PIN, 1000);
-        analogWrite(DRIBBLER_PIN, DRIBBLER_LOWER_LIMIT);
         time = millis();
     }
 
@@ -452,12 +473,8 @@ void setup() {
     while (IMUSerial.available() == 0) {
         delay(1);
     }
-    if (usingDribbler) {
-        while (millis() - time < 3000) {
-            delay(1);
-        }
-    }
-
+    analogWriteResolution(8);
+    pinMode(DRIBBLER_PIN, OUTPUT);
     digitalWrite(LED_BUILTIN, HIGH);
     delay(100);
     digitalWrite(LED_BUILTIN, LOW);
@@ -465,6 +482,9 @@ void setup() {
 }
 long tmp = 0;
 void loop() {
+    // increase speed if ball caught
+    // let program run without esc arm
+
     // lineAvoid = true;
     // setMove(0,0,0);
     // sendLayer1();
@@ -476,10 +496,14 @@ void loop() {
     // sendLayer1();
     // dribble = true;
     // updateDribbler();
-    printLightData();
+    // setMove(0,0,10, 50);
+    // sendLayer1();
+    // printLightData();
+    // kick = true;
+    // updateKick();
     normal();
-    Serial.print("LIGHTGATE: ");
-    Serial.println(readLightGate());
+    // Serial.print("LIGHTGATE: ");
+    // Serial.println(readLightGate());
 
     // updateAllData();
     // setMove(60,0,0);
